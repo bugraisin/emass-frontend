@@ -1,0 +1,22 @@
+.sidebar-container {
+  display: inline;
+  background-color: aqua;
+  justify-content: center;
+}
+
+ul {
+  list-style-type: none;
+  font-size: medium;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  margin-top: 0px;
+}
+
+li {
+  margin: 15px;
+}
+
+li a {
+  text-decoration: none;
+}

@@ -1,34 +1,46 @@
-import React from 'react';
-import './LoginForm.css'
-import { TextField } from '@mui/material';
-import logo from './components/assets/logo-color.png'
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import './login.css'
 
 const LoginForm = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/home');
+  };
+
   return (
-    <div className='login-container'>
-        <div className='logo-container'>
-          <img src={logo} alt='Logo' />
-        </div>
-        <hr className='divider' />
-        <div className='wrapper'>
+    <div className='container'>
+        <div className='form-wrapper'>
           <form action="">
             <h1>Giriş Yap</h1>
-              <div className='input-box'>
-                <input type="text" placeholder='Kullanıcı Adı' required/>
+              <div>
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder='Kullanici Adi'
+                  required/>
               </div>
-              <div className='input-box'>
-                <input type="password" placeholder='Şifre' required/>
+              <div>
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder='Şifre' 
+                  required/>
               </div>
-
-              <div className='remember-forgot'>
-                <label><input type="checkbox" /> Beni Hatırla</label>
+              <div className='form-options'>
+                <label><input type="checkbox" />Beni Hatirla</label>
                 <a href="#">Şifremi Unuttum?</a>
               </div>
 
-              <button type='submit'>Giriş</button>
+              <button type='submit' onClick={handleClick}>Giriş</button>
 
-              <div className='register-link'>
-                <p>Hesabın yok mu? <a href="#">Kayıt Ol</a></p>
+              <div>
+                <p>Hesabin yok mu? <a href="#">Kayit Ol</a></p>
               </div>
           </form>
       </div>

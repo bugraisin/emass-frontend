@@ -1,3 +1,0 @@
-turuncu: #FC6F2F
-arkaplan: #FFE9D1
-logo: #57572a
