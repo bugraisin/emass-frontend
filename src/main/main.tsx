@@ -1,4 +1,5 @@
 
+import HeaderComponent from './header-bar/header';
 import MainContentComponent from './main-content/main-content';
 import './main.css'
 import SidebarComponent from './side-bar/side-bar';
@@ -7,7 +8,7 @@ const HomePage = () => {
     return (
         <body>
             <header className="header">
-                Header
+                <HeaderComponent/>
             </header>
             <aside className="sidebar">
                 <SidebarComponent/>

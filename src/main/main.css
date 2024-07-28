@@ -19,7 +19,6 @@ body {
 
 .sidebar {
   background-color: #ffe600;
-  padding: 20px;
   width: 300px;
   height: calc(100vh - 110px);
   float: left;
