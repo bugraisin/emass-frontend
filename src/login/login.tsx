@@ -1,17 +1,8 @@
-import React from 'react';
-import './LoginForm.css'
-import { TextField } from '@mui/material';
-import logo from './components/assets/logo-color.png'
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import './login.css'
 
 const LoginForm = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate('/home');
-  };
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
