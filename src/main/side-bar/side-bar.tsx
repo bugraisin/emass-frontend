@@ -1,14 +1,25 @@
 import { useEffect, useState } from 'react';
 import './side-bar.css';
 import React from 'react';
-import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, Autocomplete, TextField, Box } from '@mui/material';
-import CityComponent from './components/city-selection';
-import DistrictSelection from './components/district-selection';
-import NeighbourhoodSelectionComponent from './components/neighbourhood-selection';
+import DistrictSelection from './selection/district-selection';
+import NeighbourhoodSelectionComponent from './selection/neighbourhood-selection';
+import { City, District } from './components/location-components';
+import CityComponent from './selection/city-selection';
 
 const SidebarComponent = () => {
   const [activeButton, setActiveButton] = useState<string>("");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
+
+
+  const handleCityChange = (city: City | null) => {
+    setSelectedCity(city);
+  };
+
+  const handleDistrictChange = (district: District | null) => {
+    setSelectedDistrict(district);
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, item: string) => {
     event.preventDefault();
@@ -37,13 +48,15 @@ const SidebarComponent = () => {
       <div className='main-bar'>
         <div className='list-address'>
           <div className='choose-city'>
-            <CityComponent/>
+            <CityComponent onCityChange={handleCityChange}/>
           </div>
           <div className='choose-district'>
-            <DistrictSelection/>
+            <DistrictSelection 
+              selectedCity={selectedCity} 
+              onDistrictChange={handleDistrictChange}/>
           </div>
           <div className='choose-neighboorhood'>
-            <NeighbourhoodSelectionComponent/>
+            <NeighbourhoodSelectionComponent selectedDistrict={selectedDistrict}/>
           </div>
         </div>
       </div>

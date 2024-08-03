@@ -1,13 +1,8 @@
 .heade-container {
   display: inline;
-  text-align: left;
 }
 
 .header-img {
   width: 150px;
   height: auto;
-}
-
-.img-box {
-  justify-content: flex-start;
 }

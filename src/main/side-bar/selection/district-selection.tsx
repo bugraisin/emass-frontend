@@ -1,14 +1,9 @@
 import { Autocomplete, FormControl, InputLabel, TextField } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { District, DistrictSelectionProps } from "../components/location-components";
 
-export interface District {
-  id: number;
-  name: string;
-  province: string
-}
-
-const DistrictSelection = () => {
+const DistrictSelection = (props: DistrictSelectionProps) => {
   
   const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -18,7 +13,8 @@ const DistrictSelection = () => {
       const district = districts.find(district => district.name === value);
       if (district) {
         setSelectedDistrict(district);
-        await axios.post('http://localhost:8080/selected_district', {
+        props.onDistrictChange(district);
+        await axios.post('http://localhost:8080/selected-district', {
           id: district.id,
           name: district.name,
           province: district.province
@@ -34,7 +30,7 @@ const DistrictSelection = () => {
       setDistricts(data);
     };
     fetchDistricts();
-  });
+  }, [props.selectedCity]);
 
   return (
     <FormControl variant="outlined" fullWidth>

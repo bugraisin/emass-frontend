@@ -1,23 +1,18 @@
 import { Autocomplete, FormControl, InputLabel, TextField } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { City, CityComponentProps } from "../components/location-components";
 
-export interface City {
-  id: number;
-  name: string;
-}
-
-const CityComponent = () => {
+const CityComponent = (props: CityComponentProps) => {
   
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [cities, setCities] = useState<City[]>([]);
 
   const handleCityChange = async (event: React.ChangeEvent<{}>, value: string | null) => {
     if (value !== null) {
       const city = cities.find(city => city.name === value);
       if (city) {
-        setSelectedCity(city);
-          await axios.post('http://localhost:8080/selected_city', {
+          props.onCityChange(city);
+          await axios.post('http://localhost:8080/selected-city', {
             id: city.id,
             name: city.name
           });

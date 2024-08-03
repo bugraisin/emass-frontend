@@ -6,7 +6,7 @@ import SidebarComponent from './side-bar/side-bar';
 
 const HomePage = () => {
     return (
-        <body>
+        <div className="home-page">
             <header className="header">
                 <HeaderComponent/>
             </header>
@@ -19,7 +19,7 @@ const HomePage = () => {
             <footer className="footer">
                 Footer
             </footer>
-        </body>
+        </div>
     );
 };
 export default HomePage;
