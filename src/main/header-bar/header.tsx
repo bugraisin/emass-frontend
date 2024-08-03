@@ -1,7 +1,11 @@
+import './header.css'
+
 const HeaderComponent = () => {
   return (
     <div className="header-container">
-      Header
+      <div className='img-box'>
+        <img className="header-img" src="images/emass_logo_short_hover.png" alt="" />
+      </div>
     </div>
   );
 };

@@ -9,35 +9,34 @@ export interface City {
 
 const CityComponent = () => {
   
-  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [cities, setCities] = useState<City[]>([]);
 
-  const handleCityChange = (event: React.ChangeEvent<{}>, value: string | null) => {
+  const handleCityChange = async (event: React.ChangeEvent<{}>, value: string | null) => {
     if (value !== null) {
-      setSelectedCity(value);
+      const city = cities.find(city => city.name === value);
+      if (city) {
+        setSelectedCity(city);
+          await axios.post('http://localhost:8080/selected_city', {
+            id: city.id,
+            name: city.name
+          });
+      }
     }
   };
 
   useEffect(() => {
     const fetchCities = async () => {
-      try {
-        const response = await axios.get<City[]>('http://localhost:8080/cities');
-        setCities(response.data);
-        console.log("Çekilen şehir listesi:", response.data);
-      } catch (error) {
-        console.error("Veri çekme hatası:", error);
-      }
+      const response = await fetch('http://localhost:8080/cities');
+      const data = await response.json();
+      setCities(data);
     };
-
     fetchCities();
   }, []);
-
 
   return (
     <FormControl variant="outlined" fullWidth>
     <InputLabel id="city-select-label"></InputLabel>
-    <div>
-    </div>
     <Autocomplete
       disablePortal
       id="city-autocomplete"

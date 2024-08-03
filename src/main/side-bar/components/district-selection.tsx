@@ -1,110 +1,56 @@
 import { Autocomplete, FormControl, InputLabel, TextField } from "@mui/material";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+export interface District {
+  id: number;
+  name: string;
+  province: string
+}
 
 const DistrictSelection = () => {
   
-  const [selectedDistrict, setselectedDistrict] = useState<string>('');
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
+  const [districts, setDistricts] = useState<District[]>([]);
   
-  const handleCityChange = (event: React.ChangeEvent<{}>, value: string | null) => {
+  const handleDistrictChange = async (event: React.ChangeEvent<{}>, value: string | null) => {
     if (value !== null) {
-      setselectedDistrict(value);
+      const district = districts.find(district => district.name === value);
+      if (district) {
+        setSelectedDistrict(district);
+        await axios.post('http://localhost:8080/selected_district', {
+          id: district.id,
+          name: district.name,
+          province: district.province
+        });
+      }
     }
   };
 
-  const options = [
-    { value: 'adana', label: 'Adana' },
-  { value: 'adıyaman', label: 'Adıyaman' },
-  { value: 'afyonkarahisar', label: 'Afyonkarahisar' },
-  { value: 'ağrı', label: 'Ağrı' },
-  { value: 'amasya', label: 'Amasya' },
-  { value: 'ankara', label: 'Ankara' },
-  { value: 'antalya', label: 'Antalya' },
-  { value: 'artvin', label: 'Artvin' },
-  { value: 'aydin', label: 'Aydın' },
-  { value: 'balıkesir', label: 'Balıkesir' },
-  { value: 'bartın', label: 'Bartın' },
-  { value: 'batman', label: 'Batman' },
-  { value: 'bayburt', label: 'Bayburt' },
-  { value: 'bilecik', label: 'Bilecik' },
-  { value: 'bingöl', label: 'Bingöl' },
-  { value: 'bitlis', label: 'Bitlis' },
-  { value: 'bolu', label: 'Bolu' },
-  { value: 'burdur', label: 'Burdur' },
-  { value: 'bursa', label: 'Bursa' },
-  { value: 'çanakkale', label: 'Çanakkale' },
-  { value: 'çankırı', label: 'Çankırı' },
-  { value: 'çorum', label: 'Çorum' },
-  { value: 'denizli', label: 'Denizli' },
-  { value: 'diyarbakır', label: 'Diyarbakır' },
-  { value: 'düzce', label: 'Düzce' },
-  { value: 'edine', label: 'Edirne' },
-  { value: 'elbistan', label: 'Elazığ' },
-  { value: 'erzincan', label: 'Erzincan' },
-  { value: 'erzurum', label: 'Erzurum' },
-  { value: 'eskişehir', label: 'Eskişehir' },
-  { value: 'gaziantep', label: 'Gaziantep' },
-  { value: 'giresun', label: 'Giresun' },
-  { value: 'gümüşhane', label: 'Gümüşhane' },
-  { value: 'hakkari', label: 'Hakkari' },
-  { value: 'hatay', label: 'Hatay' },
-  { value: 'ısparta', label: 'Isparta' },
-  { value: 'istanbul', label: 'İstanbul' },
-  { value: 'izmir', label: 'İzmir' },
-  { value: 'kahramanmaraş', label: 'Kahramanmaraş' },
-  { value: 'karabük', label: 'Karabük' },
-  { value: 'karaman', label: 'Karaman' },
-  { value: 'kars', label: 'Kars' },
-  { value: 'kastamonu', label: 'Kastamonu' },
-  { value: 'kayseri', label: 'Kayseri' },
-  { value: 'kırıkkale', label: 'Kırıkkale' },
-  { value: 'kırklareli', label: 'Kırklareli' },
-  { value: 'kırşehir', label: 'Kırşehir' },
-  { value: 'kilis', label: 'Kilis' },
-  { value: 'kocaeli', label: 'Kocaeli' },
-  { value: 'konya', label: 'Konya' },
-  { value: 'kütahya', label: 'Kütahya' },
-  { value: 'malatya', label: 'Malatya' },
-  { value: 'manisa', label: 'Manisa' },
-  { value: 'mersin', label: 'Mersin' },
-  { value: 'muğla', label: 'Muğla' },
-  { value: 'muş', label: 'Muş' },
-  { value: 'nevşehir', label: 'Nevşehir' },
-  { value: 'niğde', label: 'Niğde' },
-  { value: 'ordu', label: 'Ordu' },
-  { value: 'osmaniye', label: 'Osmaniye' },
-  { value: 'rize', label: 'Rize' },
-  { value: 'sakarya', label: 'Sakarya' },
-  { value: 'samsun', label: 'Samsun' },
-  { value: 'siirt', label: 'Siirt' },
-  { value: 'sivas', label: 'Sivas' },
-  { value: 'şanlıurfa', label: 'Şanlıurfa' },
-  { value: 'şırnak', label: 'Şırnak' },
-  { value: 'tekirdağ', label: 'Tekirdağ' },
-  { value: 'tokat', label: 'Tokat' },
-  { value: 'trabzon', label: 'Trabzon' },
-  { value: 'tunceli', label: 'Tunceli' },
-  { value: 'şile', label: 'Şile' },
-  { value: 'uzunköprü', label: 'Uzunköprü' },
-  { value: 'yalova', label: 'Yalova' },
-  { value: 'yozgat', label: 'Yozgat' },
-  { value: 'zonguldak', label: 'Zonguldak' }
-  ]
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      const response = await fetch('http://localhost:8080/districts');
+      const data = await response.json();
+      setDistricts(data);
+    };
+    fetchDistricts();
+  });
 
   return (
     <FormControl variant="outlined" fullWidth>
-    <InputLabel id="city-select-label"></InputLabel>
+    <InputLabel id="district-select-label"></InputLabel>
     <Autocomplete
       disablePortal
-      id="city-autocomplete"
-      options={options.map(option => option.label)}
-      onChange={handleCityChange}
+      id="district-autocomplete"
+      options={districts.map(districts => districts.name)}
+      onChange={handleDistrictChange}
       renderInput={(params) => (
         <TextField
           {...params}
           label="İlçe Seçiniz"
           className="custom-select"
           InputLabelProps={{
-            shrink: true, // Etiketin kutuyla birlikte hareket etmesini sağlar
+            shrink: true,
           }}
         />
       )}

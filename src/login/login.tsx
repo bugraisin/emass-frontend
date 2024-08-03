@@ -15,7 +15,7 @@ const LoginForm = () => {
     <div className='container'>
         <div className='form-wrapper'>
           <form action="">
-            <h1>Giriş Yap</h1>
+              <h1>Giriş Yap</h1>
               <div>
                 <input 
                   type="text" 
