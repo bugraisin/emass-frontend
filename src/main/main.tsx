@@ -1,25 +1,27 @@
-
 import HeaderComponent from './header-bar/header';
 import MainContentComponent from './main-content/main-content';
-import './main.css'
 import SidebarComponent from './side-bar/side-bar';
+import './main.css';
 
 const HomePage = () => {
     return (
         <div className="home-page">
             <header className="header">
-                <HeaderComponent/>
+                <HeaderComponent />
             </header>
-            <aside className="sidebar">
-                <SidebarComponent/>
-            </aside>
-            <main className="main-content">
-                <MainContentComponent/>
-            </main>
+            <div className="main-content-wrapper">
+                <aside className="sidebar">
+                    <SidebarComponent />
+                </aside>
+                <main className="main-content">
+                    <MainContentComponent />
+                </main>
+            </div>
             <footer className="footer">
                 Footer
             </footer>
         </div>
     );
 };
+
 export default HomePage;

@@ -14,19 +14,19 @@
 .sidebar-btn {
   flex: 1;
   padding: 10px;
-  border: none;
-  background: none;
   outline: none;
   cursor: pointer;
   position: relative;
   font-size: 16px;
-  background-color: chocolate;
+  background-color: #FF8C00;
   width: 100%;
   height: 100%;
+  color: white;
 }
 
 .sidebar-btn:hover {
-  background-color: rgb(175, 113, 31);
+  background-color: rgb(180, 113, 26);
+  border-color: #FAFAFA;
 }
 
 .sidebar-btn::after {
@@ -40,11 +40,12 @@
 }
 
 .sidebar-btn.active::after {
-  background: #ff0000;
+  background: #fafafa;
 }
 
-.sidebar-btn:hover::after {
-  background: #1b00b3;
+.sidebar-btn.active {
+  color: #ffffff;
+  border-color: #fafafa;
 }
 
 .choose-city {

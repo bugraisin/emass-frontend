@@ -5,6 +5,7 @@ import DistrictSelection from './selection/district-selection';
 import NeighbourhoodSelectionComponent from './selection/neighbourhood-selection';
 import { City, District } from './components/location-components';
 import CityComponent from './selection/city-selection';
+import { Button } from '@mui/material';
 
 const SidebarComponent = () => {
   const [activeButton, setActiveButton] = useState<string>("");
@@ -34,16 +35,18 @@ const SidebarComponent = () => {
   return (
     <div className='sidebar-container'>
       <div className='upper-bar'>
-        <button
+        <Button
+          sx={{ textTransform: 'none' }}
           className={`sidebar-btn ${activeButton === 'Satılık' ? 'active' : ''}`}
           onClick={() => handleButtonClick('Satılık')}
-        >Satılık</button>
-        <button
+        >Satılık</Button>
+        <Button
+        sx={{ textTransform: 'none' }}
         className={`sidebar-btn ${activeButton === 'Kiralık' ? 'active' : ''}`}
         onClick={() => handleButtonClick('Kiralık')}
         >
         Kiralık
-        </button>
+        </Button>
       </div>
       <div className='main-bar'>
         <div className='list-address'>

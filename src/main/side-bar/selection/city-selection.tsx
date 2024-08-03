@@ -28,7 +28,7 @@ const CityComponent = (props: CityComponentProps) => {
     };
     fetchCities();
   }, []);
-
+  
   return (
     <FormControl variant="outlined" fullWidth>
     <InputLabel id="city-select-label"></InputLabel>

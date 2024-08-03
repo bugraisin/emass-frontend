@@ -1,35 +1,40 @@
-body {
+body, html {
   margin: 0;
   font-family: Arial, sans-serif;
+  background-color: #ffffff93;
+}
+
+.home-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  min-height: 100vh;
 }
 
 .header {
   background-color: #dad9d9;
-  padding: 20px;
+  padding: 10px;
   text-align: center;
 }
 
-.navbar {
-  background-color: #99ccff;
-  text-align: center;
-  padding: 10px;
+.main-content-wrapper {
   display: flex;
-  justify-content: center;
+  flex: 1;
 }
 
 .sidebar {
-  background-color: #ffe600;
+  background-color: #FF8C00;
   width: 300px;
-  height: calc(100vh - 110px);
-  float: left;
   box-sizing: border-box;
 }
 
 .main-content {
   background-color: #ffffcc;
   padding: 20px;
-  margin-left: 200px;
-  height: calc(100vh - 110px);
+  flex: 1;
   box-sizing: border-box;
 }
 
@@ -37,9 +42,5 @@ body {
   background-color: #ffcc99;
   padding: 20px;
   text-align: center;
-  clear: both;
-  position: relative;
-  bottom: 0;
-  width: 100%;
   box-sizing: border-box;
 }
