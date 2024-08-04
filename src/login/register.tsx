@@ -4,13 +4,13 @@ import './login.css'
 import { Box, Button, Checkbox, FormControlLabel, Input, InputLabel, Link, Typography } from '@mui/material';
 import { CheckBox } from '@mui/icons-material';
 
-export const LoginForm = () => {
+export const RegisterForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/');
+    navigate('/login');
   };
 
   return (
@@ -18,7 +18,7 @@ export const LoginForm = () => {
       <Box className='form-wrapper'>
         <form>
           <Typography variant="h4" component="h1" className='form-heading' gutterBottom>
-            Giriş Yap
+            Kayıt Ol
           </Typography>
           <Box mb={2}>
             <Input
@@ -27,7 +27,7 @@ export const LoginForm = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder='Kullanici Adi'
+              placeholder='Kullanıcı Adı'
               required
             />
           </Box>
@@ -62,7 +62,7 @@ export const LoginForm = () => {
                 }
               }}
             >
-            Giriş
+            Kayıt Ol
           </Button>
         </form>
       </Box>

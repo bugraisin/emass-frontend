@@ -8,6 +8,7 @@ export default function LoginButtons() {
     <Box className='login-buttons'>
       <Button
         className='header-user-buttons'
+        onClick={() => navigate('/register')}
         variant="contained">
         Kayıt Ol
       </Button>

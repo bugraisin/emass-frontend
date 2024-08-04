@@ -5,7 +5,7 @@ import DistrictSelection from './selection/district-selection';
 import NeighbourhoodSelectionComponent from './selection/neighbourhood-selection';
 import { City, District } from './components/location-components';
 import CityComponent from './selection/city-selection';
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 const SidebarComponent = () => {
   const [activeButton, setActiveButton] = useState<string>("");
@@ -33,8 +33,8 @@ const SidebarComponent = () => {
 
 
   return (
-    <div className='sidebar-container'>
-      <div className='upper-bar'>
+    <Box className='sidebar-container'>
+      <Box className='upper-bar'>
         <Button
           sx={{ textTransform: 'none' }}
           className={`sidebar-btn ${activeButton === 'Satılık' ? 'active' : ''}`}
@@ -47,23 +47,23 @@ const SidebarComponent = () => {
         >
         Kiralık
         </Button>
-      </div>
-      <div className='main-bar'>
-        <div className='list-address'>
-          <div className='choose-city'>
+      </Box>
+      <Box className='main-bar'>
+        <Box className='list-address'>
+          <Box className='choose-city'>
             <CityComponent onCityChange={handleCityChange}/>
-          </div>
-          <div className='choose-district'>
+          </Box>
+          <Box className='choose-district'>
             <DistrictSelection 
               selectedCity={selectedCity} 
               onDistrictChange={handleDistrictChange}/>
-          </div>
-          <div className='choose-neighboorhood'>
+          </Box>
+          <Box className='choose-neighboorhood'>
             <NeighbourhoodSelectionComponent selectedDistrict={selectedDistrict}/>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 export default SidebarComponent;

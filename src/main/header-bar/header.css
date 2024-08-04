@@ -1,15 +1,14 @@
 .header-container {
   display: flex;
-  
 }
 
 .img-component {
-  margin-left: 40px;
+  margin-left: 65px;
   margin-right: 200px;
 }
 
 .header-img {
-  width: 200px;
+  width: 150px;
   height: auto;
 }
 
