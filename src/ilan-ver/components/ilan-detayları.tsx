@@ -1,8 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography, Card, CardMedia, IconButton, Alert } from "@mui/material";
 import { Close as CloseIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
+interface AdvertData {
+  title: string;
+  description: string;
+  rooms: number;
+  bathrooms: number;
+  area: number;
+  yearBuilt: number;
+  floors: number;
+  floorNumber: number;
+  city: string;
+  district: string;
+  neighborhood: string;
+  address: string;
+  postalCode: string;
+  heatingType: string;
+  airConditioning: boolean;
+  balcony: boolean;
+  parking: boolean;
+  furnished: boolean;
+  salePrice: number;
+  rentalPrice: number;
+  emlakTuru: string;
+  kategori: string;
+  ilanTuru: string;
+  fileNames: string[];
+}
+
 
 export const IlanDetaylarıComponent = () => {
   // State Değişkenleri
@@ -31,17 +59,13 @@ export const IlanDetaylarıComponent = () => {
   const [rentalPrice, setRentalPrice] = useState<number | string>('');
   const [emlakTuru, setEmlakTuru] = useState('');
   const [kategori, setKategori] = useState('');
+  const [ilanTuru, setIlanTuru] = useState('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
-
-  // Kategori ve Alt Kategori Fonksiyonları
-  const getKategoriOptions = () => {
-    return ['Satılık', 'Kiralık'];
-  };
-
+  
   const getAltKategoriOptions = () => {
-    switch (emlakTuru) {
+    switch (ilanTuru) {
       case 'Konut':
         return ['Daire', 'Müstakil Ev', 'Villa', 'Rezidans', 'Yazlık', 'Yalı', 'Köşk & Konak'];
       case 'İş Yeri':
@@ -77,44 +101,45 @@ export const IlanDetaylarıComponent = () => {
   // Form Verilerini Gönderme
   const handleSubmit = async () => {
     try {
-      const formData = new FormData();
-      
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('rooms', String(rooms));
-      formData.append('bathrooms', String(bathrooms));
-      formData.append('area', String(area));
-      formData.append('yearBuilt', String(yearBuilt));
-      formData.append('floors', String(floors));
-      formData.append('floorNumber', String(floorNumber));
-      formData.append('city', city);
-      formData.append('district', district);
-      formData.append('neighborhood', neighborhood);
-      formData.append('address', address);
-      formData.append('postalCode', postalCode);
-      formData.append('heatingType', heatingType);
-      formData.append('airConditioning', airConditioning);
-      formData.append('balcony', balcony);
-      formData.append('parking', parking);
-      formData.append('furnished', furnished);
-      formData.append('salePrice', String(salePrice));
-      formData.append('rentalPrice', String(rentalPrice));
-      formData.append('emlakTuru', emlakTuru);
-      formData.append('kategori', kategori);
+      const advertData: AdvertData = {
+        title,
+        description,
+        rooms: Number(rooms),
+        bathrooms: Number(bathrooms),
+        area: Number(area),
+        yearBuilt: Number(yearBuilt),
+        floors: Number(floors),
+        floorNumber: Number(floorNumber),
+        city,
+        district,
+        neighborhood,
+        address,
+        postalCode,
+        heatingType,
+        airConditioning: airConditioning === 'Var',
+        balcony: balcony === 'Var',
+        parking: parking === 'Var',
+        furnished: furnished === 'Evet',
+        salePrice: Number(salePrice),
+        rentalPrice: Number(rentalPrice),
+        emlakTuru,
+        kategori,
+        ilanTuru,
+        fileNames: [] // Dosya yükleme işlemi yoksa boş bırakabilirsiniz
+      };
 
-      files.forEach((file, index) => {
-        formData.append(`files[${index}]`, file);
-      });
+      const userId = '123';
 
-      const response = await axios.post('YOUR_API_ENDPOINT', formData, {
+      const response = await axios.post(`http://localhost:8080/api/adverts/${userId}`, advertData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
+
       setAlertSeverity('success');
       setAlertMessage('İlan başarıyla gönderildi!');
       setAlertOpen(true);
-      navigate('/')
+      navigate('/');
       console.log('API Yanıtı:', response.data);
     } catch (error) {
       setAlertSeverity('error');
@@ -161,16 +186,8 @@ export const IlanDetaylarıComponent = () => {
           <FormControl fullWidth>
             <InputLabel>İlan Türü</InputLabel>
             <Select
-              value={emlakTuru}
-              onChange={(e) => {
-                setEmlakTuru(e.target.value);
-                // Fiyatları temizle
-                if (e.target.value === 'Satılık') {
-                  setRentalPrice('');
-                } else if (e.target.value === 'Kiralık') {
-                  setSalePrice('');
-                }
-              }}
+              value={ilanTuru}
+              onChange={(e) => setIlanTuru(e.target.value) }
               label="İlan Türü"
             >
               <MenuItem value="Konut">Konut</MenuItem>
@@ -187,7 +204,7 @@ export const IlanDetaylarıComponent = () => {
               value={kategori}
               onChange={(e) => setKategori(e.target.value)}
               label="Kategori"
-              disabled={!emlakTuru} // Kategori seçimi sadece emlak türü seçildiyse aktif
+              disabled={!ilanTuru} // Kategori seçimi sadece emlak türü seçildiyse aktif
             >
               {getAltKategoriOptions().map((option) => (
                 <MenuItem key={option} value={option}>{option}</MenuItem>
