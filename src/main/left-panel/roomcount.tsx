@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { Card, CardContent, Typography, FormGroup, FormControlLabel, Checkbox, Box } from '@mui/material';
 
-export default function Age() {
-    const [selectedAges, setSelectedAges] = useState<string[]>([]);
+export default function RoomCount() {
+    const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
 
-    const ageOptions = [
-        "0 (Yeni)", "1-5", "6-10", "11-15", "16-20", "21-25",
-        "25-30", "31 ve üzeri"
+    const roomOptions = [
+        "1+0", "1+1", "2+1", "2+2",
+        "3+1", "3+2", "4+1", "4+2",
+        "5+1", "5+2", "6+1","7 ve üzeri"
     ];
-
-    const handleCheckboxChange = (age: string) => {
-        setSelectedAges((prev) =>
-            prev.includes(age) ? prev.filter(item => item !== age) : [...prev, age]
+    const handleCheckboxChange = (room: string) => {
+        setSelectedRooms((prev) =>
+            prev.includes(room) ? prev.filter(item => item !== room) : [...prev, room]
         );
     };
 
@@ -19,38 +19,38 @@ export default function Age() {
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
             <CardContent>
                 <Typography variant="h6" gutterBottom sx={{ fontSize: '14px', marginBottom: 1 }}>
-                    Bina Yaşı
+                    Oda Sayısı
                 </Typography>
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                     <FormGroup sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                        {ageOptions.slice(0, 4).map((age) => (
+                        {roomOptions.slice(0, Math.ceil(roomOptions.length / 2)).map((room) => (
                             <FormControlLabel
-                                key={age}
+                                key={room}
                                 control={
                                     <Checkbox
-                                        checked={selectedAges.includes(age)}
-                                        onChange={() => handleCheckboxChange(age)}
+                                        checked={selectedRooms.includes(room)}
+                                        onChange={() => handleCheckboxChange(room)}
                                         sx={{ padding: "3px", '& .MuiSvgIcon-root': { fontSize: 16 } }}
                                     />
                                 }
-                                label={<Typography sx={{ fontSize: "12px" }}>{age}</Typography>}
+                                label={<Typography sx={{ fontSize: "12px" }}>{room}</Typography>}
                                 sx={{ margin: 0 }}
                             />
                         ))}
                     </FormGroup>
 
                     <FormGroup sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                        {ageOptions.slice(4).map((age) => (
+                        {roomOptions.slice(Math.ceil(roomOptions.length / 2)).map((room) => (
                             <FormControlLabel
-                                key={age}
+                                key={room}
                                 control={
                                     <Checkbox
-                                        checked={selectedAges.includes(age)}
-                                        onChange={() => handleCheckboxChange(age)}
+                                        checked={selectedRooms.includes(room)}
+                                        onChange={() => handleCheckboxChange(room)}
                                         sx={{ padding: "3px", '& .MuiSvgIcon-root': { fontSize: 16 } }}
                                     />
                                 }
-                                label={<Typography sx={{ fontSize: "12px" }}>{age}</Typography>}
+                                label={<Typography sx={{ fontSize: "12px" }}>{room}</Typography>}
                                 sx={{ margin: 0 }}
                             />
                         ))}

@@ -1,6 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import LeftPanel from './left-panel.tsx';
+import MainPanel from './main-panel.tsx';
 
 export default function Main() {
     return (
@@ -24,13 +25,12 @@ export default function Main() {
                     sx={{
                         background: 'linear-gradient(45deg, #ed9517, #ff7a00)',
                         padding: '4px 4px',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
                         borderEndEndRadius: '4px',
                         borderEndStartRadius: '4px',
                       }}
                 >   
                     <a href="http://localhost:3000/">  
-                        <img src="/logo.png" alt="" style={{ height: '100%', marginLeft: '48px' }}/>
+                        <img src="/logo.png" alt="" style={{ height: '100%', marginLeft: '48px', borderRadius: '4px' }}/>
                     </a>
                 </Box>
                 <Box 
@@ -43,7 +43,8 @@ export default function Main() {
                     
                     <Box 
                         flex="1" 
-                        bgcolor="lightgray">
+                        bgcolor="#d3d3d3">
+                        <MainPanel/>
                     </Box>
                 </Box>
             </Box>
