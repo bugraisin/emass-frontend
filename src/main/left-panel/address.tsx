@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, Typography, Accordion, AccordionSummary, AccordionDetails, List, ListItem, ListItemButton, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import citiesData from '../../data/cities.json';
+import districtsData from '../../data/districts.json';
 
 export default function Address() {
 
     const [expanded, setExpanded] = useState<string | false>(false);
-
-    const [cities, setCities] = useState<{ sehir_id: string; sehir_adi: string }[]>([]);
-    const [districts, setDistricts] = useState<string[]>(["Çankaya", "Keçiören", "Mamak", "Sincan", "Yenimahalle"]);
-    const [neighborhoods, setNeighborhoods] = useState<string[]>(["Bahçelievler", "Kocatepe", "Büyükesat", "Demetevler", "Ostim"]);
+    const [cities, setCities] = useState<{ sehir_id: string; sehir_adi: string }[]>(citiesData);
+    const [districts, setDistricts] = useState<{ ilce_id: string; ilce_adi: string; sehir_id: string; sehir_adi: string }[]>(districtsData);
+    const [neighborhoods, setNeighborhoods] = useState<{ mahalle_id: string; mahalle_adi: string; ilce_id: string; ilce_adi: string; sehir_id: string; sehir_adi: string }[]>([]);
     
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
     const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
@@ -18,12 +19,18 @@ export default function Address() {
     const [searchQueryDistrict, setSearchQueryDistrict] = useState<string>("");
     const [searchQueryNeighborhood, setSearchQueryNeighborhood] = useState<string>("");
 
+    const [filteredDistricts, setFilteredDistricts] = useState<{ ilce_id: string; ilce_adi: string; sehir_id: string; sehir_adi: string }[]>([]);
+    const [filteredNeighborhoods, setFilteredNeighborhoods] = useState<{ mahalle_id: string; mahalle_adi: string; ilce_id: string; ilce_adi: string; sehir_id: string; sehir_adi: string }[]>([]);
+
+
     const handleSearchChangeCity = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQueryCity(event.target.value);
     };
+
     const handleSearchChangeDistrict = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQueryDistrict(event.target.value);
     };
+
     const handleSearchChangeNeighborhood = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQueryNeighborhood(event.target.value);
     };
@@ -52,34 +59,45 @@ export default function Address() {
         );
     };
 
-    const filteredCities = cities.filter(city =>
-        city.sehir_adi.toLowerCase().includes(searchQueryCity.toLowerCase())
-    );
+    const filteredCities = useMemo(() => {
+        return cities.filter(city =>
+            city.sehir_adi.toLowerCase().includes(searchQueryCity.toLowerCase())
+        );
+    }, [cities, searchQueryCity]);
 
-    const filteredDistricts = districts.filter(district =>
-        district.toLowerCase().includes(searchQueryDistrict.toLowerCase())
-    );
+    useEffect(() => {
+        if (selectedCities.length > 0) {
+            const selectedCityIds = selectedCities.map(city => {
+                return cities.find(c => c.sehir_adi === city)?.sehir_id;
+            });
+            
+            if (selectedCityIds) {
+                setFilteredDistricts(districts.filter(district =>
+                    selectedCityIds.includes(district.sehir_id)
+                ));
+            }
+        } else {
+            setFilteredDistricts([]);
+        }
+    }, [selectedCities, districts]);
 
-    const filteredNeighborhoods = neighborhoods.filter(neighborhood =>
-        neighborhood.toLowerCase().includes(searchQueryNeighborhood.toLowerCase())
-    );
+    useEffect(() => {
+        if (selectedCities.length > 0) {
+            const selectedDistrictsId = selectedDistricts.map(district => {
+                return districts.find(d => d.ilce_adi === district)?.ilce_id;
+            });
+            
+            if (selectedDistrictsId) {
+                setFilteredNeighborhoods(neighborhoods.filter(neighbourhood =>
+                    selectedDistrictsId.includes(neighbourhood.ilce_id)
+                ));
+            }
+        }
+    }, [selectedDistricts, neighborhoods]);
 
     const handleAccordionChange = (panel: string) => {
         setExpanded((prev) => (prev === panel ? false : panel));
     };
-
-    useEffect(() => {
-        const fetchCities = async () => {
-            try {
-                const response = await fetch('./data/cities.json');
-                const data = await response.json();
-                setCities(data);
-            } catch (error) {
-                console.error("Şehir verileri alınırken bir hata oluştu: ", error);
-            }
-        };
-        fetchCities();
-    }, []);
 
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
@@ -106,19 +124,19 @@ export default function Address() {
                             }}
                             size="small"
                         />
-                        <List sx={{ maxHeight: 200, overflowY: 'auto', padding: 0 }}>
+                        <List sx={{ maxHeight: 300, overflowY: 'auto', padding: 0 }}>
                             {filteredCities.map((city) => (
                                 <ListItem disablePadding key={city.sehir_id} sx={{ padding: '0px' }}>
-                                    <ListItemButton sx={{ padding: '2px 0' }} onClick={() => handleCityToggle(city.sehir_adi)}>
+                                    <ListItemButton sx={{ padding: '0px' }} onClick={() => handleCityToggle(city.sehir_adi)}>
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
                                                     checked={selectedCities.includes(city.sehir_adi)}
                                                     onChange={() => handleCityToggle(city.sehir_adi)}
-                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, margin: 0 }}
+                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, margin: 0 }}
                                                 />
                                             }
-                                            label={<Typography sx={{ fontSize: '12px', margin: 0 }}>{city.sehir_adi}</Typography>}
+                                            label={<Typography sx={{ fontSize: '10px', margin: 0 }}>{city.sehir_adi}</Typography>}
                                         />
                                     </ListItemButton>
                                 </ListItem>
@@ -145,19 +163,21 @@ export default function Address() {
                             }}
                             size="small"
                         />
-                        <List sx={{ maxHeight: 200, overflowY: 'auto', padding: 0 }}>
-                            {filteredDistricts.map((district, index) => (
-                                <ListItem disablePadding key={index} sx={{ padding: '0px' }}>
-                                    <ListItemButton sx={{ padding: '2px 0' }} onClick={() => handleDistrictToggle(district)}>
+                        <List sx={{ maxHeight: 300, overflowY: 'auto', padding: 0 }}>
+                            {filteredDistricts.filter(district =>
+                                district.ilce_adi.toLowerCase().includes(searchQueryDistrict.toLowerCase())
+                            ).map((district) => (
+                                <ListItem disablePadding key={district.ilce_id} sx={{ padding: '0px' }}>
+                                    <ListItemButton sx={{ padding: '0px' }} onClick={() => handleDistrictToggle(district.ilce_adi)}>
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
-                                                    checked={selectedDistricts.includes(district)}
-                                                    onChange={() => handleDistrictToggle(district)}
-                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, margin: 0 }}
+                                                    checked={selectedDistricts.includes(district.ilce_adi)}
+                                                    onChange={() => handleDistrictToggle(district.ilce_adi)}
+                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, margin: 0 }}
                                                 />
                                             }
-                                            label={<Typography sx={{ fontSize: '12px', margin: 0 }}>{district}</Typography>}
+                                            label={<Typography sx={{ fontSize: '10px', margin: 0 }}>{district.ilce_adi}</Typography>}
                                         />
                                     </ListItemButton>
                                 </ListItem>
@@ -184,19 +204,19 @@ export default function Address() {
                             }}
                             size="small"
                         />
-                        <List sx={{ maxHeight: 200, overflowY: 'auto', padding: 0 }}>
+                        <List sx={{ maxHeight: 300, overflowY: 'auto', padding: 0 }}>
                             {filteredNeighborhoods.map((neighborhood, index) => (
                                 <ListItem disablePadding key={index} sx={{ padding: '0px' }}>
-                                    <ListItemButton sx={{ padding: '2px 0' }} onClick={() => handleNeighborhoodToggle(neighborhood)}>
+                                    <ListItemButton sx={{ padding: '0px' }} onClick={() => handleNeighborhoodToggle(neighborhood.mahalle_adi)}>
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
-                                                    checked={selectedNeighborhoods.includes(neighborhood)}
-                                                    onChange={() => handleNeighborhoodToggle(neighborhood)}
-                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, margin: 0 }}
+                                                    checked={selectedNeighborhoods.includes(neighborhood.mahalle_adi)}
+                                                    onChange={() => handleNeighborhoodToggle(neighborhood.mahalle_adi)}
+                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, margin: 0 }}
                                                 />
                                             }
-                                            label={<Typography sx={{ fontSize: '12px', margin: 0 }}>{neighborhood}</Typography>}
+                                            label={<Typography sx={{ fontSize: '10px', margin: 0 }}>{neighborhood.mahalle_adi}</Typography>}
                                         />
                                     </ListItemButton>
                                 </ListItem>

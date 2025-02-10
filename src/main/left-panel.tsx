@@ -24,23 +24,39 @@ export default function LeftPanel() {
             <RoomCount/>
 
             
-            <Button
-                variant="contained"
+            <Box
                 sx={{
-                    backgroundColor: '#ed9517',
-                    width: '100%',
-                    marginTop: 2,
-                    color: 'white',
-                    fontSize: 16,
-                    fontFamily: 'Arial',
-                    fontWeight: 'bold',
-                    '&:hover': { backgroundColor: 'orange' },
-                    padding: '10px 20px',
-                    borderRadius: 2,
+                    position: 'sticky',
+                    bottom: 10,
+                    width: '91%',
+                    padding: '10px',
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                    border: '1px solid #d3d3d3',
+                    borderRadius: '4px',
+                    marginTop: '10px',
+                    zIndex: 1000,
+                    display: 'flex',
+                    justifyContent: 'center',
                 }}
             >
-                Ara
-            </Button>
+                <Button
+                    variant="contained"
+                    sx={{
+                        backgroundColor: '#ed9517',
+                        width: '100%',
+                        color: 'white',
+                        fontSize: 14,
+                        fontFamily: 'Arial',
+                        fontWeight: 'bold',
+                        '&:hover': { backgroundColor: 'orange' },
+                        padding: '8px 16px', 
+                        borderRadius: 2,
+                        left: 0,
+                    }}
+                >
+                    Ara
+                </Button>
+            </Box>
         </Box>
     );
 }

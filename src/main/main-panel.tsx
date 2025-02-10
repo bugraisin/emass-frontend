@@ -1,7 +1,20 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, Box, Grid, CardMedia, Dialog, DialogActions, DialogContent, Button } from "@mui/material";
+import { Card, CardContent, Typography, Box, Grid, CardMedia, Dialog, DialogActions, DialogContent, Button, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const properties = [
+  { id: 1, title: "Ev 1", description: "Güzel bir daire.", price: "2.500.000 TL", image: "ev.jpeg" },
+  { id: 2, title: "Ev 2", description: "Geniş bahçeli bir villa.", price: "5.000.000 TL", image: "ev.jpeg" },
+  { id: 3, title: "Ev 3", description: "Şehir merkezinde modern bir rezidans.", price: "3.750.000 TL", image: "ev.jpeg" },
+  { id: 4, title: "Ev 4", description: "Deniz manzaralı lüks bir daire.", price: "7.200.000 TL", image: "ev.jpeg" },
+  { id: 1, title: "Ev 1", description: "Güzel bir daire.", price: "2.500.000 TL", image: "ev.jpeg" },
+  { id: 2, title: "Ev 2", description: "Geniş bahçeli bir villa.", price: "5.000.000 TL", image: "ev.jpeg" },
+  { id: 3, title: "Ev 3", description: "Şehir merkezinde modern bir rezidans.", price: "3.750.000 TL", image: "ev.jpeg" },
+  { id: 4, title: "Ev 4", description: "Deniz manzaralı lüks bir daire.", price: "7.200.000 TL", image: "ev.jpeg" },
+  { id: 1, title: "Ev 1", description: "Güzel bir daire.", price: "2.500.000 TL", image: "ev.jpeg" },
+  { id: 2, title: "Ev 2", description: "Geniş bahçeli bir villa.", price: "5.000.000 TL", image: "ev.jpeg" },
+  { id: 3, title: "Ev 3", description: "Şehir merkezinde modern bir rezidans.", price: "3.750.000 TL", image: "ev.jpeg" },
+  { id: 4, title: "Ev 4", description: "Deniz manzaralı lüks bir daire.", price: "7.200.000 TL", image: "ev.jpeg" },
   { id: 1, title: "Ev 1", description: "Güzel bir daire.", price: "2.500.000 TL", image: "ev.jpeg" },
   { id: 2, title: "Ev 2", description: "Geniş bahçeli bir villa.", price: "5.000.000 TL", image: "ev.jpeg" },
   { id: 3, title: "Ev 3", description: "Şehir merkezinde modern bir rezidans.", price: "3.750.000 TL", image: "ev.jpeg" },
@@ -66,24 +79,25 @@ export default function MainPanel() {
       </Grid>
 
       <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
-        <DialogContent>
-          <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
-            <Box sx={{ flex: 1, paddingRight: 2 }}>
-              <img src={selectedProperty?.image} alt="Property" style={{ width: "100%", height: "auto" }} />
-            </Box>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h5" gutterBottom>{selectedProperty?.title}</Typography>
-              <Typography variant="body1" color="text.secondary" gutterBottom>{selectedProperty?.description}</Typography>
-              <Typography variant="h6" color="primary">{selectedProperty?.price}</Typography>
-            </Box>
+      <DialogContent>
+        <IconButton 
+          onClick={handleClose} 
+          sx={{ position: "absolute", top: 8, right: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
+          <Box sx={{ flex: 1, paddingRight: 2 }}>
+            <img src={selectedProperty?.image} alt="Property" style={{ width: "100%", height: "auto", borderRadius: 3 }} />
           </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Kapat
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" gutterBottom>{selectedProperty?.title}</Typography>
+            <Typography variant="body1" color="text.secondary" gutterBottom>{selectedProperty?.description}</Typography>
+            <Typography variant="h6" color="primary">{selectedProperty?.price}</Typography>
+          </Box>
+        </Box>
+      </DialogContent>
+    </Dialog>
     </Box>
   );
 }
