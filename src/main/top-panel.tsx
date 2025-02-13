@@ -1,19 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Button, InputAdornment, TextField } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function TopPanel() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const isHomePage = location.pathname === "/";
 
     return (
         <Box
-            height="8%"
+            height="8vh"
+            width="100%"
+            maxWidth="1280px"
             bgcolor="#ed9517"
             display="flex"
             sx={{
-                background: 'linear-gradient(45deg, #ed9517, #ff7a00)',
+                background: '#ed9517',
                 padding: '4px 4px',
-                borderEndEndRadius: '4px',
-                borderEndStartRadius: '4px',
                 alignItems: 'center',
             }}
         >
@@ -21,50 +26,81 @@ export default function TopPanel() {
                 <img src="/logo.png" alt="" style={{ height: '100%', borderRadius: '4px' }} />
             </a>
             
-            <Box sx={{ flexGrow: 1, display: 'flex', marginLeft: '64px', alignItems: 'center' }}>
-                <TextField
-                    label="İlan Başlığı"
-                    variant="outlined"
-                    sx={{
-                        mb: 1,
-                        '& .MuiInputBase-root': { fontSize: '16px', height: '50px', width: '500px' },
-                        '& .MuiInputLabel-root': { fontSize: '16px' },
-                        backgroundColor: 'rgb(255, 255, 255, 1)',
-                        alignItems: 'center',
-                        borderRadius: '4px',
-                    }}
-                    size="small"
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <SearchIcon sx={{ color: '#ed9517' }} />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-            </Box>
-
-            <Box>
-            <Button
-                    variant="contained"
-                    sx={{
-                        backgroundColor: '#ed9517',
-                        width: '100%',
-                        color: 'white',
-                        fontSize: '15px',
-                        fontFamily: 'Arial',
-                        fontWeight: 'bold',
-                        '&:hover': { backgroundColor: 'orange' },
-                        marginRight: '48px',
-                        padding: '8px 16px', 
-                        borderRadius: 2,
-                    }}
-                >
-                    İlan Ver
-                </Button>
-
-            </Box>
+            {isHomePage && (
+                <Box sx={{ flexGrow: 1, display: 'flex', marginLeft: '64px', alignItems: 'center' }}>
+                    <TextField
+                        label="İlan Başlığı"
+                        variant="outlined"
+                        sx={{
+                            mb: 1,
+                            '& .MuiInputBase-root': { fontSize: '16px', height: '50px', width: '500px' },
+                            '& .MuiInputLabel-root': { fontSize: '16px' },
+                            backgroundColor: 'rgb(255, 255, 255, 1)',
+                            alignItems: 'center',
+                            borderRadius: '4px',
+                        }}
+                        size="small"
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <SearchIcon sx={{ color: '#ed9517' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Box>
+            )}
+            
+            {isHomePage && (
+                <>
+                    <Button
+                        variant="contained"
+                        onClick={() => navigate("/giris-yap")}
+                        sx={{
+                            backgroundColor: '#ed9517',
+                            color: 'white',
+                            '&:hover': { backgroundColor: 'orange' },
+                            marginRight: '16px',
+                            padding: '8px 16px',
+                            borderRadius: 2,
+                            textTransform: 'none',
+                        }}
+                    >
+                        Giriş Yap
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => navigate("/kayit-ol")}
+                        sx={{
+                            backgroundColor: '#ed9517',
+                            color: 'white',
+                            '&:hover': { backgroundColor: 'orange' },
+                            marginRight: '16px',
+                            padding: '8px 16px',
+                            borderRadius: 2,
+                            textTransform: 'none',
+                        }}
+                    >
+                        Kayıt ol
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => navigate("/ilan-ver")}
+                        sx={{
+                            backgroundColor: '#ed9517',
+                            color: 'white',
+                            fontSize: '15px',
+                            '&:hover': { backgroundColor: 'orange' },
+                            marginRight: '16px',
+                            padding: '8px 16px',
+                            borderRadius: 2,
+                            textTransform: 'none',
+                        }}
+                    >
+                        Ücretsiz İlan Ver
+                    </Button>
+                </>
+            )}
         </Box>
-
     );
 }
