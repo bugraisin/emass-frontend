@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function Advert() {
     const navigate = useNavigate();
-    const steps = ['Category', 'Price', 'Location'];
+    const steps = ['Category', 'Price', 'Locatiofn'];
 
     const isStepFailed = (step: number) => {
         return step === 1;
