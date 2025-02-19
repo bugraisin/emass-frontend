@@ -40,7 +40,7 @@ export default function Login() {
                 alignItems: 'center',
                 height: '80vh',
                 flexDirection: 'column',
-                marginTop: '-5%',
+                marginTop: '-3%',
             }}
         >
             <Box
@@ -50,6 +50,7 @@ export default function Login() {
                     border: '4px solid #d3d3d3',
                     alignItems: 'center',
                     width: '30%',
+                    maxWidth: '400px',
                     height: '50%',
                     padding: '2%',
                     display: 'flex',

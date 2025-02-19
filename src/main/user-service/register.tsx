@@ -62,6 +62,7 @@ export default function Register() {
                     border: '4px solid #d3d3d3',
                     alignItems: 'center',
                     width: '30%',
+                    maxWidth: '400px',
                     height: '70%',
                     marginTop: '-20',
                     padding: '2%',
