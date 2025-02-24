@@ -4,7 +4,11 @@ import citiesData from "../../data/cities.json";
 import districtsData from "../../data/districts.json";
 import neighborhoodsData from "../../data/neighborhoods.json";
 
-export default function StepTwo() {
+interface StepTwoProps {
+    onLocationSelect: (city: string, district: string, neighborhood: string) => void;
+}
+
+export default function StepTwo({ onLocationSelect }: StepTwoProps) {
     const [cities] = useState(citiesData);
     const [districts, setDistricts] = useState<{ ilce_id: string; ilce_adi: string; sehir_id: string; sehir_adi: string; }[]>([]);
     const [neighborhoods, setNeighborhoods] = useState<{ mahalle_id: string; mahalle_adi: string; ilce_id: string; ilce_adi: string; sehir_id: string;  sehir_adi: string}[]>([]);
@@ -32,6 +36,16 @@ export default function StepTwo() {
         }
     }, [selectedDistrict]);
 
+    useEffect(() => {
+        if (selectedNeighborhood) {
+            onLocationSelect(
+                selectedCity?.sehir_adi || '',
+                selectedDistrict?.ilce_adi || '',
+                selectedNeighborhood.mahalle_adi
+            );
+        }
+    }, [selectedNeighborhood]);
+
     return (
         <Box 
             sx={{ 
@@ -41,7 +55,6 @@ export default function StepTwo() {
                 padding: 1
             }}
         >
-            
             <Card sx={{ flex: 1, margin: 1, padding: 2, boxShadow: 3, display: "flex", flexDirection: "column"}}>
                 <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
                     <Typography variant="h6" gutterBottom>Şehir Seçin</Typography>

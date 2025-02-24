@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-
-// CSS stilleri için gerekli
 import "leaflet/dist/leaflet.css";
 
-export default function StepThree() {
+interface StepThreeProps {
+    onCoordinatesSelect: (lat: number, lng: number) => void;
+}
+
+export default function StepThree({ onCoordinatesSelect }: StepThreeProps) {
     const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null);
 
     const MapClick = () => {
         useMapEvents({
             click(e) {
                 setSelectedPosition({ lat: e.latlng.lat, lng: e.latlng.lng });
+                onCoordinatesSelect(e.latlng.lat, e.latlng.lng);
             }
         });
         return null;
