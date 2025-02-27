@@ -34,7 +34,7 @@ export default function Advert() {
             photos: [] as File[], // Fotoğraflar
         },
     });
-
+    
     // StepOne'dan gelen bilgileri güncelle
     const handleStepOneData = (category: string, type: string, sellType: string) => {
         setAdvertData((prev) => ({
@@ -177,8 +177,11 @@ export default function Advert() {
                         />
                     )}
                     {activeStep === 2 && ( 
+
+                        // Daha sonra StepThree bileşenine address prop'u olarak gönderin:
                         <StepThree
                             onCoordinatesSelect={(lat, lng) => handleStepThreeData(lat, lng)}
+                            il={advertData.location.city}
                         />
                     )}
                     {activeStep === 3 && ( 
