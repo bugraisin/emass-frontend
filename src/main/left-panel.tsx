@@ -6,22 +6,54 @@ import SquareMeter from "./left-panel/squaremeter.tsx";
 import Price from "./left-panel/price.tsx";
 import Age from "./left-panel/age.tsx";
 import RoomCount from "./left-panel/roomcount.tsx";
+import Features from "./left-panel/features.tsx";
 
 export default function LeftPanel() {
+    const [selectedCategory, setSelectedCategory] = useState<string>('');
+
+    // Bina yaşının gösterilip gösterilmeyeceğini kontrol et
+    const shouldShowAge = () => {
+        return selectedCategory && 
+               !selectedCategory.includes("Arsa") && 
+               selectedCategory !== '';
+    };
+
+    // Oda sayısının gösterilip gösterilmeyeceğini kontrol et
+    const shouldShowRoomCount = () => {
+        return selectedCategory && 
+               (selectedCategory.includes("Daire") || 
+                selectedCategory.includes("Villa") || 
+                selectedCategory.includes("Müstakil Ev") || 
+                selectedCategory.includes("Rezidans") ||
+                selectedCategory.includes("Yazlık"));
+    };
 
     return (
         <Box sx={{ padding: 1 }}>
-            <Categories/>
+            <Categories onCategoryChange={setSelectedCategory} />
             <Divider sx={{ my: 1 }} />
             <Address/>
             <Divider sx={{ my: 1 }} />
-            <Price/>
+            <Price selectedCategory={selectedCategory} />
             <Divider sx={{ my: 1 }} />
             <SquareMeter/>
+            
+            {shouldShowAge() && (
+                <>
+                    <Divider sx={{ my: 1 }} />
+                    <Age/>
+                </>
+            )}
+            
+            {shouldShowRoomCount() && (
+                <>
+                    <Divider sx={{ my: 1 }} />
+                    <RoomCount/>
+                </>
+            )}
+            
             <Divider sx={{ my: 1 }} />
-            <Age/>
-            <Divider sx={{ my: 1 }} />
-            <RoomCount/>
+            <Features selectedCategory={selectedCategory} />
 
             
             <Box

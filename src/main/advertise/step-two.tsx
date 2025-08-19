@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography, List, ListItem, ListItemButton, Box, TextField } from "@mui/material";
-import citiesData from "../../data/cities.json";
-import districtsData from "../../data/districts.json";
-import neighborhoodsData from "../../data/neighborhoods.json";
 
 interface StepTwoProps {
     onLocationSelect: (city: string, district: string, neighborhood: string) => void;

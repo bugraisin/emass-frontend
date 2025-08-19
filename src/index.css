@@ -5,6 +5,27 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100vh;
+}
+
+html {
+  overflow: hidden;
+  height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Tüm scrollbar'ları gizle */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 code {
