@@ -17,7 +17,7 @@ interface StepFourProps {
 }
 
 export default function StepFour({ category, type, onDetailsSubmit }: StepFourProps) {
-    const [files, setFiles] = useState<File[]>([]);
+    const [photos, setPhotos] = useState<File[]>([]);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [squareMeters, setSquareMeters] = useState(0);
@@ -28,12 +28,12 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = event.target.files;
         if (selectedFiles && selectedFiles.length > 0) {
-            setFiles((prevFiles) => [...prevFiles, ...Array.from(selectedFiles)]);
+            setPhotos((prevFiles) => [...prevFiles, ...Array.from(selectedFiles)]);
         }
     };
 
     const handleRemoveFile = (index: number) => {
-        setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        setPhotos((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
     const handleSubmit = () => {
@@ -44,7 +44,7 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
             price,
             roomCount,
             buildingAge,
-            photos: files,
+            photos,
         });
     };
 
@@ -92,10 +92,9 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
 
                     {/* Kart 3: Metrekare */}
                     <Grid item xs={12} sm={4}>
-                        <Card sx={{ padding: 2, boxShadow: 3 }}>
+                        <Card sx={{ boxShadow: 3 }}>
                             <CardContent>
-                                <Typography variant="subtitle1" align="center">Metrekare</Typography>
-                                <Divider sx={{ my: 1 }} />
+                                <Typography variant="subtitle1" align="center" sx={{ my: 1 }}>Metrekare</Typography>
                                 <TextField
                                     fullWidth
                                     label="Metrekare"
@@ -111,10 +110,9 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
 
                     {/* Kart 4: Fiyat */}
                     <Grid item xs={12} sm={4}>
-                        <Card sx={{ padding: 2, boxShadow: 3 }}>
+                        <Card sx={{ boxShadow: 3 }}>
                             <CardContent>
-                                <Typography variant="subtitle1" align="center">Fiyat</Typography>
-                                <Divider sx={{ my: 1 }} />
+                                <Typography variant="subtitle1" align="center" sx={{ my: 1 }}>Fiyat</Typography>
                                 <TextField
                                     fullWidth
                                     label="Fiyat"
@@ -130,10 +128,9 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
 
                     {/* Kart 5: Oda Sayısı */}
                     <Grid item xs={12} sm={4}>
-                        <Card sx={{ padding: 2, boxShadow: 3 }}>
+                        <Card sx={{ boxShadow: 3 }}>
                             <CardContent>
-                                <Typography variant="subtitle1" align="center">Oda Sayısı</Typography>
-                                <Divider sx={{ my: 1 }} />
+                                <Typography variant="subtitle1" align="center" sx={{ my: 1 }}>Oda Sayısı</Typography>
                                 <TextField
                                     fullWidth
                                     label="Oda Sayısı"
@@ -149,10 +146,9 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
 
                     {/* Kart 6: Bina Yaşı */}
                     <Grid item xs={12} sm={4}>
-                        <Card sx={{ padding: 2, boxShadow: 3 }}>
+                        <Card sx={{ boxShadow: 3 }}>
                             <CardContent>
-                                <Typography variant="subtitle1" align="center">Bina Yaşı</Typography>
-                                <Divider sx={{ my: 1 }} />
+                                <Typography variant="subtitle1" align="center" sx={{ my: 1 }}>Bina Yaşı</Typography>
                                 <TextField
                                     fullWidth
                                     label="Bina Yaşı"
@@ -189,7 +185,7 @@ export default function StepFour({ category, type, onDetailsSubmit }: StepFourPr
 
                 {/* Yüklenen Fotoğrafların Listesi */}
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: "12px", mt: 2 }}>
-                    {files.map((file, index) => (
+                    {photos.map((file, index) => (
                         <Grid item key={index} xs={12} sm={6} md={4}>
                             <Box sx={{ position: "relative", display: "inline-block", width: 200, height: 200 }}>
                                 <img

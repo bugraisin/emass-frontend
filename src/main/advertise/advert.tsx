@@ -1,5 +1,5 @@
 import { Box, Button, Stepper, Step, StepLabel, Typography, Card, CardMedia, Divider, Grid } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StepOne from "./step-one.tsx";
 import StepTwo from "./step-two.tsx";
 import StepThree from "./step-three.tsx";
@@ -34,7 +34,7 @@ export default function Advert() {
             photos: [] as File[], // Fotoğraflar
         },
     });
-
+    
     // StepOne'dan gelen bilgileri güncelle
     const handleStepOneData = (category: string, type: string, sellType: string) => {
         setAdvertData((prev) => ({
@@ -177,8 +177,12 @@ export default function Advert() {
                         />
                     )}
                     {activeStep === 2 && ( 
+
                         <StepThree
                             onCoordinatesSelect={(lat, lng) => handleStepThreeData(lat, lng)}
+                            il={advertData.location.city}
+                            ilce={advertData.location.district}
+                            mahalle={advertData.location.neighborhood}
                         />
                     )}
                     {activeStep === 3 && ( 
