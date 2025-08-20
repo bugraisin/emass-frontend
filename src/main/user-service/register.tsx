@@ -11,19 +11,6 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
-    const [phone, setPhone] = useState('');
-
-    const handlePhoneChange = (event) => {
-      let value = event.target.value.replace(/\D/g, '');
-      if (value.length > 3 && value.length <= 6) {
-        value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
-      } else if (value.length > 6) {
-        value = `(${value.slice(0, 3)}) ${value.slice(3, 6)} ${value.slice(6, 10)}`;
-      } else if (value.length > 3) {
-        value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
-      }
-      setPhone(value);
-    };
 
     const handleClickShowPassword = () => {
         setShowPassword((prev) => !prev);
@@ -101,26 +88,6 @@ export default function Register() {
                         variant="outlined"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        fullWidth
-                        size="medium"
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                fontSize: '14px',
-                            },
-                            '& .MuiInputLabel-root': {
-                                fontSize: '14px',
-                            },
-                        }}
-                    />
-
-                    <TextField
-                        label="Cep Telefonu (İsteğe Bağlı)"
-                        placeholder="(5XX) XXX XX XX"
-                        variant="outlined"
-                        value={phone}
-                        onChange={handlePhoneChange}
-                        inputProps={{ maxLength: 14 }}
                         fullWidth
                         size="medium"
                         sx={{

@@ -24,8 +24,15 @@ export default function Login() {
     
         try {
             const response = await axios.post('http://localhost:8080/api/auth/login', loginData);
-            if (stayLoggedIn) {
-            }
+            
+            // Başarılı giriş sonrası kullanıcı bilgilerini localStorage'a kaydet
+            const userData = {
+                email: email,
+                name: response.data.name || email.split('@')[0],
+                isLoggedIn: true
+            };
+            
+            localStorage.setItem('user', JSON.stringify(userData));
             navigate('/');
         } catch (error) {
             console.error('Giriş işlemi sırasında bir hata oluştu:', error);
