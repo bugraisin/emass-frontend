@@ -14,7 +14,9 @@ function App() {
           display="flex"
           justifyContent="center"
           alignItems="center"
-          bgcolor="#ed9517"
+          sx={{
+            background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
+          }}
       >
           <TopPanel/>
         </Box>

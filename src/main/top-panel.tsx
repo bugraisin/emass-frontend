@@ -43,25 +43,75 @@ export default function TopPanel() {
             height="8vh"
             width="100%"
             maxWidth="1280px"
-            bgcolor="#ed9517"
             display="flex"
             sx={{
-                background: '#ed9517',
-                padding: '0 24px',
+                background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
+                padding: '0 32px',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 16px rgba(0, 0, 0, 0.08)',
+                backdropFilter: 'blur(20px)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                position: 'relative',
+                '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '2px',
+                    background: 'linear-gradient(90deg, transparent 0%, #ed9517 20%, #f59e0b 50%, #ed9517 80%, transparent 100%)',
+                    opacity: 0.8
+                }
             }}
         >
             {/* Logo */}
-            <Box sx={{ flexShrink: 0, marginLeft: '40px' }}>
-                <a href="http://localhost:3000/" style={{ height: '60px', backgroundColor: 'white', borderRadius: '4px', display: 'block' }}>
-                    <img src="/logo.png" alt="" style={{ height: '60px', borderRadius: '4px' }} />
+            <Box sx={{ 
+                flexShrink: 0, 
+                marginLeft: '20px',
+                position: 'relative',
+                '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    right: '-20px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '1px',
+                    height: '40px',
+                    background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)'
+                }
+            }}>
+                <a href="http://localhost:3000/" style={{ 
+                    height: '60px', 
+                    backgroundColor: 'white', 
+                    borderRadius: '12px', 
+                    display: 'block',
+                    padding: '4px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.1)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.15)'
+                    }
+                }}>
+                    <img src="/logo.png" alt="" style={{ 
+                        height: '52px', 
+                        borderRadius: '8px',
+                        transition: 'all 0.3s ease'
+                    }} />
                 </a>
             </Box>
             
             {/* Arama Alanı */}
             {isHomePage && (
-                <Box sx={{ flexGrow: 1, maxWidth: '600px', mx: 4 }}>
+                <Box sx={{ 
+                    flexGrow: 1, 
+                    maxWidth: '650px', 
+                    mx: 6,
+                    position: 'relative'
+                }}>
                     <TextField
                         placeholder="Hangi emlakı arıyorsunuz? Örn: Satılık daire, Kiralık villa..."
                         variant="outlined"
@@ -69,26 +119,35 @@ export default function TopPanel() {
                         sx={{
                             '& .MuiInputBase-root': { 
                                 fontSize: '15px', 
-                                height: '48px',
-                                backgroundColor: 'white',
-                                borderRadius: '24px',
-                                paddingLeft: '16px',
+                                height: '52px',
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                borderRadius: '26px',
+                                paddingLeft: '24px',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                 '&:hover': {
-                                    backgroundColor: '#f8f9fa',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
                                 },
                                 '&.Mui-focused': {
                                     backgroundColor: 'white',
-                                    boxShadow: '0 0 0 2px rgba(255,255,255,0.3)',
+                                    boxShadow: '0 0 0 3px rgba(237, 149, 23, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15)',
+                                    border: '1px solid rgba(237, 149, 23, 0.3)',
                                 }
                             },
                             '& .MuiOutlinedInput-notchedOutline': {
                                 border: 'none',
                             },
                             '& .MuiInputBase-input': {
-                                padding: '12px 0',
+                                padding: '14px 0',
+                                fontWeight: 500,
                                 '&::placeholder': {
-                                    color: '#666',
+                                    color: '#64748b',
                                     opacity: 1,
+                                    fontWeight: 400
                                 }
                             }
                         }}
@@ -97,16 +156,22 @@ export default function TopPanel() {
                                 <InputAdornment position="end">
                                     <Button
                                         sx={{
-                                            backgroundColor: '#ed9517',
+                                            background: 'linear-gradient(135deg, #ed9517 0%, #f59e0b 100%)',
                                             color: 'white',
-                                            minWidth: '48px',
-                                            height: '36px',
-                                            borderRadius: '18px',
-                                            mr: 1,
-                                            '&:hover': { backgroundColor: '#d68415' },
+                                            minWidth: '52px',
+                                            height: '40px',
+                                            borderRadius: '20px',
+                                            mr: 1.5,
+                                            boxShadow: '0 4px 16px rgba(237, 149, 23, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                            '&:hover': { 
+                                                background: 'linear-gradient(135deg, #d97706 0%, #ed9517 100%)',
+                                                transform: 'translateY(-1px)',
+                                                boxShadow: '0 6px 20px rgba(237, 149, 23, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                                            },
                                         }}
                                     >
-                                        <SearchIcon />
+                                        <SearchIcon sx={{ fontSize: '20px' }} />
                                     </Button>
                                 </InputAdornment>
                             ),
@@ -116,7 +181,13 @@ export default function TopPanel() {
             )}
             
             {/* Kullanıcı Butonları */}
-            <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ 
+                flexShrink: 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 3,
+                marginRight: '20px'
+            }}>
             {isHomePage && (
                 <>
                     {!isLoggedIn ? (
@@ -126,16 +197,22 @@ export default function TopPanel() {
                                 onClick={() => navigate("/giris-yap")}
                                 sx={{
                                     color: 'white',
-                                    borderColor: 'white',
+                                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                    backdropFilter: 'blur(10px)',
                                     '&:hover': { 
-                                        backgroundColor: 'rgba(255,255,255,0.1)',
-                                        borderColor: 'white'
+                                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                                        transform: 'translateY(-1px)',
+                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
                                     },
-                                    padding: '10px 20px',
-                                    borderRadius: '20px',
+                                    padding: '12px 24px',
+                                    borderRadius: '25px',
                                     textTransform: 'none',
-                                    fontWeight: 500,
+                                    fontWeight: 600,
                                     fontSize: '14px',
+                                    letterSpacing: '0.5px',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                 }}
                             >
                                 Giriş Yap
@@ -144,19 +221,36 @@ export default function TopPanel() {
                                 variant="contained"
                                 onClick={() => navigate("/kayit-ol")}
                                 sx={{
-                                    backgroundColor: 'white',
-                                    color: '#ed9517',
+                                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                    color: '#1e293b',
+                                    boxShadow: '0 6px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                                     '&:hover': { 
-                                        backgroundColor: '#f8f9fa',
-                                        transform: 'translateY(-1px)',
-                                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                                        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                                     },
-                                    padding: '10px 20px',
-                                    borderRadius: '20px',
+                                    padding: '12px 28px',
+                                    borderRadius: '25px',
                                     textTransform: 'none',
-                                    fontWeight: 600,
+                                    fontWeight: 700,
                                     fontSize: '14px',
-                                    transition: 'all 0.2s ease-in-out',
+                                    letterSpacing: '0.5px',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    '&::before': {
+                                        content: '""',
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: '-100%',
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, transparent, rgba(237, 149, 23, 0.1), transparent)',
+                                        transition: 'left 0.5s ease'
+                                    },
+                                    '&:hover::before': {
+                                        left: '100%'
+                                    }
                                 }}
                             >
                                 Kayıt Ol
@@ -166,21 +260,23 @@ export default function TopPanel() {
                         <Button
                             variant="contained"
                             onClick={handleMenuOpen}
-                            startIcon={<AccountCircleIcon sx={{ fontSize: '20px' }} />}
+                            startIcon={<AccountCircleIcon sx={{ fontSize: '22px' }} />}
                             sx={{
-                                backgroundColor: 'white',
-                                color: '#ed9517',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                                color: '#1e293b',
+                                boxShadow: '0 6px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                                 '&:hover': { 
-                                    backgroundColor: '#f8f9fa',
-                                    transform: 'translateY(-1px)',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                                 },
-                                padding: '10px 24px',
-                                borderRadius: '20px',
+                                padding: '12px 28px',
+                                borderRadius: '25px',
                                 textTransform: 'none',
-                                fontWeight: 600,
+                                fontWeight: 700,
                                 fontSize: '14px',
-                                transition: 'all 0.2s ease-in-out',
+                                letterSpacing: '0.5px',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             }}
                         >
                             {userName}
@@ -201,71 +297,72 @@ export default function TopPanel() {
                         }}
                         PaperProps={{
                             sx: {
-                                mt: 1,
-                                borderRadius: '12px',
-                                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.08)',
-                                border: '1px solid rgba(0, 0, 0, 0.1)',
-                                minWidth: '180px',
-                                background: '#ffffff',
+                                mt: 2,
+                                borderRadius: '20px',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 30px rgba(0, 0, 0, 0.1)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                minWidth: '220px',
+                                background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                                backdropFilter: 'blur(20px)',
                                 overflow: 'visible',
+                                '&::before': {
+                                    content: '""',
+                                    position: 'absolute',
+                                    top: '-8px',
+                                    right: '24px',
+                                    width: '16px',
+                                    height: '16px',
+                                    background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                                    transform: 'rotate(45deg)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderBottom: 'none',
+                                    borderRight: 'none',
+                                },
                                 '& .MuiList-root': {
-                                    padding: '4px',
+                                    padding: '8px',
                                 },
                                 '& .MuiMenuItem-root': {
                                     fontSize: '14px',
-                                    fontWeight: 500,
-                                    padding: '10px 16px',
-                                    borderRadius: '8px',
-                                    margin: '2px 4px',
-                                    transition: 'all 0.2s ease-in-out',
+                                    fontWeight: 600,
+                                    padding: '14px 20px',
+                                    borderRadius: '12px',
+                                    margin: '4px 0',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     position: 'relative',
-                                    borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
-                                    '&:last-child': {
-                                        borderBottom: 'none',
-                                    },
+                                    color: '#1e293b',
                                     '&::before': {
                                         content: '""',
                                         position: 'absolute',
                                         left: '0',
                                         top: '0',
-                                        width: '3px',
+                                        width: '4px',
                                         height: '100%',
                                         backgroundColor: 'transparent',
-                                        transition: 'all 0.2s ease',
-                                        borderRadius: '0 2px 2px 0',
+                                        transition: 'all 0.3s ease',
+                                        borderRadius: '0 6px 6px 0',
                                     },
                                     '&:hover': {
-                                        backgroundColor: 'rgba(33, 150, 243, 0.08)',
-                                        color: '#1976d2',
-                                        transform: 'none',
+                                        backgroundColor: 'rgba(237, 149, 23, 0.08)',
+                                        color: '#d97706',
+                                        transform: 'translateX(4px)',
+                                        boxShadow: '0 4px 16px rgba(237, 149, 23, 0.15)',
                                         '&::before': {
-                                            backgroundColor: '#1976d2',
+                                            backgroundColor: '#ed9517',
                                         }
                                     },
                                     '&:nth-of-type(3)': {
-                                        borderBottom: '1px solid rgba(0, 0, 0, 0.15)',
-                                        marginBottom: '6px',
-                                        paddingBottom: '6px',
-                                        position: 'relative',
-                                        '&::after': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            bottom: '-1px',
-                                            left: '-4px',
-                                            right: '-4px',
-                                            height: '1px',
-                                            backgroundColor: 'rgba(0, 0, 0, 0.15)',
-                                        }
+                                        borderBottom: '1px solid rgba(30, 41, 59, 0.1)',
+                                        marginBottom: '8px',
+                                        paddingBottom: '14px',
                                     },
                                     '&[data-logout="true"]': {
-                                        color: '#d32f2f',
-                                        marginTop: '4px',
-                                        borderBottom: 'none',
+                                        color: '#dc2626',
+                                        marginTop: '8px',
                                         '&:hover': {
-                                            backgroundColor: 'rgba(211, 47, 47, 0.08)',
-                                            color: '#d32f2f',
+                                            backgroundColor: 'rgba(220, 38, 38, 0.08)',
+                                            color: '#dc2626',
                                             '&::before': {
-                                                backgroundColor: '#d32f2f',
+                                                backgroundColor: '#dc2626',
                                             }
                                         }
                                     }

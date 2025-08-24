@@ -8,27 +8,48 @@ export default function Main() {
         <Box
             display="flex"
             justifyContent="center"
-            alignItems="center"
+            alignItems="flex-start"
+            sx={{
+                background: 'linear-gradient(145deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+                minHeight: '100vh',
+                padding: '20px 0'
+            }}
         >
             <Box 
                 display="flex" 
                 flexDirection="column"
                 width="100%"
                 maxWidth="1280px"
-                height="100vh"
-                bgcolor="white" 
+                sx={{
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '20px',
+                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.1), 0 8px 30px rgba(0, 0, 0, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    overflow: 'hidden'
+                }}
             >
                 <Box 
                     display="flex" 
-                flex="1">
+                    flex="1"
+                    sx={{ minHeight: 'calc(100vh - 40px)' }}
+                >
                 <Box 
-                    width="20%">
+                    width="22%"
+                    sx={{
+                        background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                        borderRight: '1px solid rgba(148, 163, 184, 0.2)'
+                    }}
+                >
                     <LeftPanel/>
                 </Box>
                 
                 <Box 
                     flex="1" 
-                    bgcolor="#d3d3d3">
+                    sx={{
+                        background: 'rgba(148, 163, 184, 0.5)',
+                    }}
+                >
                     <MainPanel/>
                 </Box>
             </Box>

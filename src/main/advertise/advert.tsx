@@ -4,97 +4,70 @@ import StepOne from "./step-one.tsx";
 import StepTwo from "./step-two.tsx";
 import StepThree from "./step-three.tsx";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
-import StepFour from "./step-four.tsx";
 
 export default function Advert() {
-    const steps = ['İlan Türü', 'Konum Bilgisi', 'Haritada Seç', 'Detaylı Bilgi', 'Gözden Geçir'];
+    const steps = ['İlan Türü', 'Temel Bilgiler', 'Özellikler'];
     const [activeStep, setActiveStep] = useState<number>(0);
 
-    // Tüm adımlardan gelen bilgileri saklamak için state
-    const [advertData, setAdvertData] = useState({
-        category: '', // Konut, İşyeri, Arsa, Bina
-        type: '', // Daire, Villa, Ofis, Depo vb.
-        sellType: '', // Satılık, Kiralık
-        location: {
-            city: '', // Şehir
-            district: '', // İlçe
-            neighborhood: '', // Mahalle
-        },
-        coordinates: {
-            lat: 0, // Enlem
-            lng: 0, // Boylam
-        },
-        details: {
-            title: '', // İlan Başlığı
-            description: '', // İlan Açıklaması
-            squareMeters: 0, // Metrekare
-            price: 0, // Fiyat
-            roomCount: 0, // Oda Sayısı
-            buildingAge: 0, // Bina Yaşı
-            photos: [] as File[], // Fotoğraflar
-        },
-    });
-    
-    // StepOne'dan gelen bilgileri güncelle
-    const handleStepOneData = (category: string, type: string, sellType: string) => {
-        setAdvertData((prev) => ({
-            ...prev,
-            category,
-            type,
-            sellType,
-        }));
-    };
+    // Backend uyumlu state'ler - StepOne
+    const [listingType, setListingType] = useState<string>("");
+    const [propertyType, setPropertyType] = useState<string>("");
+    const [subtype, setSubtype] = useState<string>("");
 
-    // StepTwo'dan gelen bilgileri güncelle
-    const handleStepTwoData = (city: string, district: string, neighborhood: string) => {
-        setAdvertData((prev) => ({
-            ...prev,
-            location: {
+    // Backend uyumlu state'ler - StepTwo
+    const [title, setTitle] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
+    const [price, setPrice] = useState<string>("");
+    const [city, setCity] = useState<string>("");
+    const [district, setDistrict] = useState<string>("");
+    const [neighborhood, setNeighborhood] = useState<string>("");
+    const [addressText, setAddressText] = useState<string>("");
+    
+    // Dinamik detaylar state'i
+    const [details, setDetails] = useState<any>({});
+
+    const handleNextStep = () => {
+        if (activeStep === 0 && listingType && propertyType && subtype) {
+            console.log("İlan türü bilgileri:", {
+                listingType,
+                propertyType,
+                subtype
+            });
+            setActiveStep(1);
+        } else if (activeStep === 1 && title && description && price && city && district) {
+            console.log("Temel bilgiler:", {
+                title,
+                description,
+                price,
                 city,
                 district,
                 neighborhood,
-            },
-        }));
-    };
-
-    // StepThree'dan gelen bilgileri güncelle
-    const handleStepThreeData = (lat: number, lng: number) => {
-        setAdvertData((prev) => ({
-            ...prev,
-            coordinates: {
-                lat,
-                lng,
-            },
-        }));
-    };
-
-    // StepFour'dan gelen bilgileri güncelle
-    const handleStepFourData = (details: {
-        title: string;
-        description: string;
-        squareMeters: number;
-        price: number;
-        roomCount: number;
-        buildingAge: number;
-        photos: File[];
-    }) => {
-        setAdvertData((prev) => ({
-            ...prev,
-            details,
-        }));
-    };
-
-    const handleNextStep = () => {
-        if (activeStep === 0 && advertData.category && advertData.sellType) {
-            setActiveStep(1);
-        } else if (activeStep === 1 && advertData.location.city && advertData.location.district && advertData.location.neighborhood) {
+                addressText
+            });
             setActiveStep(2);
-        } else if (activeStep === 2 && advertData.coordinates.lat && advertData.coordinates.lng) {
-            setActiveStep(3);
-        } else if (activeStep === 3 && advertData.details.title && advertData.details.description) {
-            setActiveStep(4);
-        } else if (activeStep === 4) {
-            console.log("Tüm adımlar tamamlandı. İlan bilgileri:", advertData);
+        } else if (activeStep === 2) {
+            // İlan detaylarını kaydet
+            const listingData = {
+                // Temel bilgiler
+                title,
+                description,
+                listingType,
+                propertyType,
+                price: parseFloat(price),
+                city,
+                district,
+                neighborhood,
+                addressText,
+                
+                // Tip bazlı detaylar
+                [propertyType.toLowerCase() + 'Details']: {
+                    subtype,
+                    ...details
+                }
+            };
+            
+            console.log("Tüm ilan verileri:", listingData);
+            // Burada API çağrısı yapılabilir
         }
     };
 
@@ -106,17 +79,24 @@ export default function Advert() {
 
     function isNextButtonDisabled() {
         if (activeStep === 0) {
-            return !(advertData.category && advertData.sellType);
+            return !(listingType && propertyType && subtype);
         } else if (activeStep === 1) {
-            return !(advertData.location.city && advertData.location.district && advertData.location.neighborhood);
+            // StepTwo için minimum gerekli alanları kontrol et
+            return !(title && description && price && city && district);
         } else if (activeStep === 2) {
-            return !(advertData.coordinates.lat && advertData.coordinates.lng);
-        } else if (activeStep === 3) {
-            return !(advertData.details.title && advertData.details.description);
-        } else if (activeStep === 4) {
+            // StepThree için gerekli alan kontrolü yapılabilir
             return false;
         }
+        return false;
     }
+
+    // Step değiştiğinde detay state'ini temizle
+    useEffect(() => {
+        if (activeStep === 2 && Object.keys(details).length === 0) {
+            // İlk kez step 3'e gelindiğinde subtype'ı detaylara ekle
+            setDetails({ subtype });
+        }
+    }, [activeStep, subtype, details]);
 
     return (
         <Box
@@ -134,23 +114,52 @@ export default function Advert() {
                     borderRadius: '12px',
                     border: '4px solid #d3d3d3',
                     alignItems: 'center',
-                    width: '1080px',
+                    width: '1200px',
                     marginTop: '1%',
                     marginBottom: '1%',
                     padding: '2%',
                     display: 'flex',
                     flexDirection: 'column',
-                    position: 'relative'
+                    position: 'relative',
+                    minHeight: '700px'
                 }}    
             >
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 2 }}>
-                    <Stepper activeStep={activeStep} sx={{ width: '80%' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 3 }}>
+                    <Stepper activeStep={activeStep} sx={{ 
+                        width: '90%',
+                        '& .MuiStepConnector-line': {
+                            borderTopWidth: 3,
+                            borderColor: '#e2e8f0'
+                        },
+                        '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': {
+                            borderColor: '#475569'
+                        },
+                        '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
+                            borderColor: '#1e293b'
+                        }
+                    }}>
                         {steps.map((label, index) => (
                             <Step key={label}>
                                 <StepLabel 
                                     sx={{
-                                        color: activeStep === index ? '#FF5722' : '#6c757d', 
-                                        fontWeight: activeStep === index ? 'bold' : 'normal',
+                                        '& .MuiStepLabel-label': {
+                                            color: activeStep === index ? '#1e293b' : '#64748b',
+                                            fontWeight: activeStep === index ? 700 : 500,
+                                            fontSize: '1rem',
+                                            transition: 'all 0.3s ease'
+                                        },
+                                        '& .MuiStepIcon-root': {
+                                            color: activeStep >= index ? '#475569' : '#cbd5e1',
+                                            fontSize: '2rem',
+                                            transition: 'all 0.3s ease',
+                                            '&.Mui-active': {
+                                                color: '#1e293b',
+                                                transform: 'scale(1.1)'
+                                            },
+                                            '&.Mui-completed': {
+                                                color: '#1e293b',
+                                            }
+                                        }
                                     }}
                                 >
                                     {label}
@@ -160,74 +169,46 @@ export default function Advert() {
                     </Stepper>
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: 2, flex: 1 }}>
                     {activeStep === 0 && (
                         <StepOne
-                            category={advertData.category}
-                            setCategory={(category) => handleStepOneData(category, advertData.type, advertData.sellType)}
-                            type={advertData.type}
-                            setType={(type) => handleStepOneData(advertData.category, type, advertData.sellType)}
-                            sellType={advertData.sellType}
-                            setSellType={(sellType) => handleStepOneData(advertData.category, advertData.type, sellType)}
+                            listingType={listingType}
+                            setListingType={setListingType}
+                            propertyType={propertyType}
+                            setPropertyType={setPropertyType}
+                            subtype={subtype}
+                            setSubtype={setSubtype}
                         />
                     )}
+                    
                     {activeStep === 1 && (
                         <StepTwo
-                            onLocationSelect={(city, district, neighborhood) => handleStepTwoData(city, district, neighborhood)}
+                            listingType={listingType}
+                            propertyType={propertyType}
+                            subtype={subtype}
+                            title={title}
+                            setTitle={setTitle}
+                            description={description}
+                            setDescription={setDescription}
+                            price={price}
+                            setPrice={setPrice}
+                            city={city}
+                            setCity={setCity}
+                            district={district}
+                            setDistrict={setDistrict}
+                            neighborhood={neighborhood}
+                            setNeighborhood={setNeighborhood}
                         />
                     )}
-                    {activeStep === 2 && ( 
-
+                    
+                    {activeStep === 2 && (
                         <StepThree
-                            onCoordinatesSelect={(lat, lng) => handleStepThreeData(lat, lng)}
-                            il={advertData.location.city}
-                            ilce={advertData.location.district}
-                            mahalle={advertData.location.neighborhood}
+                            listingType={listingType}
+                            propertyType={propertyType}
+                            subtype={subtype}
+                            details={details}
+                            setDetails={setDetails}
                         />
-                    )}
-                    {activeStep === 3 && ( 
-                        <StepFour
-                            category={advertData.category}
-                            type={advertData.type}
-                            onDetailsSubmit={(details) => handleStepFourData(details)}
-                        />
-                    )}
-                    {activeStep === 4 && ( 
-                        <Box sx={{ margin: "auto", width: "100%", padding: 2, boxShadow: 3, borderRadius: 2, bgcolor: "white", display: "flex" }}>
-                        {/* Sol Kısım - Fotoğraf ve Açıklama */}
-                            <Box sx={{ flex: 1, marginRight: 2 }}>
-                                <Card>
-                                    <CardMedia
-                                        component="img"
-                                        height="400"
-                                        alt="İlan Fotoğrafı"
-                                    />
-                                </Card>
-                                <Typography variant="h6" sx={{ mt: 2 }}>Açıklama</Typography>
-                                <Typography variant="body1">{advertData.details.description}</Typography>
-                            </Box>
-                        
-                        {/* Sağ Kısım - Bilgiler */}
-                            <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                                <Typography variant="h5" fontWeight="bold">{advertData.details.title}</Typography>
-                                <Typography variant="h6" color="green">{advertData.details.price} TL</Typography>
-                                <Typography variant="body2" color="textSecondary">{advertData.category} - {advertData.type} - {advertData.sellType}</Typography>
-                                
-                                <Divider sx={{ my: 2 }} />
-                                
-                                <Grid container spacing={2}>
-                                    <Grid item xs={24}>
-                                        <Typography variant="body1"><b>İl:</b> {advertData.location.city}</Typography>
-                                        <Typography variant="body1"><b>İlçe:</b> {advertData.location.district}</Typography>
-                                        <Typography variant="body1"><b>Mahalle:</b> {advertData.location.neighborhood}</Typography>
-                                        <Typography variant="body1"><b>Metrekare:</b> {advertData.details.squareMeters} m²</Typography>
-                                        <Typography variant="body1"><b>Oda Sayısı:</b> {advertData.details.roomCount}</Typography>
-                                        <Typography variant="body1"><b>Bina Yaşı:</b> {advertData.details.buildingAge}</Typography>
-                                        <Typography variant="body1"><b>Fotoğraflar:</b> {advertData.details.photos.length} adet</Typography>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                        </Box>
                     )}
                 </Box>
 
@@ -243,13 +224,13 @@ export default function Advert() {
                             width: '10%',
                             display: 'flex',
                             justifyContent: 'center',
-                            backgroundColor: activeStep === 0 ? '#d3d3d3' : '#ed9517',
-                            color: activeStep === 0 ? '#9e9e9e' : 'white',
+                            backgroundColor: activeStep === 0 ? '#f1f5f9' : '#64748b',
+                            color: activeStep === 0 ? '#9ca3af' : 'white',
                             borderRadius: '12px',
-                            border: `1px solid ${activeStep === 0 ? '#d3d3d3' : '#ed9517'}`, 
+                            border: `1px solid ${activeStep === 0 ? '#e5e7eb' : '#64748b'}`, 
                             '&:hover': {
-                                backgroundColor: activeStep === 0 ? '#d3d3d3' : '#d87f0f', 
-                                borderColor: activeStep === 0 ? '#d3d3d3' : '#d87f0f',
+                                backgroundColor: activeStep === 0 ? '#f1f5f9' : '#475569', 
+                                borderColor: activeStep === 0 ? '#e5e7eb' : '#475569',
                             }
                         }}
                         startIcon={<ArrowBack />}
@@ -267,16 +248,20 @@ export default function Advert() {
                             width: '10%',
                             display: 'flex',
                             justifyContent: 'center',
-                            backgroundColor: '#ed9517', 
+                            backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : '#475569', 
                             color: 'white',
                             borderRadius: '12px', 
                             '&:hover': {
-                                backgroundColor: '#d87f0f',
+                                backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : '#334155',
+                            },
+                            '&:disabled': {
+                                backgroundColor: '#e5e7eb',
+                                color: '#9ca3af'
                             }
                         }}
                         endIcon={<ArrowForward />}
                     >
-                        {activeStep === 4 ? "Tamamla" : "Sonraki"}
+                        {activeStep === 0 ? "İleri" : activeStep === 1 ? "İleri" : "Tamamla"}
                     </Button>
                 </Box>
             </Box>
