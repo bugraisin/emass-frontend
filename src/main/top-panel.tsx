@@ -69,21 +69,26 @@ export default function TopPanel() {
                 alignItems="center"
                 justifyContent="space-between"
                 width="100%"
-                maxWidth="1280px"
+                maxWidth="1220px"
+                sx={{ paddingLeft: '12px' }}
             >
-            {/* Logo */}
-            <Box sx={{ marginLeft: '24px' }}>
-                <a href="http://localhost:3000/" style={{ 
-                    height: '60px',
+            <Box sx={{
+                borderRadius: '12px',
+                padding: '8px',
+                background: "white",
+            }}>
+                <a href="/" style={{
                     display: 'block',
-                    padding: '8px',
-                    position: 'relative',
-                    overflow: 'hidden'
+                    padding: 0,
+                    height: '40px',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
                 }}>
-                    <img src="/newlogo.png" alt="" style={{ 
-                        height: '45px', 
+                    <img src="/newlogo.png" alt="Logo" style={{
+                        height: '40px',
                         borderRadius: '8px',
-                        transition: 'all 0.3s ease'
+                        display: 'block',
+                        filter: 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))'
                     }} />
                 </a>
             </Box>

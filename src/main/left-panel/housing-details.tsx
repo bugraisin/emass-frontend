@@ -8,16 +8,20 @@ interface HousingDetailsProps {
 }
 
 export default function HousingDetails({ selectedCategory }: HousingDetailsProps) {
+    const siteFeeOptions = [
+        "Yok", "0-250₺", "251-500₺", "501-750₺", "751-1000₺", "1001-1500₺", "1501₺+"
+    ];
+    const [selectedSiteFees, setSelectedSiteFees] = useState<string[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'features' | 'area' | null>(null);
+    const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee' | null>(null);
     
     // Form states
     const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
-    const [netAreaRange, setNetAreaRange] = useState<string>('');
-    const [floorNo, setFloorNo] = useState<string>('');
-    const [totalFloors, setTotalFloors] = useState<string>('');
-    const [buildingAge, setBuildingAge] = useState<string>('');
-    const [heatingType, setHeatingType] = useState<string>('');
+    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
+    const [selectedFloors, setSelectedFloors] = useState<string[]>([]);
+    const [selectedTotalFloors, setSelectedTotalFloors] = useState<string[]>([]);
+    const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
+    const [selectedHeatingTypes, setSelectedHeatingTypes] = useState<string[]>([]);
     const [siteName, setSiteName] = useState<string>('');
     const [siteFee, setSiteFee] = useState<string>('');
     
@@ -41,6 +45,16 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         "150 m² - 200 m²",
         "200 m² - 300 m²",
         "300 m² +"
+    ];
+
+    const floorOptions = [
+        "-1", "0", "1", "2", "3", "4", "5", 
+        "6", "7", "8", "9", "10", "11-15", "16-20", "21+"
+    ];
+
+    const totalFloorOptions = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+        "11-15", "16-20", "21-25", "26-30", "31+"
     ];
 
     const heatingOptions = [
@@ -71,10 +85,10 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         return value.replace(/[^0-9]/g, '');
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'features' | 'area') => {
-        setAnchorEl(event.currentTarget);
-        setPopoverType(type);
-    };
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee') => {
+            setAnchorEl(event.currentTarget);
+            setPopoverType(type);
+        };
 
     const handlePopoverClose = () => {
         setAnchorEl(null);
@@ -91,19 +105,54 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         });
     };
 
-    const selectAreaRange = (range: string) => {
-        setNetAreaRange(range);
-        handlePopoverClose();
+    const toggleFloor = (floor: string) => {
+        setSelectedFloors(prev => {
+            if (prev.includes(floor)) {
+                return prev.filter(f => f !== floor);
+            } else {
+                return [...prev, floor];
+            }
+        });
     };
 
-    const selectAge = (age: string) => {
-        setBuildingAge(age);
-        handlePopoverClose();
+    const toggleTotalFloor = (floor: string) => {
+        setSelectedTotalFloors(prev => {
+            if (prev.includes(floor)) {
+                return prev.filter(f => f !== floor);
+            } else {
+                return [...prev, floor];
+            }
+        });
     };
 
-    const selectHeating = (heating: string) => {
-        setHeatingType(heating);
-        handlePopoverClose();
+    const toggleAreaRange = (range: string) => {
+        setSelectedAreaRanges(prev => {
+            if (prev.includes(range)) {
+                return prev.filter(r => r !== range);
+            } else {
+                return [...prev, range];
+            }
+        });
+    };
+
+    const toggleBuildingAge = (age: string) => {
+        setSelectedBuildingAges(prev => {
+            if (prev.includes(age)) {
+                return prev.filter(a => a !== age);
+            } else {
+                return [...prev, age];
+            }
+        });
+    };
+
+    const toggleHeatingType = (heating: string) => {
+        setSelectedHeatingTypes(prev => {
+            if (prev.includes(heating)) {
+                return prev.filter(h => h !== heating);
+            } else {
+                return [...prev, heating];
+            }
+        });
     };
 
     const open = Boolean(anchorEl);
@@ -172,41 +221,79 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                         <Typography sx={{ fontSize: "13px" }}>
                             Net Metrekare
                         </Typography>
-                        {netAreaRange && (
+                        {selectedAreaRanges.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {netAreaRange}
+                                {selectedAreaRanges.join(', ')}
                             </Typography>
                         )}
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Kat Bilgisi */}
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                    <TextField
-                        label="Bulunduğu Kat"
-                        variant="outlined"
-                        value={floorNo}
-                        onChange={(e) => setFloorNo(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                    <TextField
-                        label="Toplam Kat"
-                        variant="outlined"
-                        value={totalFloors}
-                        onChange={(e) => setTotalFloors(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Bulunduğu Kat Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'floor')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'floor' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'floor' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'floor' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Bulunduğu Kat
+                        </Typography>
+                        {selectedFloors.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedFloors.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
+
+                {/* Toplam Kat Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'totalFloor')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'totalFloor' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'totalFloor' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'totalFloor' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Toplam Kat
+                        </Typography>
+                        {selectedTotalFloors.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedTotalFloors.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Bina Yaşı Seçimi */}
@@ -233,9 +320,9 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                         <Typography sx={{ fontSize: "13px" }}>
                             Bina Yaşı
                         </Typography>
-                        {buildingAge && (
+                        {selectedBuildingAges.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {buildingAge}
+                                {selectedBuildingAges.join(', ')}
                             </Typography>
                         )}
                     </Box>
@@ -266,9 +353,9 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                         <Typography sx={{ fontSize: "13px" }}>
                             Isıtma Türü
                         </Typography>
-                        {heatingType && (
+                        {selectedHeatingTypes.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {heatingOptions.find(h => h.value === heatingType)?.label}
+                                {selectedHeatingTypes.map(type => heatingOptions.find(h => h.value === type)?.label).join(', ')}
                             </Typography>
                         )}
                     </Box>
@@ -276,31 +363,37 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                 </Box>
 
                 {/* Site Bilgileri */}
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                    <TextField
-                        label="Site Adı"
-                        variant="outlined"
-                        value={siteName}
-                        onChange={(e) => setSiteName(e.target.value)}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                    <TextField
-                        label="Site Ücreti (₺)"
-                        variant="outlined"
-                        value={siteFee ? formatNumber(siteFee) : ''}
-                        onChange={(e) => setSiteFee(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Aidat Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'siteFee')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'siteFee' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'siteFee' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'siteFee' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Aidat
+                        </Typography>
+                        {selectedSiteFees.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedSiteFees.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Özellikler Seçimi */}
@@ -361,15 +454,18 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                     }}
                 >
                     <Paper sx={{ padding: '12px' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>
                                 {popoverType === 'room' && 'Oda + Salon Seçin'}
                                 {popoverType === 'area' && 'Net Metrekare Aralığı'}
+                                {popoverType === 'floor' && 'Bulunduğu Kat Seçin'}
+                                {popoverType === 'totalFloor' && 'Toplam Kat Seçin'}
                                 {popoverType === 'age' && 'Bina Yaşı Seçin'}
                                 {popoverType === 'heating' && 'Isıtma Türü Seçin'}
                                 {popoverType === 'features' && 'Özellikler Seçin'}
+                                {popoverType === 'siteFee' && 'Aidat Seçin'}
                             </Typography>
-                            <IconButton onClick={handlePopoverClose} size="small">
+                            <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
                             </IconButton>
                         </Box>
@@ -402,13 +498,13 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                             </List>
                         )}
 
-                        {/* Net Metrekare Aralığı Listesi */}
-                        {popoverType === 'area' && (
+                        {/* Bulunduğu Kat Seçimi Listesi */}
+                        {popoverType === 'floor' && (
                             <List sx={{ padding: 0 }}>
-                                {netAreaRanges.map((range) => (
-                                    <ListItem disablePadding key={range} sx={{ p: 0 }}>
+                                {floorOptions.map((floor) => (
+                                    <ListItem disablePadding key={floor} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectAreaRange(range)} 
+                                            onClick={() => toggleFloor(floor)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -419,8 +515,64 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={netAreaRange === range}
+                                            <Checkbox
+                                                checked={selectedFloors.includes(floor)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{floor}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Toplam Kat Seçimi Listesi */}
+                        {popoverType === 'totalFloor' && (
+                            <List sx={{ padding: 0 }}>
+                                {totalFloorOptions.map((floor) => (
+                                    <ListItem disablePadding key={floor} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleTotalFloor(floor)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedTotalFloors.includes(floor)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{floor}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Net Metrekare Aralığı Listesi */}
+                        {popoverType === 'area' && (
+                            <List sx={{ padding: 0 }}>
+                                {netAreaRanges.map((range) => (
+                                    <ListItem disablePadding key={range} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleAreaRange(range)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedAreaRanges.includes(range)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{range}</Typography>
@@ -436,7 +588,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 {ageRanges.map((age) => (
                                     <ListItem disablePadding key={age} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectAge(age)} 
+                                            onClick={() => toggleBuildingAge(age)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -447,8 +599,8 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={buildingAge === age}
+                                            <Checkbox
+                                                checked={selectedBuildingAges.includes(age)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{age}</Typography>
@@ -464,7 +616,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 {heatingOptions.map((heating) => (
                                     <ListItem disablePadding key={heating.value} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectHeating(heating.value)} 
+                                            onClick={() => toggleHeatingType(heating.value)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -475,8 +627,8 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={heatingType === heating.value}
+                                            <Checkbox
+                                                checked={selectedHeatingTypes.includes(heating.value)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{heating.label}</Typography>
@@ -492,6 +644,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 {[
                                     { key: 'furnished', label: 'Eşyalı' },
                                     { key: 'balcony', label: 'Balkon' },
+                                    { key: 'site', label: 'Site İçerisinde' },
                                     { key: 'parking', label: 'Otopark' }
                                 ].map((feature) => (
                                     <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
@@ -512,6 +665,36 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{feature.label}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Aidat Seçenekleri Listesi */}
+                        {popoverType === 'siteFee' && (
+                            <List sx={{ padding: 0 }}>
+                                {siteFeeOptions.map((fee) => (
+                                    <ListItem disablePadding key={fee} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => {
+                                                setSelectedSiteFees(prev => prev.includes(fee) ? prev.filter(f => f !== fee) : [...prev, fee]);
+                                            }}
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedSiteFees.includes(fee)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{fee}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
