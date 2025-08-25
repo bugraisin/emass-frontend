@@ -104,7 +104,7 @@ export default function Price({ selectedCategory }: PriceProps) {
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
             <CardContent>
                 <div>
-                    <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", mb: 1, fontWeight: 600 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", fontWeight: 600 }}>
                         {config.label}
                     </Typography>
                     {getDisplayText() && (
@@ -115,7 +115,7 @@ export default function Price({ selectedCategory }: PriceProps) {
                 </div>
 
                 <Box sx={{ mb: 2, px: 1 }}>
-                    <Typography sx={{ fontSize: '12px', color: 'text.secondary', mb: 1 }}>
+                    <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>
                         {config.label} Aralığı
                     </Typography>
                     <Slider
@@ -140,7 +140,7 @@ export default function Price({ selectedCategory }: PriceProps) {
                             }
                         }}
                     />
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between'}}>
                         <Typography sx={{ fontSize: '10px', color: 'text.secondary' }}>
                             ₺0
                         </Typography>

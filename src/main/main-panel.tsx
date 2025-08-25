@@ -33,7 +33,7 @@ export default function MainPanel() {
   const [open, setOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12; // Sayfa başına 12 ilan
+  const itemsPerPage = 16; // Sayfa başına 12 ilan
 
   // Pagination hesaplaması
   const totalPages = Math.ceil(properties.length / itemsPerPage);

@@ -41,14 +41,13 @@ export default function TopPanel() {
     return (
         <Box
             height="8vh"
-            width="100%"
-            maxWidth="1280px"
+            width="100vw"
             display="flex"
             sx={{
                 background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
                 padding: '0 32px',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                justifyContent: 'center',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 16px rgba(0, 0, 0, 0.08)',
                 backdropFilter: 'blur(20px)',
                 borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -65,35 +64,24 @@ export default function TopPanel() {
                 }
             }}
         >
+            <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                width="100%"
+                maxWidth="1280px"
+            >
             {/* Logo */}
-            <Box sx={{ 
-                flexShrink: 0, 
-                marginLeft: '40px',
-                position: 'relative',
-                '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    right: '-20px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    width: '1px',
-                    height: '40px',
-                    background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)'
-                }
-            }}>
+            <Box sx={{ marginLeft: '24px' }}>
                 <a href="http://localhost:3000/" style={{ 
-                    height: '60px', 
-                    backgroundColor: 'white', 
-                    borderRadius: '12px', 
+                    height: '60px',
                     display: 'block',
-                    padding: '4px',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.1)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    padding: '8px',
                     position: 'relative',
                     overflow: 'hidden'
                 }}>
-                    <img src="/logo.png" alt="" style={{ 
-                        height: '52px', 
+                    <img src="/newlogo.png" alt="" style={{ 
+                        height: '45px', 
                         borderRadius: '8px',
                         transition: 'all 0.3s ease'
                     }} />
@@ -112,22 +100,18 @@ export default function TopPanel() {
                         placeholder="Hangi emlakı arıyorsunuz? Örn: Satılık daire, Kiralık villa..."
                         variant="outlined"
                         fullWidth
+                        autoComplete="off"
                         sx={{
                             '& .MuiInputBase-root': { 
                                 fontSize: '15px', 
                                 height: '52px',
                                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                borderRadius: '26px',
-                                paddingLeft: '24px',
+                                borderRadius: '8px',
+                                paddingLeft: '12px',
                                 backdropFilter: 'blur(10px)',
                                 border: '1px solid rgba(255, 255, 255, 0.2)',
                                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                                    transform: 'translateY(-1px)',
-                                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
-                                },
                                 '&.Mui-focused': {
                                     backgroundColor: 'white',
                                     boxShadow: '0 0 0 3px rgba(237, 149, 23, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15)',
@@ -156,9 +140,7 @@ export default function TopPanel() {
                                             color: 'white',
                                             minWidth: '52px',
                                             height: '40px',
-                                            borderRadius: '20px',
-                                            mr: 1.5,
-                                            boxShadow: '0 4px 16px rgba(237, 149, 23, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                            borderRadius: '10px',
                                             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                                             '&:hover': { 
                                                 background: 'linear-gradient(135deg, #d97706 0%, #ed9517 100%)',
@@ -202,8 +184,8 @@ export default function TopPanel() {
                                         transform: 'translateY(-1px)',
                                         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
                                     },
-                                    padding: '12px 24px',
-                                    borderRadius: '25px',
+                                    padding: '12px',
+                                    borderRadius: '12px',
                                     textTransform: 'none',
                                     fontWeight: 600,
                                     fontSize: '14px',
@@ -225,8 +207,8 @@ export default function TopPanel() {
                                         transform: 'translateY(-2px)',
                                         boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                                     },
-                                    padding: '12px 28px',
-                                    borderRadius: '25px',
+                                    padding: '12px',
+                                    borderRadius: '12px',
                                     textTransform: 'none',
                                     fontWeight: 700,
                                     fontSize: '14px',
@@ -266,8 +248,8 @@ export default function TopPanel() {
                                     transform: 'translateY(-2px)',
                                     boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
                                 },
-                                padding: '12px 28px',
-                                borderRadius: '25px',
+                                padding: '12px 24px',
+                                borderRadius: '12px',
                                 textTransform: 'none',
                                 fontWeight: 700,
                                 fontSize: '14px',
@@ -381,6 +363,7 @@ export default function TopPanel() {
                     </Menu>
                 </>
             )}
+            </Box>
             </Box>
         </Box>
     );

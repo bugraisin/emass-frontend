@@ -2,30 +2,142 @@ import React, { useState } from "react";
 import { Box, Divider, Button } from "@mui/material";
 import Categories from "./left-panel/categories.tsx";
 import Address from "./left-panel/address.tsx";
-import SquareMeter from "./left-panel/squaremeter.tsx";
 import Price from "./left-panel/price.tsx";
-import Age from "./left-panel/age.tsx";
-import RoomCount from "./left-panel/roomcount.tsx";
-import Features from "./left-panel/features.tsx";
+import HousingDetails from "./left-panel/housing-details.tsx";
+import OfficeDetails from "./left-panel/office-details.tsx";
+import CommercialDetails from "./left-panel/commercial-details.tsx";
+import LandDetails from "./left-panel/land-details.tsx";
+import IndustrialDetails from "./left-panel/industrial-details.tsx";
+import ServiceDetails from "./left-panel/service-details.tsx";
 
 export default function LeftPanel() {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
 
-    // Bina yaşının gösterilip gösterilmeyeceğini kontrol et
-    const shouldShowAge = () => {
-        return selectedCategory && 
-               !selectedCategory.includes("Arsa") && 
-               selectedCategory !== '';
-    };
+    // Kategori-spesifik detay panellerini gösterme fonksiyonu
+    const renderCategorySpecificPanels = () => {
+        if (!selectedCategory) return null;
 
-    // Oda sayısının gösterilip gösterilmeyeceğini kontrol et
-    const shouldShowRoomCount = () => {
-        return selectedCategory && 
-               (selectedCategory.includes("Daire") || 
-                selectedCategory.includes("Villa") || 
-                selectedCategory.includes("Müstakil Ev") || 
-                selectedCategory.includes("Rezidans") ||
-                selectedCategory.includes("Yazlık"));
+        // Konut kategorileri
+        if (selectedCategory.includes("KONUT") || 
+            selectedCategory.includes("DAIRE") ||
+            selectedCategory.includes("VILLA") ||
+            selectedCategory.includes("MUSTAKIL_EV") ||
+            selectedCategory.includes("REZIDANS") ||
+            selectedCategory.includes("YAZLIK")) {
+            return (
+                <>
+                    <Divider sx={{ 
+                        my: 1,
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
+                    }} />
+                    <HousingDetails selectedCategory={selectedCategory} />
+                </>
+            );
+        }
+
+        // Ofis kategorileri
+        if (selectedCategory.includes("OFIS") ||
+            selectedCategory.includes("BÜRO") ||
+            selectedCategory.includes("COWORKING") ||
+            selectedCategory.includes("CALL_CENTER") ||
+            selectedCategory.includes("TOPLANTI_SALONU") ||
+            selectedCategory.includes("MUAYENEHANE") ||
+            selectedCategory.includes("AVUKATLIK_BÜROSU") ||
+            selectedCategory.includes("MUHASEBE_OFISI")) {
+            return (
+                <>
+                    <Divider sx={{ 
+                        my: 1,
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
+                    }} />
+                    <OfficeDetails selectedCategory={selectedCategory} />
+                </>
+            );
+        }
+
+        // Ticari kategoriler
+        if (selectedCategory.includes("TICARI") ||
+            selectedCategory.includes("DUKKAN") ||
+            selectedCategory.includes("MAGAZA") ||
+            selectedCategory.includes("SHOWROOM") ||
+            selectedCategory.includes("MARKET") ||
+            selectedCategory.includes("RESTAURANT") ||
+            selectedCategory.includes("KAFE") ||
+            selectedCategory.includes("BAR") ||
+            selectedCategory.includes("PASTANE") ||
+            selectedCategory.includes("BERBER_KUAFOR") ||
+            selectedCategory.includes("GUZELLIK_SALONU") ||
+            selectedCategory.includes("ECZANE")) {
+            return (
+                <>
+                    <Divider sx={{ 
+                        my: 1,
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
+                    }} />
+                    <CommercialDetails selectedCategory={selectedCategory} />
+                </>
+            );
+        }
+
+        // Arsa kategorileri
+        if (selectedCategory.includes("ARSA") ||
+            selectedCategory.includes("KONUT_ARSASI") ||
+            selectedCategory.includes("TICARI_ARSA") ||
+            selectedCategory.includes("TARLA") ||
+            selectedCategory.includes("BAG_BAHCE")) {
+            return (
+                <>
+                    <Divider sx={{ 
+                        my: 1,
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
+                    }} />
+                    <LandDetails selectedCategory={selectedCategory} />
+                </>
+            );
+        }
+
+        // Endüstriyel kategoriler
+        if (selectedCategory.includes("ENDUSTRIYEL") ||
+            selectedCategory.includes("FABRIKA") ||
+            selectedCategory.includes("ATOLYE") ||
+            selectedCategory.includes("IMALATHANE") ||
+            selectedCategory.includes("DEPO") ||
+            selectedCategory.includes("SOGUK_HAVA_DEPOSU") ||
+            selectedCategory.includes("ANTREPO") ||
+            selectedCategory.includes("LABORATUVAR") ||
+            selectedCategory.includes("URETIM_TESISI")) {
+            return (
+                <>
+                    <Divider sx={{ 
+                        my: 1,
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
+                    }} />
+                    <IndustrialDetails selectedCategory={selectedCategory} />
+                </>
+            );
+        }
+
+        // Hizmet kategorileri
+        if (selectedCategory.includes("HIZMET") ||
+            selectedCategory.includes("OTOPARK") ||
+            selectedCategory.includes("SPOR_SALONU") ||
+            selectedCategory.includes("YIKAMA") ||
+            selectedCategory.includes("OTO_SERVIS") ||
+            selectedCategory.includes("BENZIN_ISTASYONU") ||
+            selectedCategory.includes("KARGO_MERKEZI") ||
+            selectedCategory.includes("TEMIZLIK_MERKEZI")) {
+            return (
+                <>
+                    <Divider sx={{ 
+                        my: 1,
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
+                    }} />
+                    <ServiceDetails selectedCategory={selectedCategory} />
+                </>
+            );
+        }
+
+        return null;
     };
 
     return (
@@ -45,39 +157,10 @@ export default function LeftPanel() {
                 background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
             }} />
             <Price selectedCategory={selectedCategory} />
-            <Divider sx={{ 
-                my: 1,
-                background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
-            }} />
-            <SquareMeter/>
             
-            {shouldShowAge() && (
-                <>
-                    <Divider sx={{ 
-                        my: 2.5,
-                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
-                    }} />
-                    <Age/>
-                </>
-            )}
-            
-            {shouldShowRoomCount() && (
-                <>
-                    <Divider sx={{ 
-                        my: 1,
-                        background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
-                    }} />
-                    <RoomCount/>
-                </>
-            )}
-            
-            <Divider sx={{ 
-                my: 1,
-                background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
-            }} />
-            <Features selectedCategory={selectedCategory} />
+            {/* Kategori-spesifik detay panelleri */}
+            {renderCategorySpecificPanels()}
 
-            
             <Box
                 sx={{
                     position: 'sticky',
