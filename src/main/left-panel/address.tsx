@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  Card, CardContent, Typography, Accordion, AccordionSummary, AccordionDetails,
-  List, ListItem, ListItemButton, TextField, Checkbox, FormControlLabel, Collapse
+  Card, CardContent, Typography, List, ListItem, ListItemButton, 
+  TextField, Checkbox, FormControlLabel, Collapse, Box, IconButton, 
+  Popover, Paper, Chip, Radio, RadioGroup
 } from '@mui/material';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
@@ -20,8 +23,10 @@ type SubdistrictGroup = {
 };
 
 export default function Address() {
-  const [expanded, setExpanded] = useState<string | false>(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [popoverType, setPopoverType] = useState<'city' | 'district' | 'neighborhood' | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [cities, setCities] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -32,6 +37,23 @@ export default function Address() {
   const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
   const [selectedDistrictIds, setSelectedDistrictIds] = useState<string[]>([]);
   const [selectedNeighborhoodIds, setSelectedNeighborhoodIds] = useState<string[]>([]);
+
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'city' | 'district' | 'neighborhood') => {
+    setAnchorEl(event.currentTarget);
+    setPopoverType(type);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+    setPopoverType(null);
+    setSearchTerm('');
+  };
+
+  // Tek il seçimi için özel fonksiyon
+  const selectSingleCity = (cityId: string) => {
+    setSelectedCityIds([cityId]);
+    handlePopoverClose();
+  };
 
   // 1) load provinces once
   useEffect(() => {
@@ -114,16 +136,6 @@ export default function Address() {
     .sort((a, b) => a.subdistrict.name.localeCompare(b.subdistrict.name, 'tr'));
   };
 
-  // filters
-  const filteredCities = useMemo(
-    () => cities,
-    [cities]
-  );
-  const filteredDistricts = useMemo(
-    () => districts,
-    [districts]
-  );
-  
   const subdistrictGroups = useMemo(() => {
     return groupNeighborhoodsBySubdistrict(subdistricts, neighborhoods);
   }, [subdistricts, neighborhoods]);
@@ -156,7 +168,9 @@ export default function Address() {
     }
   };
 
-  const handleAccordionChange = (panel: string) => setExpanded(prev => (prev === panel ? false : panel));
+  const handleAccordionChange = (panel: string) => {
+    // Bu fonksiyon artık kullanılmıyor ama başka yerlerde referans olabilir
+  };
 
   // Seçili il/ilçe isimlerini getiren fonksiyonlar
   const getSelectedCityNames = () => {
@@ -175,159 +189,298 @@ export default function Address() {
     return selectedNeighborhoodIds.length;
   };
 
+  // Arama için filtreleme fonksiyonları
+  const filteredCities = useMemo(() => {
+    if (!searchTerm) return cities;
+    return cities.filter(city => 
+      city.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [cities, searchTerm]);
+
+  const filteredDistricts = useMemo(() => {
+    if (!searchTerm) return districts;
+    return districts.filter(district => 
+      district.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [districts, searchTerm]);
+
+  const filteredSubdistrictGroups = useMemo(() => {
+    if (!searchTerm) return subdistrictGroups;
+    return subdistrictGroups.map(group => ({
+      ...group,
+      neighborhoods: group.neighborhoods.filter(neighborhood =>
+        neighborhood.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.subdistrict.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    })).filter(group => group.neighborhoods.length > 0);
+  }, [subdistrictGroups, searchTerm]);
+
+  const open = Boolean(anchorEl);
+
   return (
     <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ fontSize: '16px' }}>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+        <Typography variant="h6" gutterBottom sx={{ fontSize: '16px', mb: 1.5 }}>
           Adres
         </Typography>
 
-        {/* Provinces */}
-        <Accordion expanded={expanded === "panel1"} onChange={() => handleAccordionChange("panel1")}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ fontSize: '18px' }} />}>
-            <div>
-              <Typography sx={{ fontSize: '14px' }}>İl Seçin</Typography>
-              {selectedCityIds.length > 0 && (
-                <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 'bold' }}>
-                  {getSelectedCityNames()}
-                </Typography>
-              )}
-            </div>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-            <List sx={{ maxHeight: 300, overflowY: 'auto', p: 0 }}>
-              {filteredCities.map((city) => (
-                <ListItem disablePadding key={city.id} sx={{ p: 0 }}>
-                  <ListItemButton sx={{ p: 0, display: 'flex', alignItems: 'center' }} onClick={() => toggle(selectedCityIds, setSelectedCityIds, city.id)}>
-                    <Checkbox
-                      checked={selectedCityIds.includes(city.id)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggle(selectedCityIds, setSelectedCityIds, city.id);
-                      }}
-                      sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, m: 0, mr: 1 }}
-                    />
-                    <Typography sx={{ fontSize: '13px', m: 0 }}>{city.name}</Typography>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
+        {/* İl Seçimi */}
+        <Box 
+          onClick={(e) => handlePopoverOpen(e, 'city')}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '8px 10px',
+            border: '1px solid rgba(0, 0, 0, 0.12)',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            marginBottom: '6px',
+            minHeight: '36px',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)'
+            }
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: "13px" }}>
+              İl Seçin
+            </Typography>
+            {selectedCityIds.length > 0 && (
+              <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                {getSelectedCityNames()}
+              </Typography>
+            )}
+          </Box>
+          <ChevronRightIcon sx={{ fontSize: "16px" }} />
+        </Box>
 
-        {/* Districts */}
-        <Accordion expanded={expanded === "panel2"} onChange={() => handleAccordionChange("panel2")}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ fontSize: '18px' }} />}>
-            <div>
-              <Typography sx={{ fontSize: '14px' }}>İlçe Seçin</Typography>
-              {selectedDistrictIds.length > 0 && (
-                <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 'bold' }}>
-                  {getSelectedDistrictNames()}
-                </Typography>
-              )}
-            </div>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-            <List sx={{ maxHeight: 300, overflowY: 'auto', p: 0 }}>
-              {filteredDistricts.map((d) => (
-                <ListItem disablePadding key={d.id} sx={{ p: 0 }}>
-                  <ListItemButton sx={{ p: 0, display: 'flex', alignItems: 'center' }} onClick={() => toggle(selectedDistrictIds, setSelectedDistrictIds, d.id)}>
-                    <Checkbox
-                      checked={selectedDistrictIds.includes(d.id)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggle(selectedDistrictIds, setSelectedDistrictIds, d.id);
-                      }}
-                      sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, m: 0, mr: 1 }}
-                    />
-                    <Typography sx={{ fontSize: '13px', m: 0 }}>{d.name}</Typography>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </AccordionDetails>
-        </Accordion>
+        {/* İlçe Seçimi */}
+        <Box 
+          onClick={(e) => selectedCityIds.length > 0 && handlePopoverOpen(e, 'district')}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '8px 10px',
+            border: '1px solid rgba(0, 0, 0, 0.12)',
+            borderRadius: '6px',
+            cursor: selectedCityIds.length > 0 ? 'pointer' : 'not-allowed',
+            marginBottom: '6px',
+            minHeight: '36px',
+            opacity: selectedCityIds.length > 0 ? 1 : 0.5,
+            '&:hover': {
+              backgroundColor: selectedCityIds.length > 0 ? 'rgba(0, 0, 0, 0.04)' : 'transparent'
+            }
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: "13px" }}>
+              İlçe Seçin
+            </Typography>
+            {selectedDistrictIds.length > 0 && (
+              <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                {getSelectedDistrictNames()}
+              </Typography>
+            )}
+          </Box>
+          <ChevronRightIcon sx={{ fontSize: "16px" }} />
+        </Box>
 
-        {/* Neighborhoods with Groups */}
-        <Accordion expanded={expanded === "panel3"} onChange={() => handleAccordionChange("panel3")}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ fontSize: '18px' }} />}>
-            <div>
-              <Typography sx={{ fontSize: '14px' }}>Mahalle Seçin</Typography>
-              {getSelectedNeighborhoodCount() > 0 && (
-                <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 'bold' }}>
-                  {getSelectedNeighborhoodCount()} mahalle seçili
-                </Typography>
-              )}
-            </div>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-            <List sx={{ maxHeight: 300, overflowY: 'auto', p: 0 }}>
-              {subdistrictGroups.map((group) => {
-                const groupNeighborhoodIds = group.neighborhoods.map(n => n.id);
-                const allSelected = groupNeighborhoodIds.every(id => selectedNeighborhoodIds.includes(id));
-                const someSelected = groupNeighborhoodIds.some(id => selectedNeighborhoodIds.includes(id));
-                
-                return (
-                  <div key={group.subdistrict.id}>
-                    {/* Subdistrict Başlığı */}
-                    <ListItem disablePadding sx={{ p: 0, backgroundColor: '#f5f5f5' }}>
+        {/* Mahalle Seçimi */}
+        <Box 
+          onClick={(e) => selectedDistrictIds.length > 0 && handlePopoverOpen(e, 'neighborhood')}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '8px 10px',
+            border: '1px solid rgba(0, 0, 0, 0.12)',
+            borderRadius: '6px',
+            cursor: selectedDistrictIds.length > 0 ? 'pointer' : 'not-allowed',
+            minHeight: '36px',
+            opacity: selectedDistrictIds.length > 0 ? 1 : 0.5,
+            '&:hover': {
+              backgroundColor: selectedDistrictIds.length > 0 ? 'rgba(0, 0, 0, 0.04)' : 'transparent'
+            }
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: "13px" }}>
+              Mahalle Seçin
+            </Typography>
+            {selectedNeighborhoodIds.length > 0 && (
+              <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                {getSelectedNeighborhoodCount()} mahalle seçili
+              </Typography>
+            )}
+          </Box>
+          <ChevronRightIcon sx={{ fontSize: "16px" }} />
+        </Box>
+
+        {/* Popover Panel */}
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handlePopoverClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          sx={{
+            '& .MuiPopover-paper': {
+              marginLeft: '8px',
+              minWidth: '280px',
+              maxHeight: '400px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+              border: '1px solid rgba(0, 0, 0, 0.12)'
+            }
+          }}
+        >
+          <Paper sx={{ padding: '12px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+              <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600 }}>
+                {popoverType === 'city' && 'İl Seçin'}
+                {popoverType === 'district' && 'İlçe Seçin'}
+                {popoverType === 'neighborhood' && 'Mahalle Seçin'}
+              </Typography>
+              <IconButton onClick={handlePopoverClose} size="small">
+                <CloseIcon sx={{ fontSize: '16px' }} />
+              </IconButton>
+            </Box>
+
+            {/* Arama Kutusu */}
+            <TextField
+              size="small"
+              placeholder="Ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ 
+                width: '100%', 
+                mb: 1.5,
+                '& .MuiOutlinedInput-root': {
+                  fontSize: '13px',
+                  height: '32px'
+                }
+              }}
+            />
+
+            {/* İl Listesi - Radio Button */}
+            {popoverType === 'city' && (
+              <RadioGroup value={selectedCityIds[0] || ''}>
+                <List sx={{ maxHeight: 250, overflowY: 'auto', padding: 0 }}>
+                  {filteredCities.map((city) => (
+                    <ListItem disablePadding key={city.id}>
                       <ListItemButton 
-                        sx={{ p: 0, display: 'flex', alignItems: 'center' }} 
-                        onClick={() => toggleGroup(group.subdistrict.id)}
+                        onClick={() => selectSingleCity(city.id)}
+                        sx={{
+                          p: '4px 8px',
+                          borderRadius: '4px',
+                          '&:hover': { backgroundColor: 'rgba(237, 149, 23, 0.1)' }
+                        }}
                       >
-                        <Checkbox
-                          checked={allSelected}
-                          indeterminate={someSelected && !allSelected}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleGroupSelection(group);
-                          }}
-                          sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, m: 0, mr: 1 }}
+                        <Radio
+                          checked={selectedCityIds.includes(city.id)}
+                          sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                         />
-                        <Typography sx={{ 
-                          fontSize: '13px', 
-                          fontWeight: 'bold',
-                          m: 0,
-                          flex: 1
-                        }}>
-                          {group.subdistrict.name} ({group.neighborhoods.length})
-                        </Typography>
-                        {expandedGroups[group.subdistrict.id] ? 
-                          <ExpandLessIcon sx={{ fontSize: '16px', ml: 'auto' }} /> : 
-                          <ExpandMoreIcon sx={{ fontSize: '16px', ml: 'auto' }} />
-                        }
+                        <Typography sx={{ fontSize: '13px' }}>{city.name}</Typography>
                       </ListItemButton>
                     </ListItem>
-                    
-                    {/* Grup Mahalleleri */}
-                    <Collapse in={expandedGroups[group.subdistrict.id]} timeout="auto" unmountOnExit>
-                      <List sx={{ pl: 2, py: 0 }}>
-                        {group.neighborhoods.map((neighborhood) => (
-                          <ListItem disablePadding key={neighborhood.id} sx={{ p: 0 }}>
-                            <ListItemButton 
-                              sx={{ p: 0, display: 'flex', alignItems: 'center' }} 
-                              onClick={() => toggle(selectedNeighborhoodIds, setSelectedNeighborhoodIds, neighborhood.id)}
-                            >
-                              <Checkbox
-                                checked={selectedNeighborhoodIds.includes(neighborhood.id)}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggle(selectedNeighborhoodIds, setSelectedNeighborhoodIds, neighborhood.id);
-                                }}
-                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, m: 0, mr: 1 }}
-                              />
-                              <Typography sx={{ fontSize: '12px', m: 0 }}>{neighborhood.name}</Typography>
-                            </ListItemButton>
-                          </ListItem>
-                        ))}
-                      </List>
+                  ))}
+                </List>
+              </RadioGroup>
+            )}
+
+            {/* İlçe Listesi */}
+            {popoverType === 'district' && (
+              <List sx={{ maxHeight: 250, overflowY: 'auto', padding: 0 }}>
+                {filteredDistricts.map((district) => (
+                  <ListItem disablePadding key={district.id}>
+                    <ListItemButton 
+                      onClick={() => toggle(selectedDistrictIds, setSelectedDistrictIds, district.id)}
+                      sx={{
+                        p: '4px 8px',
+                        borderRadius: '4px',
+                        '&:hover': { backgroundColor: 'rgba(237, 149, 23, 0.1)' }
+                      }}
+                    >
+                      <Checkbox
+                        checked={selectedDistrictIds.includes(district.id)}
+                        sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                      />
+                      <Typography sx={{ fontSize: '13px' }}>{district.name}</Typography>
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+
+            {/* Mahalle Listesi */}
+            {popoverType === 'neighborhood' && (
+              <List sx={{ maxHeight: 250, overflowY: 'auto', padding: 0 }}>
+                {filteredSubdistrictGroups.map((group) => (
+                  <Box key={group.subdistrict.id}>
+                    <ListItem 
+                      sx={{ 
+                        p: '4px 8px', 
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        borderRadius: '4px',
+                        mb: 0.5
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Checkbox
+                            checked={group.neighborhoods.every(n => selectedNeighborhoodIds.includes(n.id))}
+                            indeterminate={group.neighborhoods.some(n => selectedNeighborhoodIds.includes(n.id)) && 
+                                          !group.neighborhoods.every(n => selectedNeighborhoodIds.includes(n.id))}
+                            onChange={() => toggleGroupSelection(group)}
+                            sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                          />
+                          <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>
+                            {group.subdistrict.name}
+                          </Typography>
+                        </Box>
+                        <IconButton 
+                          onClick={() => toggleGroup(group.subdistrict.name)}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        >
+                          {expandedGroups[group.subdistrict.name] ? <ExpandLessIcon sx={{ fontSize: 14 }} /> : <ExpandMoreIcon sx={{ fontSize: 14 }} />}
+                        </IconButton>
+                      </Box>
+                    </ListItem>
+                    <Collapse in={expandedGroups[group.subdistrict.name]}>
+                      {group.neighborhoods.map((neighborhood) => (
+                        <ListItem disablePadding key={neighborhood.id} sx={{ pl: 1.5 }}>
+                          <ListItemButton 
+                            onClick={() => toggle(selectedNeighborhoodIds, setSelectedNeighborhoodIds, neighborhood.id)}
+                            sx={{
+                              p: '3px 6px',
+                              borderRadius: '3px',
+                              '&:hover': { backgroundColor: 'rgba(237, 149, 23, 0.1)' }
+                            }}
+                          >
+                            <Checkbox
+                              checked={selectedNeighborhoodIds.includes(neighborhood.id)}
+                              sx={{ '& .MuiSvgIcon-root': { fontSize: 12 }, mr: 1, p: 0 }}
+                            />
+                            <Typography sx={{ fontSize: '12px' }}>{neighborhood.name}</Typography>
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
                     </Collapse>
-                  </div>
-                );
-              })}
-            </List>
-          </AccordionDetails>
-        </Accordion>
+                  </Box>
+                ))}
+              </List>
+            )}
+          </Paper>
+        </Popover>
       </CardContent>
     </Card>
   );

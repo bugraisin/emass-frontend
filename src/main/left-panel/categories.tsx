@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, Typography, Accordion, AccordionSummary, AccordionDetails, List, ListItem, ListItemButton, Radio } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Card, CardContent, Typography, List, ListItem, ListItemButton, Radio, Box, IconButton, Popover, Paper } from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface CategoriesProps {
     onCategoryChange: (category: string) => void;
 }
 
 export default function Categories({ onCategoryChange }: CategoriesProps) {
-    const [expanded, setExpanded] = useState<string | false>(false);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const [popoverType, setPopoverType] = useState<'sale' | 'rent' | null>(null);
     const [selectedSaleCategory, setSelectedSaleCategory] = useState<string>('');
     const [selectedRentCategory, setSelectedRentCategory] = useState<string>('');
 
-    const handleAccordionChange = (panel: string) => {
-        setExpanded((prev) => (prev === panel ? false : panel));
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'sale' | 'rent') => {
+        setAnchorEl(event.currentTarget);
+        setPopoverType(type);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+        setPopoverType(null);
     };
 
     const toggleSaleCategory = (item: string) => {
@@ -20,9 +28,7 @@ export default function Categories({ onCategoryChange }: CategoriesProps) {
         const newCategory = selectedSaleCategory === item ? '' : `Satılık ${item}`;
         setSelectedSaleCategory(newCategory === '' ? '' : item);
         onCategoryChange(newCategory);
-        if (newCategory !== '') {
-            setExpanded(false);
-        }
+        handlePopoverClose();
     };
 
     const toggleRentCategory = (item: string) => {
@@ -30,119 +36,138 @@ export default function Categories({ onCategoryChange }: CategoriesProps) {
         const newCategory = selectedRentCategory === item ? '' : `Kiralık ${item}`;
         setSelectedRentCategory(newCategory === '' ? '' : item);
         onCategoryChange(newCategory);
-        if (newCategory !== '') {
-            setExpanded(false);
-        }
+        handlePopoverClose();
     };
 
-    const getSaleDisplayText = () => {
-        return selectedSaleCategory || "";
-    };
-
-    const getRentDisplayText = () => {
-        return selectedRentCategory || "";
-    };
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (!(event.target as HTMLElement).closest(".accordion-container")) {
-                setExpanded(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    const open = Boolean(anchorEl);
 
     return (
-        <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }} className="accordion-container">
-            <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ fontSize: "16px" }}>
+        <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
+            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", mb: 1.5 }}>
                     Kategori
                 </Typography>
 
-                <Accordion expanded={expanded === "panel1"} onChange={() => handleAccordionChange("panel1")}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ fontSize: "18px" }} />}>
-                        <div>
-                            <Typography sx={{ fontSize: "14px" }}>
-                                Satılık
+                {/* Satılık Button */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'sale')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Satılık
+                        </Typography>
+                        {selectedSaleCategory && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedSaleCategory}
                             </Typography>
-                            {selectedSaleCategory && (
-                                <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 'bold' }}>
-                                    {getSaleDisplayText()}
-                                </Typography>
-                            )}
-                        </div>
-                    </AccordionSummary>
-                    <AccordionDetails sx={{ p: 0 }}>
-                        <List sx={{ padding: 0 }}>
-                            {["Daire", "Arsa", "Müstakil Ev", "Rezidans", "Villa", "Çiftlik Evi", "Yazlık"].map((item) => (
-                                <ListItem disablePadding key={item} sx={{ p: 0 }}>
-                                    <ListItemButton 
-                                        onClick={() => toggleSaleCategory(item)} 
-                                        sx={{
-                                            p: 0,
-                                            display: 'flex',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        <Radio
-                                            checked={selectedSaleCategory === item}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleSaleCategory(item);
-                                            }}
-                                            sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, m: 0, mr: 1 }}
-                                        />
-                                        <Typography sx={{ fontSize: '13px', m: 0 }}>{item}</Typography>
-                                    </ListItemButton>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </AccordionDetails>
-                </Accordion>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
 
-                <Accordion expanded={expanded === "panel2"} onChange={() => handleAccordionChange("panel2")}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ fontSize: "18px" }} />}>
-                        <div>
-                            <Typography sx={{ fontSize: "14px" }}>
-                                Kiralık
+                {/* Kiralık Button */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'rent')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        minHeight: '36px',
+                        '&:hover': {
+                            backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Kiralık
+                        </Typography>
+                        {selectedRentCategory && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedRentCategory}
                             </Typography>
-                            {selectedRentCategory && (
-                                <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 'bold' }}>
-                                    {getRentDisplayText()}
-                                </Typography>
-                            )}
-                        </div>
-                    </AccordionSummary>
-                    <AccordionDetails sx={{ p: 0 }}>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
+
+                {/* Popover Panel */}
+                <Popover
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handlePopoverClose}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
+                    sx={{
+                        '& .MuiPopover-paper': {
+                            marginLeft: '8px',
+                            minWidth: '280px',
+                            maxHeight: '400px',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+                            border: '1px solid rgba(0, 0, 0, 0.12)'
+                        }
+                    }}
+                >
+                    <Paper sx={{ padding: '12px' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600 }}>
+                                {popoverType === 'sale' ? 'Satılık' : 'Kiralık'} Kategoriler
+                            </Typography>
+                            <IconButton onClick={handlePopoverClose} size="small">
+                                <CloseIcon sx={{ fontSize: '16px' }} />
+                            </IconButton>
+                        </Box>
                         <List sx={{ padding: 0 }}>
                             {["Daire", "Arsa", "Müstakil Ev", "Rezidans", "Villa", "Çiftlik Evi", "Yazlık"].map((item) => (
                                 <ListItem disablePadding key={item} sx={{ p: 0 }}>
                                     <ListItemButton 
-                                        onClick={() => toggleRentCategory(item)} 
+                                        onClick={() => popoverType === 'sale' ? toggleSaleCategory(item) : toggleRentCategory(item)} 
                                         sx={{
-                                            p: 0,
+                                            p: '4px 8px',
                                             display: 'flex',
-                                            alignItems: 'center'
+                                            alignItems: 'center',
+                                            borderRadius: '4px',
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                            }
                                         }}
                                     >
                                         <Radio
-                                            checked={selectedRentCategory === item}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                toggleRentCategory(item);
-                                            }}
-                                            sx={{ '& .MuiSvgIcon-root': { fontSize: 16 }, m: 0, mr: 1 }}
+                                            checked={popoverType === 'sale' ? selectedSaleCategory === item : selectedRentCategory === item}
+                                            sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                         />
                                         <Typography sx={{ fontSize: '13px', m: 0 }}>{item}</Typography>
                                     </ListItemButton>
                                 </ListItem>
                             ))}
                         </List>
-                    </AccordionDetails>
-                </Accordion>
+                    </Paper>
+                </Popover>
             </CardContent>
         </Card>
     );
