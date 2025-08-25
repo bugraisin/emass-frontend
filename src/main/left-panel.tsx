@@ -30,23 +30,23 @@ export default function LeftPanel() {
 
     return (
         <Box sx={{ 
-            padding: '24px 20px',
+            padding: '12px',
             height: '100%',
             position: 'relative'
         }}>
             <Categories onCategoryChange={setSelectedCategory} />
             <Divider sx={{ 
-                my: 2.5,
+                my: 1,
                 background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
             }} />
             <Address/>
             <Divider sx={{ 
-                my: 2.5,
+                my: 1,
                 background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
             }} />
             <Price selectedCategory={selectedCategory} />
             <Divider sx={{ 
-                my: 2.5,
+                my: 1,
                 background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
             }} />
             <SquareMeter/>
@@ -64,7 +64,7 @@ export default function LeftPanel() {
             {shouldShowRoomCount() && (
                 <>
                     <Divider sx={{ 
-                        my: 2.5,
+                        my: 1,
                         background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
                     }} />
                     <RoomCount/>
@@ -72,7 +72,7 @@ export default function LeftPanel() {
             )}
             
             <Divider sx={{ 
-                my: 2.5,
+                my: 1,
                 background: 'linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.3) 50%, transparent 100%)'
             }} />
             <Features selectedCategory={selectedCategory} />

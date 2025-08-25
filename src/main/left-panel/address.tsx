@@ -220,7 +220,7 @@ export default function Address() {
   return (
     <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
       <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-        <Typography variant="h6" gutterBottom sx={{ fontSize: '16px', mb: 1.5 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", mb: 1, fontWeight: 600 }}>
           Adres
         </Typography>
 
@@ -342,8 +342,8 @@ export default function Address() {
             }
           }}
         >
-          <Paper sx={{ padding: '12px' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+          <Paper sx={{ padding: '8px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600 }}>
                 {popoverType === 'city' && 'İl Seçin'}
                 {popoverType === 'district' && 'İlçe Seçin'}

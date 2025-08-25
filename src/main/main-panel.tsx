@@ -60,10 +60,10 @@ export default function MainPanel() {
       flexDirection="column" 
       height="100vh" 
       sx={{
-        padding: '24px',
+        padding: '12px',
       }}
     >
-      <Grid container spacing={3} sx={{ flex: 1 }}>
+      <Grid container spacing={1} sx={{ flex: 1 }}>
         {currentProperties.map((property, index) => (
           <Grid item xs={12} sm={6} key={`${property.id}-${index}`}>
             <Card
@@ -71,7 +71,7 @@ export default function MainPanel() {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
-                padding: '20px',
+                padding: '10px',
                 cursor: "pointer",
                 background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
                 borderRadius: '20px',
@@ -82,11 +82,7 @@ export default function MainPanel() {
                 position: 'relative',
                 overflow: 'hidden',
                 "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.08)',
-                  '&::before': {
-                    opacity: 1
-                  }
+                  transform: "translateY(-2px)",
                 },
                 '&::before': {
                   content: '""',

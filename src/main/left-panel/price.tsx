@@ -104,7 +104,7 @@ export default function Price({ selectedCategory }: PriceProps) {
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
             <CardContent>
                 <div>
-                    <Typography variant="h6" sx={{ fontSize: '16px', marginBottom: 1 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", mb: 1, fontWeight: 600 }}>
                         {config.label}
                     </Typography>
                     {getDisplayText() && (

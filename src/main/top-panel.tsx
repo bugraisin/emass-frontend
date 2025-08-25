@@ -68,7 +68,7 @@ export default function TopPanel() {
             {/* Logo */}
             <Box sx={{ 
                 flexShrink: 0, 
-                marginLeft: '20px',
+                marginLeft: '40px',
                 position: 'relative',
                 '&::after': {
                     content: '""',
@@ -90,11 +90,7 @@ export default function TopPanel() {
                     boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.1)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     position: 'relative',
-                    overflow: 'hidden',
-                    '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 8px 30px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.15)'
-                    }
+                    overflow: 'hidden'
                 }}>
                     <img src="/logo.png" alt="" style={{ 
                         height: '52px', 
