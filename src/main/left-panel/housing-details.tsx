@@ -13,7 +13,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
     ];
     const [selectedSiteFees, setSelectedSiteFees] = useState<string[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee' | null>(null);
+    const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee' | 'facade' | null>(null);
     
     // Form states
     const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
@@ -22,6 +22,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
     const [selectedTotalFloors, setSelectedTotalFloors] = useState<string[]>([]);
     const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
     const [selectedHeatingTypes, setSelectedHeatingTypes] = useState<string[]>([]);
+    const [selectedFacadeTypes, setSelectedFacadeTypes] = useState<string[]>([]);
     const [siteName, setSiteName] = useState<string>('');
     const [siteFee, setSiteFee] = useState<string>('');
     
@@ -70,6 +71,10 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         "0 (Yeni)", "1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31+"
     ];
 
+    const facadeOptions = [
+        "Kuzey", "Güney", "Doğu", "Batı", "Kuzey-Doğu", "Kuzey-Batı", "Güney-Doğu", "Güney-Batı"
+    ];
+
     const handleFeatureChange = (feature: string) => {
         setFeatures(prev => ({
             ...prev,
@@ -85,10 +90,10 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         return value.replace(/[^0-9]/g, '');
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee') => {
-            setAnchorEl(event.currentTarget);
-            setPopoverType(type);
-        };
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee' | 'facade') => {
+        setAnchorEl(event.currentTarget);
+        setPopoverType(type);
+    };
 
     const handlePopoverClose = () => {
         setAnchorEl(null);
@@ -151,6 +156,16 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                 return prev.filter(h => h !== heating);
             } else {
                 return [...prev, heating];
+            }
+        });
+    };
+
+    const toggleFacadeType = (facade: string) => {
+        setSelectedFacadeTypes(prev => {
+            if (prev.includes(facade)) {
+                return prev.filter(f => f !== facade);
+            } else {
+                return [...prev, facade];
             }
         });
     };
@@ -361,8 +376,38 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
-
-                {/* Site Bilgileri */}
+                {/* Cephe Yönü Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'facade')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'facade' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'facade' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'facade' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Cephe Yönü
+                        </Typography>
+                        {selectedFacadeTypes.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedFacadeTypes.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
                 {/* Aidat Seçimi */}
                 <Box 
                     onClick={(e) => handlePopoverOpen(e, 'siteFee')}
@@ -462,6 +507,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 {popoverType === 'totalFloor' && 'Toplam Kat Seçin'}
                                 {popoverType === 'age' && 'Bina Yaşı Seçin'}
                                 {popoverType === 'heating' && 'Isıtma Türü Seçin'}
+                                {popoverType === 'facade' && 'Cephe Yönü Seçin'}
                                 {popoverType === 'features' && 'Özellikler Seçin'}
                                 {popoverType === 'siteFee' && 'Aidat Seçin'}
                             </Typography>
@@ -637,16 +683,37 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 ))}
                             </List>
                         )}
-
+                        {/* Cephe Yönü Listesi */}
+                        {popoverType === 'facade' && (
+                            <List sx={{ padding: 0 }}>
+                                {facadeOptions.map((facade) => (
+                                    <ListItem disablePadding key={facade} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleFacadeType(facade)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedFacadeTypes.includes(facade)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{facade}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
                         {/* Özellikler Listesi */}
                         {popoverType === 'features' && (
                             <List sx={{ padding: 0 }}>
-                                {[
-                                    { key: 'furnished', label: 'Eşyalı' },
-                                    { key: 'balcony', label: 'Balkon' },
-                                    { key: 'site', label: 'Site İçerisinde' },
-                                    { key: 'parking', label: 'Otopark' }
-                                ].map((feature) => (
+                                {[{ key: 'furnished', label: 'Eşyalı' }, { key: 'balcony', label: 'Balkon' }, { key: 'parking', label: 'Otopark' }, { key: 'site', label: 'Site İçerisinde' }].map((feature) => (
                                     <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
                                         <ListItemButton 
                                             onClick={() => handleFeatureChange(feature.key)} 

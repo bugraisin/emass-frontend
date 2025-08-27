@@ -72,11 +72,7 @@ export default function TopPanel() {
                 maxWidth="1220px"
                 sx={{ paddingLeft: '12px' }}
             >
-            <Box sx={{
-                borderRadius: '12px',
-                padding: '8px',
-                background: "white",
-            }}>
+            <Box>
                 <a href="/" style={{
                     display: 'block',
                     padding: 0,
@@ -84,7 +80,7 @@ export default function TopPanel() {
                     borderRadius: '8px',
                     overflow: 'hidden',
                 }}>
-                    <img src="/newlogo.png" alt="Logo" style={{
+                    <img src="/transparant_emass_logo.png" alt="Logo" style={{
                         height: '40px',
                         borderRadius: '8px',
                         display: 'block',

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, FormGroup, FormControlLabel, Checkbox, Box, TextField, MenuItem, Select, FormControl, List, ListItem, ListItemButton, Radio, Popover, Paper, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Popover, Paper, IconButton } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -9,33 +9,25 @@ interface ServiceDetailsProps {
 
 export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'totalArea' | 'coverType' | 'features' | null>(null);
+    const [popoverType, setPopoverType] = useState<'totalArea' | 'age' | 'coverType' | 'features' | 'capacity' | null>(null);
     
-    // Form states
-    const [totalAreaRange, setTotalAreaRange] = useState<string>('');
-    const [coveredArea, setCoveredArea] = useState<string>('');
-    const [vehicleCapacity, setVehicleCapacity] = useState<string>('');
-    const [coverType, setCoverType] = useState<string>('');
-    const [heightLimit, setHeightLimit] = useState<string>('');
-    const [changingRoomCount, setChangingRoomCount] = useState<string>('');
-    const [showerCount, setShowerCount] = useState<string>('');
-    const [washBayCount, setWashBayCount] = useState<string>('');
-    const [liftCount, setLiftCount] = useState<string>('');
-    const [liftCapacity, setLiftCapacity] = useState<string>('');
-    const [pumpCount, setPumpCount] = useState<string>('');
-    const [fuelTypes, setFuelTypes] = useState<string>('');
-    const [operatingCost, setOperatingCost] = useState<string>('');
+    // Form states - multiple choice
+    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
+    const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
+    const [selectedCoverTypes, setSelectedCoverTypes] = useState<string[]>([]);
+    const [selectedCapacities, setSelectedCapacities] = useState<string[]>([]);
     
     // Boolean features
     const [features, setFeatures] = useState<Record<string, boolean>>({
-        valetService: false,
-        equipmentIncluded: false,
-        sauna: false,
-        automaticSystem: false,
-        paintBooth: false,
-        convenienceStore: false,
         security: false,
-        lighting: false
+        lighting: false,
+        parking: false,
+        valetService: false,
+        automaticSystem: false,
+        washingArea: false,
+        maintenanceArea: false,
+        restRoom: false,
+        storage: false
     });
 
     const areaRanges = [
@@ -48,18 +40,22 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
         "10.000 m² +"
     ];
 
-    const coverTypeOptions = [
-        "KAPALI",
-        "ACIK", 
-        "YARIMKAPALI"
+    const ageRanges = [
+        "0 (Yeni)", "1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31+"
     ];
 
-    const fuelTypeOptions = [
-        "Benzin",
-        "Motorin", 
-        "LPG",
-        "CNG",
-        "Elektrik"
+    const coverTypeOptions = [
+        "Kapalı",
+        "Açık", 
+        "Yarı Kapalı"
+    ];
+
+    const capacityOptions = [
+        "10-50",
+        "50-100", 
+        "100-200",
+        "200-500",
+        "500+"
     ];
 
     const handleFeatureChange = (feature: string) => {
@@ -69,15 +65,7 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
         }));
     };
 
-    const formatNumber = (value: string) => {
-        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
-
-    const cleanNumber = (value: string) => {
-        return value.replace(/[^0-9]/g, '');
-    };
-
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'totalArea' | 'coverType' | 'features') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'totalArea' | 'age' | 'coverType' | 'features' | 'capacity') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -87,207 +75,47 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
         setPopoverType(null);
     };
 
-    const selectAreaRange = (range: string) => {
-        setTotalAreaRange(range);
-        handlePopoverClose();
+    const toggleAreaRange = (range: string) => {
+        setSelectedAreaRanges(prev => {
+            if (prev.includes(range)) {
+                return prev.filter(r => r !== range);
+            } else {
+                return [...prev, range];
+            }
+        });
     };
 
-    const selectCoverType = (type: string) => {
-        setCoverType(type);
-        handlePopoverClose();
+    const toggleBuildingAge = (age: string) => {
+        setSelectedBuildingAges(prev => {
+            if (prev.includes(age)) {
+                return prev.filter(a => a !== age);
+            } else {
+                return [...prev, age];
+            }
+        });
+    };
+
+    const toggleCoverType = (type: string) => {
+        setSelectedCoverTypes(prev => {
+            if (prev.includes(type)) {
+                return prev.filter(t => t !== type);
+            } else {
+                return [...prev, type];
+            }
+        });
+    };
+
+    const toggleCapacity = (capacity: string) => {
+        setSelectedCapacities(prev => {
+            if (prev.includes(capacity)) {
+                return prev.filter(c => c !== capacity);
+            } else {
+                return [...prev, capacity];
+            }
+        });
     };
 
     const open = Boolean(anchorEl);
-
-    const getSubtypeSpecificFields = () => {
-        // Otopark özellikleri
-        if (selectedCategory.includes("OTOPARK")) {
-            return (
-                <>
-                    <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                        <TextField
-                            label="Araç Kapasitesi"
-                            variant="outlined"
-                            value={vehicleCapacity}
-                            onChange={(e) => setVehicleCapacity(cleanNumber(e.target.value))}
-                            size="small"
-                            sx={{ 
-                                flex: 1,
-                                '& .MuiInputBase-root': { fontSize: '13px' },
-                                '& .MuiInputLabel-root': { fontSize: '12px' }
-                            }}
-                        />
-                        <TextField
-                            label="Yükseklik Sınırı (cm)"
-                            variant="outlined"
-                            value={heightLimit}
-                            onChange={(e) => setHeightLimit(cleanNumber(e.target.value))}
-                            size="small"
-                            sx={{ 
-                                flex: 1,
-                                '& .MuiInputBase-root': { fontSize: '13px' },
-                                '& .MuiInputLabel-root': { fontSize: '12px' }
-                            }}
-                        />
-                    </Box>
-                    <Box 
-                        onClick={(e) => handlePopoverOpen(e, 'coverType')}
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 10px',
-                            border: '1px solid rgba(0, 0, 0, 0.12)',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            marginBottom: '6px',
-                            minHeight: '36px',
-                            backgroundColor: popoverType === 'coverType' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                            borderColor: popoverType === 'coverType' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                            '&:hover': {
-                                backgroundColor: popoverType === 'coverType' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                            }
-                        }}
-                    >
-                        <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontSize: "13px" }}>
-                                Kapalılık Durumu
-                            </Typography>
-                            {coverType && (
-                                <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                    {coverType}
-                                </Typography>
-                            )}
-                        </Box>
-                        <ChevronRightIcon sx={{ fontSize: "16px" }} />
-                    </Box>
-                </>
-            );
-        }
-
-        // Spor salonu özellikleri
-        if (selectedCategory.includes("SPOR_SALONU")) {
-            return (
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                    <TextField
-                        label="Soyunma Odası"
-                        variant="outlined"
-                        value={changingRoomCount}
-                        onChange={(e) => setChangingRoomCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                    <TextField
-                        label="Duş Sayısı"
-                        variant="outlined"
-                        value={showerCount}
-                        onChange={(e) => setShowerCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                </Box>
-            );
-        }
-
-        // Yıkama özellikleri
-        if (selectedCategory.includes("YIKAMA")) {
-            return (
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="Yıkama Bölmesi Sayısı"
-                        variant="outlined"
-                        value={washBayCount}
-                        onChange={(e) => setWashBayCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                </Box>
-            );
-        }
-
-        // Oto servis özellikleri
-        if (selectedCategory.includes("OTO_SERVIS")) {
-            return (
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                    <TextField
-                        label="Lift Sayısı"
-                        variant="outlined"
-                        value={liftCount}
-                        onChange={(e) => setLiftCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                    <TextField
-                        label="Lift Kapasitesi (ton)"
-                        variant="outlined"
-                        value={liftCapacity}
-                        onChange={(e) => setLiftCapacity(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                </Box>
-            );
-        }
-
-        // Benzin istasyonu özellikleri
-        if (selectedCategory.includes("BENZIN_ISTASYONU")) {
-            return (
-                <>
-                    <Box sx={{ mb: 1 }}>
-                        <TextField
-                            fullWidth
-                            label="Pompa Sayısı"
-                            variant="outlined"
-                            value={pumpCount}
-                            onChange={(e) => setPumpCount(cleanNumber(e.target.value))}
-                            size="small"
-                            sx={{ 
-                                '& .MuiInputBase-root': { fontSize: '13px' },
-                                '& .MuiInputLabel-root': { fontSize: '12px' }
-                            }}
-                        />
-                    </Box>
-                    <Box sx={{ mb: 1 }}>
-                        <TextField
-                            fullWidth
-                            label="Yakıt Türleri"
-                            variant="outlined"
-                            value={fuelTypes}
-                            onChange={(e) => setFuelTypes(e.target.value)}
-                            size="small"
-                            placeholder="Örn: Benzin, Motorin, LPG"
-                            sx={{ 
-                                '& .MuiInputBase-root': { fontSize: '13px' },
-                                '& .MuiInputLabel-root': { fontSize: '12px' }
-                            }}
-                        />
-                    </Box>
-                </>
-            );
-        }
-
-        return null;
-    };
 
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
@@ -320,48 +148,112 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                         <Typography sx={{ fontSize: "13px" }}>
                             Toplam Alan
                         </Typography>
-                        {totalAreaRange && (
+                        {selectedAreaRanges.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {totalAreaRange}
+                                {selectedAreaRanges.join(', ')}
                             </Typography>
                         )}
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Kapalı Alan */}
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="Kapalı Alan (m²)"
-                        variant="outlined"
-                        value={coveredArea ? formatNumber(coveredArea) : ''}
-                        onChange={(e) => setCoveredArea(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Bina Yaşı Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'age')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'age' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'age' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'age' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Bina Yaşı
+                        </Typography>
+                        {selectedBuildingAges.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedBuildingAges.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Subtype spesifik alanlar */}
-                {getSubtypeSpecificFields()}
+                {/* Kapasite */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'capacity')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'capacity' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'capacity' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'capacity' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Kapasite
+                        </Typography>
+                        {selectedCapacities.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedCapacities.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
 
-                {/* İşletme Maliyeti */}
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="Aylık İşletme Maliyeti (₺)"
-                        variant="outlined"
-                        value={operatingCost ? formatNumber(operatingCost) : ''}
-                        onChange={(e) => setOperatingCost(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Kapalılık Durumu */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'coverType')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'coverType' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'coverType' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'coverType' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Kapalılık Durumu
+                        </Typography>
+                        {selectedCoverTypes.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedCoverTypes.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Özellikler Seçimi */}
@@ -422,13 +314,15 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                     }}
                 >
                     <Paper sx={{ padding: '12px' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>
                                 {popoverType === 'totalArea' && 'Toplam Alan Aralığı'}
+                                {popoverType === 'age' && 'Bina Yaşı Seçin'}
+                                {popoverType === 'capacity' && 'Kapasite Seçin'}
                                 {popoverType === 'coverType' && 'Kapalılık Durumu'}
                                 {popoverType === 'features' && 'Özellikler Seçin'}
                             </Typography>
-                            <IconButton onClick={handlePopoverClose} size="small">
+                            <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
                             </IconButton>
                         </Box>
@@ -439,7 +333,7 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                                 {areaRanges.map((range) => (
                                     <ListItem disablePadding key={range} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectAreaRange(range)} 
+                                            onClick={() => toggleAreaRange(range)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -450,11 +344,67 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={totalAreaRange === range}
+                                            <Checkbox
+                                                checked={selectedAreaRanges.includes(range)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{range}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Bina Yaşı Listesi */}
+                        {popoverType === 'age' && (
+                            <List sx={{ padding: 0 }}>
+                                {ageRanges.map((age) => (
+                                    <ListItem disablePadding key={age} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleBuildingAge(age)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedBuildingAges.includes(age)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{age}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Kapasite Listesi */}
+                        {popoverType === 'capacity' && (
+                            <List sx={{ padding: 0 }}>
+                                {capacityOptions.map((capacity) => (
+                                    <ListItem disablePadding key={capacity} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleCapacity(capacity)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedCapacities.includes(capacity)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{capacity}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
@@ -467,7 +417,7 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                                 {coverTypeOptions.map((type) => (
                                     <ListItem disablePadding key={type} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectCoverType(type)} 
+                                            onClick={() => toggleCoverType(type)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -478,8 +428,8 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={coverType === type}
+                                            <Checkbox
+                                                checked={selectedCoverTypes.includes(type)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{type}</Typography>
@@ -493,16 +443,15 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                         {popoverType === 'features' && (
                             <List sx={{ padding: 0 }}>
                                 {[
-                                    ...(selectedCategory.includes("OTOPARK") ? [{ key: 'valetService', label: 'Vale Hizmeti' }] : []),
-                                    ...(selectedCategory.includes("SPOR_SALONU") ? [
-                                        { key: 'equipmentIncluded', label: 'Ekipman Dahil' },
-                                        { key: 'sauna', label: 'Sauna' }
-                                    ] : []),
-                                    ...(selectedCategory.includes("YIKAMA") ? [{ key: 'automaticSystem', label: 'Otomatik Sistem' }] : []),
-                                    ...(selectedCategory.includes("OTO_SERVIS") ? [{ key: 'paintBooth', label: 'Boya Kabini' }] : []),
-                                    ...(selectedCategory.includes("BENZIN_ISTASYONU") ? [{ key: 'convenienceStore', label: 'Market' }] : []),
                                     { key: 'security', label: 'Güvenlik' },
-                                    { key: 'lighting', label: 'Aydınlatma' }
+                                    { key: 'lighting', label: 'Aydınlatma' },
+                                    { key: 'parking', label: 'Otopark' },
+                                    { key: 'valetService', label: 'Vale/Hizmet Personeli' },
+                                    { key: 'automaticSystem', label: 'Otomatik Sistem' },
+                                    { key: 'washingArea', label: 'Yıkama Alanı' },
+                                    { key: 'maintenanceArea', label: 'Bakım Alanı' },
+                                    { key: 'restRoom', label: 'Dinlenme/WC' },
+                                    { key: 'storage', label: 'Depo Alanı' }
                                 ].map((feature) => (
                                     <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
                                         <ListItemButton 

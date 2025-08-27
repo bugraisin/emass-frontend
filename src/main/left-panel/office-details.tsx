@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, FormGroup, FormControlLabel, Checkbox, Box, TextField, MenuItem, Select, FormControl, List, ListItem, ListItemButton, Radio, Popover, Paper, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Radio, Popover, Paper, IconButton } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -9,28 +9,26 @@ interface OfficeDetailsProps {
 
 export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'area' | 'age' | 'features' | null>(null);
+    const [popoverType, setPopoverType] = useState<'area' | 'floor' | 'age' | 'features' | 'room' | 'meetingRoom' | 'facade' | null>(null);
     
     // Form states
-    const [netAreaRange, setNetAreaRange] = useState<string>('');
-    const [floorNo, setFloorNo] = useState<string>('');
-    const [buildingAge, setBuildingAge] = useState<string>('');
-    const [roomCount, setRoomCount] = useState<string>('');
-    const [meetingRoomCount, setMeetingRoomCount] = useState<string>('');
-    const [businessCenter, setBusinessCenter] = useState<string>('');
-    const [deskCount, setDeskCount] = useState<string>('');
-    const [privateOfficeCount, setPrivateOfficeCount] = useState<string>('');
-    const [workstationCount, setWorkstationCount] = useState<string>('');
-    const [maintenanceFee, setMaintenanceFee] = useState<string>('');
+    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
+    const [selectedFloors, setSelectedFloors] = useState<string[]>([]);
+    const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
+    const [selectedRoomCounts, setSelectedRoomCounts] = useState<string[]>([]);
+    const [selectedMeetingRoomCounts, setSelectedMeetingRoomCounts] = useState<string[]>([]);
+    const [selectedFacadeTypes, setSelectedFacadeTypes] = useState<string[]>([]);
     
     // Boolean features
     const [features, setFeatures] = useState<Record<string, boolean>>({
         furnished: false,
         airConditioning: false,
         parking: false,
-        reception: false,
-        soundIsolation: false,
-        internetIncluded: false
+        elevator: false,
+        generator: false,
+        internetIncluded: false,
+        security24: false,
+        kitchen: false
     });
 
     const ageRanges = [
@@ -47,6 +45,23 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         "1000 m² +"
     ];
 
+    const floorOptions = [
+        "Bodrum", "Giriş", "1", "2", "3", "4", "5", 
+        "6", "7", "8", "9", "10", "11-15", "16-20", "21+"
+    ];
+
+    const roomCountOptions = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10+"
+    ];
+
+    const meetingRoomOptions = [
+        "0", "1", "2", "3", "4", "5+"
+    ];
+
+    const facadeOptions = [
+        "Kuzey", "Güney", "Doğu", "Batı", "Kuzey-Doğu", "Kuzey-Batı", "Güney-Doğu", "Güney-Batı"
+    ];
+
     const handleFeatureChange = (feature: string) => {
         setFeatures(prev => ({
             ...prev,
@@ -54,15 +69,7 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         }));
     };
 
-    const formatNumber = (value: string) => {
-        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
-
-    const cleanNumber = (value: string) => {
-        return value.replace(/[^0-9]/g, '');
-    };
-
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'age' | 'features') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'floor' | 'age' | 'features' | 'room' | 'meetingRoom' | 'facade') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -72,73 +79,67 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         setPopoverType(null);
     };
 
-    const selectAreaRange = (range: string) => {
-        setNetAreaRange(range);
-        handlePopoverClose();
+    const toggleAreaRange = (range: string) => {
+        setSelectedAreaRanges(prev => {
+            if (prev.includes(range)) {
+                return prev.filter(r => r !== range);
+            } else {
+                return [...prev, range];
+            }
+        });
     };
 
-    const selectAge = (age: string) => {
-        setBuildingAge(age);
-        handlePopoverClose();
+    const toggleFloor = (floor: string) => {
+        setSelectedFloors(prev => {
+            if (prev.includes(floor)) {
+                return prev.filter(f => f !== floor);
+            } else {
+                return [...prev, floor];
+            }
+        });
+    };
+
+    const toggleBuildingAge = (age: string) => {
+        setSelectedBuildingAges(prev => {
+            if (prev.includes(age)) {
+                return prev.filter(a => a !== age);
+            } else {
+                return [...prev, age];
+            }
+        });
+    };
+
+    const toggleRoomCount = (count: string) => {
+        setSelectedRoomCounts(prev => {
+            if (prev.includes(count)) {
+                return prev.filter(r => r !== count);
+            } else {
+                return [...prev, count];
+            }
+        });
+    };
+
+    const toggleMeetingRoomCount = (count: string) => {
+        setSelectedMeetingRoomCounts(prev => {
+            if (prev.includes(count)) {
+                return prev.filter(m => m !== count);
+            } else {
+                return [...prev, count];
+            }
+        });
+    };
+
+    const toggleFacadeType = (facade: string) => {
+        setSelectedFacadeTypes(prev => {
+            if (prev.includes(facade)) {
+                return prev.filter(f => f !== facade);
+            } else {
+                return [...prev, facade];
+            }
+        });
     };
 
     const open = Boolean(anchorEl);
-
-    const getSubtypeSpecificFields = () => {
-        if (selectedCategory.includes("COWORKING")) {
-            return (
-                <>
-                    <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                        <TextField
-                            label="Masa Sayısı"
-                            variant="outlined"
-                            value={deskCount}
-                            onChange={(e) => setDeskCount(cleanNumber(e.target.value))}
-                            size="small"
-                            sx={{ 
-                                flex: 1,
-                                '& .MuiInputBase-root': { fontSize: '13px' },
-                                '& .MuiInputLabel-root': { fontSize: '12px' }
-                            }}
-                        />
-                        <TextField
-                            label="Özel Ofis Sayısı"
-                            variant="outlined"
-                            value={privateOfficeCount}
-                            onChange={(e) => setPrivateOfficeCount(cleanNumber(e.target.value))}
-                            size="small"
-                            sx={{ 
-                                flex: 1,
-                                '& .MuiInputBase-root': { fontSize: '13px' },
-                                '& .MuiInputLabel-root': { fontSize: '12px' }
-                            }}
-                        />
-                    </Box>
-                </>
-            );
-        }
-
-        if (selectedCategory.includes("CALL_CENTER")) {
-            return (
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="İş İstasyonu Sayısı"
-                        variant="outlined"
-                        value={workstationCount}
-                        onChange={(e) => setWorkstationCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                </Box>
-            );
-        }
-
-        return null;
-    };
 
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
@@ -171,29 +172,46 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                         <Typography sx={{ fontSize: "13px" }}>
                             Net Metrekare
                         </Typography>
-                        {netAreaRange && (
+                        {selectedAreaRanges.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {netAreaRange}
+                                {selectedAreaRanges.join(', ')}
                             </Typography>
                         )}
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Kat No */}
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="Kat No"
-                        variant="outlined"
-                        value={floorNo}
-                        onChange={(e) => setFloorNo(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Bulunduğu Kat Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'floor')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'floor' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'floor' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'floor' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Bulunduğu Kat
+                        </Typography>
+                        {selectedFloors.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedFloors.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Bina Yaşı Seçimi */}
@@ -220,76 +238,112 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                         <Typography sx={{ fontSize: "13px" }}>
                             Bina Yaşı
                         </Typography>
-                        {buildingAge && (
+                        {selectedBuildingAges.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {buildingAge}
+                                {selectedBuildingAges.join(', ')}
                             </Typography>
                         )}
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Oda Sayıları */}
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                    <TextField
-                        label="Oda Sayısı"
-                        variant="outlined"
-                        value={roomCount}
-                        onChange={(e) => setRoomCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
-                    <TextField
-                        label="Toplantı Odası"
-                        variant="outlined"
-                        value={meetingRoomCount}
-                        onChange={(e) => setMeetingRoomCount(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            flex: 1,
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Oda Sayısı Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'room')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'room' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'room' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'room' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Oda Sayısı
+                        </Typography>
+                        {selectedRoomCounts.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedRoomCounts.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Subtype spesifik alanlar */}
-                {getSubtypeSpecificFields()}
-
-                {/* İş Merkezi */}
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="İş Merkezi (opsiyonel)"
-                        variant="outlined"
-                        value={businessCenter}
-                        onChange={(e) => setBusinessCenter(e.target.value)}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Toplantı Odası Sayısı Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'meetingRoom')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'meetingRoom' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'meetingRoom' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'meetingRoom' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Toplantı Odası
+                        </Typography>
+                        {selectedMeetingRoomCounts.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedMeetingRoomCounts.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Bakım Ücreti */}
-                <Box sx={{ mb: 1 }}>
-                    <TextField
-                        fullWidth
-                        label="Aylık Bakım Ücreti (₺)"
-                        variant="outlined"
-                        value={maintenanceFee ? formatNumber(maintenanceFee) : ''}
-                        onChange={(e) => setMaintenanceFee(cleanNumber(e.target.value))}
-                        size="small"
-                        sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
-                        }}
-                    />
+                {/* Cephe Yönü Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'facade')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'facade' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'facade' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'facade' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Cephe Yönü
+                        </Typography>
+                        {selectedFacadeTypes.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedFacadeTypes.join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Özellikler Seçimi */}
@@ -350,13 +404,17 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                     }}
                 >
                     <Paper sx={{ padding: '12px' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>
                                 {popoverType === 'area' && 'Net Metrekare Aralığı'}
+                                {popoverType === 'floor' && 'Bulunduğu Kat Seçin'}
                                 {popoverType === 'age' && 'Bina Yaşı Seçin'}
+                                {popoverType === 'room' && 'Oda Sayısı Seçin'}
+                                {popoverType === 'meetingRoom' && 'Toplantı Odası Seçin'}
+                                {popoverType === 'facade' && 'Cephe Yönü Seçin'}
                                 {popoverType === 'features' && 'Özellikler Seçin'}
                             </Typography>
-                            <IconButton onClick={handlePopoverClose} size="small">
+                            <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
                             </IconButton>
                         </Box>
@@ -367,7 +425,7 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                 {netAreaRanges.map((range) => (
                                     <ListItem disablePadding key={range} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectAreaRange(range)} 
+                                            onClick={() => toggleAreaRange(range)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -378,11 +436,39 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={netAreaRange === range}
+                                            <Checkbox
+                                                checked={selectedAreaRanges.includes(range)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{range}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Bulunduğu Kat Seçimi Listesi */}
+                        {popoverType === 'floor' && (
+                            <List sx={{ padding: 0 }}>
+                                {floorOptions.map((floor) => (
+                                    <ListItem disablePadding key={floor} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleFloor(floor)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedFloors.includes(floor)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{floor}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
@@ -395,7 +481,7 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                 {ageRanges.map((age) => (
                                     <ListItem disablePadding key={age} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => selectAge(age)} 
+                                            onClick={() => toggleBuildingAge(age)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -406,11 +492,95 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                                 }
                                             }}
                                         >
-                                            <Radio
-                                                checked={buildingAge === age}
+                                            <Checkbox
+                                                checked={selectedBuildingAges.includes(age)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{age}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Oda Sayısı Listesi */}
+                        {popoverType === 'room' && (
+                            <List sx={{ padding: 0 }}>
+                                {roomCountOptions.map((count) => (
+                                    <ListItem disablePadding key={count} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleRoomCount(count)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedRoomCounts.includes(count)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{count}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Toplantı Odası Sayısı Listesi */}
+                        {popoverType === 'meetingRoom' && (
+                            <List sx={{ padding: 0 }}>
+                                {meetingRoomOptions.map((count) => (
+                                    <ListItem disablePadding key={count} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleMeetingRoomCount(count)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedMeetingRoomCounts.includes(count)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{count}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
+
+                        {/* Cephe Yönü Listesi */}
+                        {popoverType === 'facade' && (
+                            <List sx={{ padding: 0 }}>
+                                {facadeOptions.map((facade) => (
+                                    <ListItem disablePadding key={facade} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleFacadeType(facade)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedFacadeTypes.includes(facade)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{facade}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
@@ -424,9 +594,11 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                     { key: 'furnished', label: 'Eşyalı' },
                                     { key: 'airConditioning', label: 'Klima' },
                                     { key: 'parking', label: 'Otopark' },
-                                    { key: 'reception', label: 'Resepsiyon' },
-                                    { key: 'soundIsolation', label: 'Ses Yalıtımı' },
-                                    { key: 'internetIncluded', label: 'İnternet Dahil' }
+                                    { key: 'elevator', label: 'Asansör' },
+                                    { key: 'generator', label: 'Jeneratör' },
+                                    { key: 'internetIncluded', label: 'İnternet Dahil' },
+                                    { key: 'security24', label: '7/24 Güvenlik' },
+                                    { key: 'kitchen', label: 'Mutfak/Çay Ocağı' }
                                 ].map((feature) => (
                                     <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
                                         <ListItemButton 

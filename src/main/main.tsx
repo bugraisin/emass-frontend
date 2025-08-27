@@ -12,7 +12,7 @@ export default function Main() {
             sx={{
                 background: 'linear-gradient(145deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
                 minHeight: '100vh',
-                padding: '20px 0'
+                padding: '10px 0'
             }}
         >
             <Box 
