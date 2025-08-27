@@ -10,19 +10,13 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    Chip,
-    Avatar,
     List,
     ListItem,
     ListItemButton,
     ListItemText,
-    ListItemAvatar,
     IconButton,
     InputAdornment,
-    Divider,
-    Slide,
-    Fade,
-    Zoom
+    Divider
 } from '@mui/material';
 import {
     LocationOn,
@@ -78,7 +72,6 @@ export default function StepTwo({
     const [openAddressModal, setOpenAddressModal] = useState(false);
     const [addressStep, setAddressStep] = useState(0); // 0: şehir, 1: ilçe, 2: mahalle
     const [searchTerm, setSearchTerm] = useState('');
-    const [isAnimating, setIsAnimating] = useState(false);
 
     const BASE_URL = "http://localhost:8080/api/location";
 
@@ -193,48 +186,32 @@ export default function StepTwo({
         }
 
         const handleSelect = (item: any) => {
-            setIsAnimating(true);
-            
-            setTimeout(() => {
-                if (addressStep === 0) {
-                    // Şehir seçildi
-                    setCity(item.name);
-                    setDistrict('');
-                    setNeighborhood('');
-                    setAddressStep(1); // İlçe adımına geç
-                    setSearchTerm('');
-                } else if (addressStep === 1) {
-                    // İlçe seçildi
-                    setDistrict(item.name);
-                    setNeighborhood('');
-                    setAddressStep(2); // Mahalle adımına geç
-                    setSearchTerm('');
-                } else if (addressStep === 2) {
-                    // Mahalle seçildi
-                    setNeighborhood(item.name);
-                    setOpenAddressModal(false);
-                    setAddressStep(0); // Reset
-                    setSearchTerm('');
-                }
-                
-                setTimeout(() => {
-                    setIsAnimating(false);
-                }, 150);
-            }, 75);
+            if (addressStep === 0) {
+                // Şehir seçildi
+                setCity(item.name);
+                setDistrict('');
+                setNeighborhood('');
+                setAddressStep(1);
+                setSearchTerm('');
+            } else if (addressStep === 1) {
+                // İlçe seçildi
+                setDistrict(item.name);
+                setNeighborhood('');
+                setAddressStep(2);
+                setSearchTerm('');
+            } else if (addressStep === 2) {
+                // Mahalle seçildi
+                setNeighborhood(item.name);
+                setOpenAddressModal(false);
+                setAddressStep(0);
+                setSearchTerm('');
+            }
         };
 
         const handleBack = () => {
             if (addressStep > 0) {
-                setIsAnimating(true);
-                
-                setTimeout(() => {
-                    setAddressStep(addressStep - 1);
-                    setSearchTerm('');
-                    
-                    setTimeout(() => {
-                        setIsAnimating(false);
-                    }, 150);
-                }, 75);
+                setAddressStep(addressStep - 1);
+                setSearchTerm('');
             }
         };
 
@@ -252,49 +229,42 @@ export default function StepTwo({
                 fullWidth
                 PaperProps={{
                     sx: {
-                        borderRadius: 4,
-                        boxShadow: '0 20px 60px rgba(237, 149, 23, 0.15)',
-                        border: '2px solid #fef3c7',
+                        borderRadius: 1,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                        border: '1px solid #e5e7eb',
                         width: '100%',
-                        maxWidth: '600px',
-                        overflow: 'hidden'
+                        maxWidth: '500px'
                     }
                 }}
             >
                 <DialogTitle sx={{ 
-                    background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                    color: 'white',
+                    backgroundColor: '#fff',
+                    color: '#334155',
                     textAlign: 'center',
                     position: 'relative',
-                    py: 3
+                    fontWeight: 600,
+                    fontSize: '18px',
+                    py: 0.5,
                 }}>
-                    <Fade in={!isAnimating} timeout={200}>
-                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                            {currentTitle}
-                        </Typography>
-                    </Fade>
+                    <Typography sx={{ fontWeight: 600, fontSize: '18px', color: '#334155', letterSpacing: '0.5px', m: 1 }}>
+                        {currentTitle}
+                    </Typography>
                     
                     {/* Back butonu */}
                     {addressStep > 0 && (
-                        <Zoom in={addressStep > 0} timeout={250}>
-                            <IconButton
-                                onClick={handleBack}
-                                sx={{ 
-                                    position: 'absolute', 
-                                    left: 16, 
-                                    top: 16,
-                                    color: '#cbd5e1',
-                                    transition: 'all 0.2s ease',
-                                    '&:hover': { 
-                                        background: 'rgba(203, 213, 225, 0.1)',
-                                        color: 'white',
-                                        transform: 'scale(1.1)'
-                                    }
-                                }}
-                            >
-                                <ArrowBack />
-                            </IconButton>
-                        </Zoom>
+                        <IconButton
+                            onClick={handleBack}
+                            sx={{ 
+                                position: 'absolute', 
+                                left: 12, 
+                                top: 12,
+                                color: '#94a3b8',
+                                p: 0.5,
+                                '&:hover': { backgroundColor: 'transparent' }
+                            }}
+                        >
+                            <ArrowBack sx={{ fontSize: '18px' }} />
+                        </IconButton>
                     )}
                     
                     {/* Close butonu */}
@@ -302,173 +272,123 @@ export default function StepTwo({
                         onClick={handleClose}
                         sx={{ 
                             position: 'absolute', 
-                            right: 16, 
-                            top: 16,
-                            color: '#cbd5e1',
-                            transition: 'all 0.2s ease',
-                            '&:hover': { 
-                                background: 'rgba(203, 213, 225, 0.1)',
-                                color: 'white',
-                                transform: 'scale(1.1) rotate(90deg)'
-                            }
+                            right: 12, 
+                            top: 12,
+                            color: '#94a3b8',
+                            p: 0.5,
+                            '&:hover': { backgroundColor: 'transparent' }
                         }}
                     >
-                        <Close />
+                        <Close sx={{ fontSize: '18px' }} />
                     </IconButton>
-                    
-                    {/* Progress indicator */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        mt: 2, 
-                        gap: 1 
-                    }}>
-                        {steps.map((_, index) => (
-                            <Zoom 
-                                key={index}
-                                in={true} 
-                                timeout={200 + (index * 50)}
-                                style={{ transitionDelay: `${index * 25}ms` }}
-                            >
-                                <Box
-                                    sx={{
-                                        width: 8,
-                                        height: 8,
-                                        borderRadius: '50%',
-                                        backgroundColor: index <= addressStep ? '#ed9517' : 'rgba(203, 213, 225, 0.4)',
-                                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        transform: index <= addressStep ? 'scale(1.2)' : 'scale(1)',
-                                        boxShadow: index <= addressStep ? '0 0 8px rgba(237, 149, 23, 0.6)' : 'none'
-                                    }}
-                                />
-                            </Zoom>
-                        ))}
-                    </Box>
                 </DialogTitle>
                 
-                <DialogContent sx={{ p: 0, overflow: 'hidden' }}>
-                    <Fade in={!isAnimating} timeout={200}>
-                        <Box sx={{ p: 3, pb: 2 }}>
-                            <TextField
-                                fullWidth
-                                placeholder={`${currentTitle.toLowerCase()} ara...`}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Search sx={{ color: '#64748b' }} />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 3,
-                                        '&:hover fieldset': { borderColor: '#475569' },
-                                        '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                <DialogContent sx={{ p: 0 }}>
+                    <Box sx={{ p: 1.5 }}>
+                        <TextField
+                            fullWidth
+                            placeholder={`${currentTitle.replace(' Seçin', '')} ara`}
+                            value={searchTerm}
+                            autoComplete='off'
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Search sx={{ color: '#64748b', fontSize: '20px' }} />
+                                    </InputAdornment>
+                                ),
+                            }}
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: '6px',
+                                    fontSize: '13px',
+                                    background: '#f8fafc',
+                                    minHeight: '28px',
+                                    padding: '2px 8px',
+                                    boxShadow: 'none',
+                                    borderWidth: '1px',
+                                    '& fieldset': { borderWidth: '1px' },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '6px 8px',
+                                        fontSize: '13px',
                                     },
-                                    '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
-                                }}
-                            />
-                        </Box>
-                    </Fade>
+                                    '&:hover fieldset': { borderColor: '#e5e7eb', borderWidth: '1.2px' },
+                                    '&.Mui-focused fieldset': { borderColor: '#334155', borderWidth: '1.2px' }
+                                },
+                                '& .MuiInputLabel-root': { fontSize: '12px', color: '#64748b' }
+                            }}
+                        />
+                    </Box>
                     
                     <Divider />
                     
-                    <Box sx={{ 
-                        height: 500,
-                        overflow: 'hidden',
-                        position: 'relative',
-                        width: '100%'
-                    }}>
-                        <Slide 
-                            direction="left" 
-                            in={!isAnimating} 
-                            timeout={250}
-                            style={{
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%'
-                            }}
-                        >
-                            <Box sx={{ width: '100%', height: '100%' }}>
-                                <List sx={{ 
-                                    height: '100%',
-                                    overflowY: 'auto',
-                                    overflowX: 'hidden',
-                                    '&::-webkit-scrollbar': {
-                                        width: '8px',
-                                    },
-                                    '&::-webkit-scrollbar-track': {
-                                        background: '#f1f5f9',
-                                        borderRadius: '4px',
-                                    },
-                                    '&::-webkit-scrollbar-thumb': {
-                                        background: 'linear-gradient(180deg, #475569 0%, #334155 100%)',
-                                        borderRadius: '4px',
-                                        '&:hover': {
-                                            background: 'linear-gradient(180deg, #334155 0%, #1e293b 100%)',
-                                        }
-                                    }
-                                }}>
-                                {filterItems(currentItems, searchTerm).map((item, index) => (
-                                    <Zoom 
-                                        key={item.id}
-                                        in={!isAnimating} 
-                                        timeout={200 + (index * 25)}
-                                        style={{ transitionDelay: `${index * 15}ms` }}
+                    <Box sx={{ height: 450, overflow: 'hidden' }}>
+                        <List sx={{ 
+                            height: '100%',
+                            overflowY: 'auto',
+                            '&::-webkit-scrollbar': {
+                                width: '4px',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                background: '#f8fafc',
+                                borderRadius: '2px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                background: '#e5e7eb',
+                                borderRadius: '2px',
+                                '&:hover': {
+                                    background: '#cbd5e1',
+                                }
+                            }
+                        }}>
+                            {filterItems(currentItems, searchTerm).map((item) => (
+                                <ListItem disablePadding key={item.id}>
+                                    <ListItemButton
+                                        onClick={() => handleSelect(item)}
+                                        sx={{
+                                            py: 1,
+                                            px: 1.5,
+                                            borderRadius: 1,
+                                            '&:hover': {
+                                                backgroundColor: '#f1f5f9'
+                                            }
+                                        }}
                                     >
-                                        <ListItem disablePadding>
-                                            <ListItemButton
-                                                onClick={() => handleSelect(item)}
-                                                sx={{
-                                                    py: 2,
-                                                    transition: 'all 0.2s ease',
-                                                    '&:hover': {
-                                                        background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-                                                    }
-                                                }}
-                                            >
-                                                <ListItemAvatar>
-                                                    <Avatar sx={{ 
-                                                        background: 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
-                                                        width: 32,
-                                                        height: 32,
-                                                        transition: 'all 0.2s ease'
-                                                    }}>
-                                                        <LocationOn sx={{ fontSize: 18, color: 'white' }} />
-                                                    </Avatar>
-                                                </ListItemAvatar>
-                                                <ListItemText 
-                                                    primary={item.name}
-                                                    primaryTypographyProps={{
-                                                        fontWeight: 500,
-                                                        fontSize: '15px',
-                                                        color: '#334155'
-                                                    }}
-                                                />
-                                                <KeyboardArrowRight sx={{ 
-                                                    color: '#475569',
-                                                    transition: 'all 0.2s ease'
-                                                }} />
-                                            </ListItemButton>
-                                        </ListItem>
-                                    </Zoom>
-                                ))}
-                                {filterItems(currentItems, searchTerm).length === 0 && (
-                                    <Fade in={!isAnimating} timeout={200}>
-                                        <ListItem>
-                                            <ListItemText 
-                                                primary="Sonuç bulunamadı"
-                                                sx={{ textAlign: 'center', color: '#6b7280' }}
-                                            />
-                                        </ListItem>
-                                    </Fade>
-                                )}
-                            </List>
-                        </Box>
-                    </Slide>
-                </Box>
+                                        <LocationOn sx={{ 
+                                            mr: 1.2, 
+                                            color: '#94a3b8', 
+                                            fontSize: '16px' 
+                                        }} />
+                                        <ListItemText 
+                                            primary={item.name}
+                                            primaryTypographyProps={{
+                                                fontWeight: 400,
+                                                fontSize: '13px',
+                                                color: '#334155'
+                                            }}
+                                        />
+                                        <KeyboardArrowRight sx={{ 
+                                            color: '#94a3b8',
+                                            fontSize: '16px'
+                                        }} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                            {filterItems(currentItems, searchTerm).length === 0 && (
+                                <ListItem>
+                                    <ListItemText 
+                                        primary="Sonuç bulunamadı"
+                                        sx={{ 
+                                            textAlign: 'center', 
+                                            color: '#94a3b8',
+                                            fontSize: '13px'
+                                        }}
+                                    />
+                                </ListItem>
+                            )}
+                        </List>
+                    </Box>
                 </DialogContent>
             </Dialog>
         );
@@ -476,48 +396,22 @@ export default function StepTwo({
 
     const renderBasicInfo = () => (
         <Card sx={{ 
-            background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-            borderRadius: 4,
-            border: 'none',
-            position: 'relative',
-            overflow: 'visible',
-            mb: 3,
-            minHeight: 'auto',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.08), 0 1px 8px rgba(0,0,0,0.02)',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.04)',
-            },
-            '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: 'linear-gradient(90deg, #1e293b, #334155, #475569)',
-                borderRadius: '4px 4px 0 0'
-            }
+            borderRadius: 2,
+            boxShadow: 2,
+            border: '1px solid rgba(0, 0, 0, 0.12)',
+            mb: 3
         }}>
-            <CardContent sx={{ p: 4 }}>
-                <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    mb: 3,
-                    pb: 2,
-                    borderBottom: '2px solid #e2e8f0'
+            <CardContent sx={{ p: 3 }}>
+                <Typography variant="h6" sx={{ 
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    fontSize: '16px',
+                    mb: 3
                 }}>
-                    <Typography variant="h6" sx={{ 
-                        fontWeight: 700,
-                        color: '#1e293b',
-                        fontSize: '1.3rem'
-                    }}>
-                        Temel Bilgiler
-                    </Typography>
-                </Box>
+                    Temel Bilgiler
+                </Typography>
                 
-                <Grid container spacing={3}>
+                <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -525,20 +419,16 @@ export default function StepTwo({
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             variant="outlined"
+                            autoComplete='off'
                             placeholder="Örn: Merkezi Konumda 3+1 Satılık Daire"
+                            size="small"
                             sx={{
                                 '& .MuiOutlinedInput-root': {
-                                    borderRadius: 3,
-                                    '&:hover fieldset': {
-                                        borderColor: '#475569',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#1e293b',
-                                    },
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' }
                                 },
-                                '& .MuiInputLabel-root.Mui-focused': {
-                                    color: '#1e293b',
-                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' }
                             }}
                         />
                     </Grid>
@@ -547,25 +437,20 @@ export default function StepTwo({
                         <TextField
                             fullWidth
                             multiline
-                            rows={4}
+                            minRows={8}
                             label="Açıklama"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             variant="outlined"
+                            autoComplete='off'
                             placeholder="İlanınız hakkında detaylı bilgi verin..."
                             sx={{
                                 '& .MuiOutlinedInput-root': {
-                                    borderRadius: 3,
-                                    '&:hover fieldset': {
-                                        borderColor: '#475569',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#1e293b',
-                                    },
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' }
                                 },
-                                '& .MuiInputLabel-root.Mui-focused': {
-                                    color: '#1e293b',
-                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' }
                             }}
                         />
                     </Grid>
@@ -579,19 +464,15 @@ export default function StepTwo({
                             variant="outlined"
                             type="number"
                             placeholder="0"
+                            autoComplete='off'
+                            size="small"
                             sx={{
                                 '& .MuiOutlinedInput-root': {
-                                    borderRadius: 3,
-                                    '&:hover fieldset': {
-                                        borderColor: '#475569',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#1e293b',
-                                    },
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' }
                                 },
-                                '& .MuiInputLabel-root.Mui-focused': {
-                                    color: '#1e293b',
-                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' }
                             }}
                         />
                     </Grid>
@@ -605,37 +486,30 @@ export default function StepTwo({
                                 setOpenAddressModal(true);
                             }}
                             sx={{
-                                height: 56,
-                                borderRadius: 3,
-                                border: '2px solid #e5e7eb',
+                                height: 40,
+                                borderRadius: 1,
+                                border: '1px solid rgba(0, 0, 0, 0.12)',
                                 color: (city && district && neighborhood) ? '#1e293b' : '#64748b',
-                                borderColor: '#e5e7eb',
-                                background: 'white',
                                 textTransform: 'none',
-                                fontSize: '16px',
+                                fontSize: '14px',
                                 fontWeight: 500,
                                 justifyContent: 'space-between',
                                 px: 2,
                                 '&:hover': {
-                                    borderColor: '#475569',
-                                    background: '#f8fafc',
-                                    color: '#1e293b'
-                                },
-                                '&:focus': {
                                     borderColor: '#1e293b',
-                                    boxShadow: '0 0 0 3px rgba(71, 85, 105, 0.1)',
+                                    backgroundColor: 'rgba(30, 41, 59, 0.1)'
                                 }
                             }}
                         >
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <LocationOn sx={{ color: '#64748b' }} />
-                                <Typography sx={{ fontSize: '16px', fontWeight: 500 }}>
+                                <LocationOn sx={{ color: '#64748b', fontSize: '18px' }} />
+                                <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
                                     {(city && district && neighborhood) 
                                         ? `${city}, ${district}, ${neighborhood}` 
                                         : 'Adres Seçiniz'}
                                 </Typography>
                             </Box>
-                            <KeyboardArrowRight sx={{ color: '#ed9517' }} />
+                            <KeyboardArrowRight sx={{ color: '#64748b', fontSize: '18px' }} />
                         </Button>
                     </Grid>
                 </Grid>
@@ -645,40 +519,26 @@ export default function StepTwo({
 
     return (
         <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column",
-            gap: 3, 
             width: "100%", 
-            padding: '16px 24px',
-            backgroundColor: 'transparent',
+            padding: 2,
             maxHeight: '80vh',
             overflowY: 'auto',
             '&::-webkit-scrollbar': {
-                width: '8px',
+                width: '6px',
             },
             '&::-webkit-scrollbar-track': {
                 background: '#f1f5f9',
-                borderRadius: '12px',
+                borderRadius: '3px',
             },
             '&::-webkit-scrollbar-thumb': {
-                background: 'linear-gradient(180deg, #ed9517 0%, #d97706 100%)',
-                borderRadius: '12px',
+                background: '#cbd5e1',
+                borderRadius: '3px',
                 '&:hover': {
-                    background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)',
-                }
-            },
-            '@keyframes float': {
-                '0%, 100%': {
-                    transform: 'perspective(1000px) rotateX(2deg) translateY(0px)'
-                },
-                '50%': {
-                    transform: 'perspective(1000px) rotateX(2deg) translateY(-5px)'
+                    background: '#94a3b8',
                 }
             }
         }}>
             {renderBasicInfo()}
-            
-            {/* Tek Address Modal */}
             {renderAddressModal()}
         </Box>
     );

@@ -166,41 +166,35 @@ export default function LeftPanel() {
                     position: 'sticky',
                     bottom: 20,
                     width: '100%',
-                    padding: '16px',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    borderRadius: '16px',
+                    padding: '10px',
+                    background: '#fff',
+                    borderRadius: '10px',
                     marginTop: '24px',
                     zIndex: 1000,
                     display: 'flex',
                     justifyContent: 'center',
-                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(0, 0, 0, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    backdropFilter: 'blur(20px)',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
                 }}
             >
                 <Button
                     variant="contained"
                     sx={{
-                        background: 'linear-gradient(135deg, #ed9517 0%, #f59e0b 100%)',
                         width: '100%',
-                        color: 'white',
+                        color: '#fff',
                         fontSize: '15px',
-                        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-                        fontWeight: 700,
-                        letterSpacing: '0.5px',
-                        boxShadow: '0 6px 24px rgba(237, 149, 23, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                        fontWeight: 600,
+                        boxShadow: 'none',
+                        background: 'linear-gradient(90deg, #1976d2 0%, #2563eb 100%)',
                         '&:hover': { 
-                            background: 'linear-gradient(135deg, #d97706 0%, #ed9517 100%)',
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 8px 30px rgba(237, 149, 23, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                            background: 'linear-gradient(90deg, #2563eb 0%, #1976d2 100%)',
                         },
-                        padding: '14px 24px', 
-                        borderRadius: '12px',
+                        padding: '10px 0', 
+                        borderRadius: '8px',
                         textTransform: 'none',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                 >
-                    🔍 Emlakları Ara
+                    Emlakları Ara
                 </Button>
             </Box>
         </Box>

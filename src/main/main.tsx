@@ -19,11 +19,11 @@ export default function Main() {
                 display="flex" 
                 flexDirection="column"
                 width="100%"
-                maxWidth="1280px"
+                maxWidth="1260px"
                 sx={{
                     background: 'rgba(255, 255, 255, 0.7)',
                     backdropFilter: 'blur(20px)',
-                    borderRadius: '20px',
+                    borderRadius: '8px',
                     boxShadow: '0 20px 60px rgba(0, 0, 0, 0.1), 0 8px 30px rgba(0, 0, 0, 0.05)',
                     overflow: 'hidden'
                 }}
@@ -39,8 +39,8 @@ export default function Main() {
                         background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
                         borderRight: '1px solid rgba(148, 163, 184, 0.2)',
                         border: '1px solid rgba(148, 163, 184, 0.8)',
-                        borderTopLeftRadius: '20px',
-                        borderBottomLeftRadius: '20px'
+                        borderTopLeftRadius: '8px',
+                        borderBottomLeftRadius: '8px'
                     }}
                 >
                     <LeftPanel/>
@@ -51,8 +51,8 @@ export default function Main() {
                     sx={{
                         background: 'rgba(148, 163, 184, 0.5)',
                         border: '1px solid rgba(148, 163, 184, 0.9)',
-                        borderTopRightRadius: '20px',
-                        borderBottomRightRadius: '20px'
+                        borderTopRightRadius: '8px',
+                        borderBottomRightRadius: '8px'
                     }}
                 >
                     <MainPanel/>

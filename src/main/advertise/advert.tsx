@@ -112,16 +112,16 @@ export default function Advert() {
                 sx={{
                     backgroundColor: 'rgba(0, 0, 0, 0.1)',
                     borderRadius: '12px',
-                    border: '4px solid #d3d3d3',
+                    border: '2px solid #d3d3d3',
                     alignItems: 'center',
                     width: '1200px',
+                    height: "auto",
                     marginTop: '1%',
                     marginBottom: '1%',
                     padding: '2%',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
-                    minHeight: '700px'
                 }}    
             >
                 <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 3 }}>

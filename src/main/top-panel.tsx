@@ -3,6 +3,10 @@ import { Box, Button, InputAdornment, TextField, Menu, MenuItem } from "@mui/mat
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate, useLocation } from "react-router-dom";
+import PersonIcon from '@mui/icons-material/Person';
+import AddIcon from '@mui/icons-material/Add';
+import HomeIcon from '@mui/icons-material/Home';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 export default function TopPanel() {
     const navigate = useNavigate();
@@ -72,299 +76,284 @@ export default function TopPanel() {
                 maxWidth="1220px"
                 sx={{ paddingLeft: '12px' }}
             >
-            <Box>
-                <a href="/" style={{
-                    display: 'block',
-                    padding: 0,
-                    height: '40px',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                }}>
-                    <img src="/transparant_emass_logo.png" alt="Logo" style={{
+                <Box>
+                    <a href="/" style={{
+                        display: 'block',
+                        padding: 0,
                         height: '40px',
                         borderRadius: '8px',
-                        display: 'block',
-                        filter: 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))'
-                    }} />
-                </a>
-            </Box>
-            
-            {/* Arama Alanı */}
-            {isHomePage && (
-                <Box sx={{ 
-                    flexGrow: 1, 
-                    maxWidth: '650px', 
-                    mx: 6,
-                    position: 'relative'
+                        overflow: 'hidden',
+                    }}>
+                        <img src="/transparant_emass_logo.png" alt="Logo" style={{
+                            height: '40px',
+                            borderRadius: '8px',
+                            display: 'block',
+                            filter: 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))'
+                        }} />
+                    </a>
+                </Box>
+
+                {/* Arama Alanı */}
+                {isHomePage && (
+                    <Box sx={{
+                        flexGrow: 1,
+                        maxWidth: '650px',
+                        mx: 6,
+                        position: 'relative'
+                    }}>
+                        <TextField
+                            placeholder="Hangi emlakı arıyorsunuz? Örn: Satılık daire, Kiralık villa..."
+                            variant="outlined"
+                            fullWidth
+                            autoComplete="off"
+                            sx={{
+                                '& .MuiInputBase-root': {
+                                    fontSize: '15px',
+                                    height: '52px',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    borderRadius: '8px',
+                                    paddingLeft: '12px',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    '&.Mui-focused': {
+                                        backgroundColor: 'white',
+                                        boxShadow: '0 0 0 3px rgba(237, 149, 23, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15)',
+                                        border: '1px solid rgba(237, 149, 23, 0.3)',
+                                    }
+                                },
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none',
+                                },
+                                '& .MuiInputBase-input': {
+                                    padding: '14px 0',
+                                    fontWeight: 500,
+                                    '&::placeholder': {
+                                        color: '#64748b',
+                                        opacity: 1,
+                                        fontWeight: 400
+                                    }
+                                }
+                            }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <Button
+                                            sx={{
+                                                background: 'linear-gradient(135deg, #ed9517 0%, #f59e0b 100%)',
+                                                color: 'white',
+                                                minWidth: '52px',
+                                                height: '40px',
+                                                borderRadius: '10px',
+                                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                '&:hover': {
+                                                    background: 'linear-gradient(135deg, #d97706 0%, #ed9517 100%)',
+                                                    transform: 'translateY(-1px)',
+                                                    boxShadow: '0 6px 20px rgba(237, 149, 23, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                                                },
+                                            }}
+                                        >
+                                            <SearchIcon sx={{ fontSize: '20px' }} />
+                                        </Button>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Box>
+                )}
+
+                {/* Kullanıcı Butonları */}
+                <Box sx={{
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 3,
+                    marginRight: '20px'
                 }}>
-                    <TextField
-                        placeholder="Hangi emlakı arıyorsunuz? Örn: Satılık daire, Kiralık villa..."
-                        variant="outlined"
-                        fullWidth
-                        autoComplete="off"
-                        sx={{
-                            '& .MuiInputBase-root': { 
-                                fontSize: '15px', 
-                                height: '52px',
-                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                borderRadius: '8px',
-                                paddingLeft: '12px',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                '&.Mui-focused': {
-                                    backgroundColor: 'white',
-                                    boxShadow: '0 0 0 3px rgba(237, 149, 23, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15)',
-                                    border: '1px solid rgba(237, 149, 23, 0.3)',
-                                }
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none',
-                            },
-                            '& .MuiInputBase-input': {
-                                padding: '14px 0',
-                                fontWeight: 500,
-                                '&::placeholder': {
-                                    color: '#64748b',
-                                    opacity: 1,
-                                    fontWeight: 400
-                                }
-                            }
-                        }}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
+                    {isHomePage && (
+                        <>
+                            {!isLoggedIn ? (
+                                <>
                                     <Button
+                                        variant="outlined"
+                                        onClick={() => navigate("/giris-yap")}
                                         sx={{
-                                            background: 'linear-gradient(135deg, #ed9517 0%, #f59e0b 100%)',
                                             color: 'white',
-                                            minWidth: '52px',
-                                            height: '40px',
-                                            borderRadius: '10px',
-                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                            '&:hover': { 
-                                                background: 'linear-gradient(135deg, #d97706 0%, #ed9517 100%)',
-                                                transform: 'translateY(-1px)',
-                                                boxShadow: '0 6px 20px rgba(237, 149, 23, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                                                borderColor: 'rgba(255, 255, 255, 0.5)',
                                             },
+                                            padding: '8px 16px',
+                                            borderRadius: '6px',
+                                            textTransform: 'none',
+                                            fontWeight: 500,
+                                            fontSize: '14px',
+                                            transition: 'all 0.2s ease',
                                         }}
                                     >
-                                        <SearchIcon sx={{ fontSize: '20px' }} />
+                                        Giriş Yap
                                     </Button>
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                </Box>
-            )}
-            
-            {/* Kullanıcı Butonları */}
-            <Box sx={{ 
-                flexShrink: 0, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 3,
-                marginRight: '20px'
-            }}>
-            {isHomePage && (
-                <>
-                    {!isLoggedIn ? (
-                        <>
-                            <Button
-                                variant="outlined"
-                                onClick={() => navigate("/giris-yap")}
-                                sx={{
-                                    color: 'white',
-                                    borderColor: 'rgba(255, 255, 255, 0.3)',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                    backdropFilter: 'blur(10px)',
-                                    '&:hover': { 
-                                        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                                        transform: 'translateY(-1px)',
-                                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-                                    },
-                                    padding: '12px',
-                                    borderRadius: '12px',
-                                    textTransform: 'none',
-                                    fontWeight: 600,
-                                    fontSize: '14px',
-                                    letterSpacing: '0.5px',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                }}
-                            >
-                                Giriş Yap
-                            </Button>
-                            <Button
-                                variant="contained"
-                                onClick={() => navigate("/kayit-ol")}
-                                sx={{
-                                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                    color: '#1e293b',
-                                    boxShadow: '0 6px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                                    '&:hover': { 
-                                        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-                                    },
-                                    padding: '12px',
-                                    borderRadius: '12px',
-                                    textTransform: 'none',
-                                    fontWeight: 700,
-                                    fontSize: '14px',
-                                    letterSpacing: '0.5px',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    '&::before': {
-                                        content: '""',
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: '-100%',
-                                        width: '100%',
-                                        height: '100%',
-                                        background: 'linear-gradient(90deg, transparent, rgba(237, 149, 23, 0.1), transparent)',
-                                        transition: 'left 0.5s ease'
-                                    },
-                                    '&:hover::before': {
-                                        left: '100%'
-                                    }
-                                }}
-                            >
-                                Kayıt Ol
-                            </Button>
-                        </>
-                    ) : (
-                        <Button
-                            variant="contained"
-                            onClick={handleMenuOpen}
-                            startIcon={<AccountCircleIcon sx={{ fontSize: '22px' }} />}
-                            sx={{
-                                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                                color: '#1e293b',
-                                boxShadow: '0 6px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                                '&:hover': { 
-                                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                                    transform: 'translateY(-2px)',
-                                    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-                                },
-                                padding: '12px 24px',
-                                borderRadius: '12px',
-                                textTransform: 'none',
-                                fontWeight: 700,
-                                fontSize: '14px',
-                                letterSpacing: '0.5px',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            }}
-                        >
-                            {userName}
-                        </Button>
-                    )}
-
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        PaperProps={{
-                            sx: {
-                                mt: 2,
-                                borderRadius: '20px',
-                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 30px rgba(0, 0, 0, 0.1)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                minWidth: '220px',
-                                background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-                                backdropFilter: 'blur(20px)',
-                                overflow: 'visible',
-                                '&::before': {
-                                    content: '""',
-                                    position: 'absolute',
-                                    top: '-8px',
-                                    right: '24px',
-                                    width: '16px',
-                                    height: '16px',
-                                    background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-                                    transform: 'rotate(45deg)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    borderBottom: 'none',
-                                    borderRight: 'none',
-                                },
-                                '& .MuiList-root': {
-                                    padding: '8px',
-                                },
-                                '& .MuiMenuItem-root': {
-                                    fontSize: '14px',
-                                    fontWeight: 600,
-                                    padding: '14px 20px',
-                                    borderRadius: '12px',
-                                    margin: '4px 0',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    position: 'relative',
-                                    color: '#1e293b',
-                                    '&::before': {
-                                        content: '""',
-                                        position: 'absolute',
-                                        left: '0',
-                                        top: '0',
-                                        width: '4px',
-                                        height: '100%',
-                                        backgroundColor: 'transparent',
-                                        transition: 'all 0.3s ease',
-                                        borderRadius: '0 6px 6px 0',
-                                    },
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(237, 149, 23, 0.08)',
-                                        color: '#d97706',
-                                        transform: 'translateX(4px)',
-                                        boxShadow: '0 4px 16px rgba(237, 149, 23, 0.15)',
-                                        '&::before': {
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => navigate("/kayit-ol")}
+                                        sx={{
                                             backgroundColor: '#ed9517',
-                                        }
-                                    },
-                                    '&:nth-of-type(3)': {
-                                        borderBottom: '1px solid rgba(30, 41, 59, 0.1)',
-                                        marginBottom: '8px',
-                                        paddingBottom: '14px',
-                                    },
-                                    '&[data-logout="true"]': {
-                                        color: '#dc2626',
-                                        marginTop: '8px',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(220, 38, 38, 0.08)',
-                                            color: '#dc2626',
-                                            '&::before': {
-                                                backgroundColor: '#dc2626',
+                                            color: 'white',
+                                            padding: '8px 16px',
+                                            borderRadius: '6px',
+                                            textTransform: 'none',
+                                            fontWeight: 600,
+                                            fontSize: '14px',
+                                            transition: 'all 0.2s ease',
+                                            boxShadow: 'none',
+                                            '&:hover': {
+                                                boxShadow: 'none',
+                                                backgroundColor: '#d97706',
                                             }
+                                        }}
+                                    >
+                                        Kayıt Ol
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button
+                                    variant="contained"
+                                    onClick={handleMenuOpen}
+                                    startIcon={<AccountCircleIcon sx={{ fontSize: '18px' }} />}
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        color: '#1e293b',
+                                        padding: '8px 16px',
+                                        borderRadius: '6px',
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                        fontSize: '14px',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                        '&:hover': {
+                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                            backgroundColor: '#f8fafc',
                                         }
+                                    }}
+                                >
+                                    {userName}
+                                </Button>
+                            )}
+
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={handleMenuClose}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                PaperProps={{
+                                    sx: {
+                                        mt: 1,
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
+                                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                                        minWidth: '150px',
+                                        background: 'white',
+                                        overflow: 'visible',
                                     }
-                                }
-                            }
-                        }}
-                    >
-                        <MenuItem onClick={() => { handleMenuClose(); navigate('/hesabim'); }}>
-                            👤 Hesabım
-                        </MenuItem>
-                        <MenuItem onClick={() => { handleMenuClose(); navigate('/ilan-ver'); }}>
-                            📝 İlan Ver
-                        </MenuItem>
-                        <MenuItem onClick={() => { handleMenuClose(); navigate('/ilanlarim'); }}>
-                            🏠 İlanlarım
-                        </MenuItem>
-                        <MenuItem onClick={handleLogout} data-logout="true">
-                            🚪 Çıkış Yap
-                        </MenuItem>
-                    </Menu>
-                </>
-            )}
-            </Box>
+                                }}
+                            >
+                                <MenuItem
+                                    onClick={() => { handleMenuClose(); navigate('/hesabim'); }}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '8px 12px',
+                                        borderRadius: '4px',
+                                        marginBottom: '4px',
+                                        fontSize: '13px',
+                                        fontWeight: 500,
+                                        color: '#1e293b',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(237, 149, 23, 0.1)',
+                                            color: '#d97706'
+                                        },
+                                    }}
+                                >
+                                    <PersonIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    Hesabım
+                                </MenuItem>
+
+                                <MenuItem
+                                    onClick={() => { handleMenuClose(); navigate('/ilan-ver'); }}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '8px 12px',
+                                        borderRadius: '4px',
+                                        marginBottom: '4px',
+                                        fontSize: '13px',
+                                        fontWeight: 500,
+                                        color: '#1e293b',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(237, 149, 23, 0.1)',
+                                            color: '#d97706'
+                                        },
+                                    }}
+                                >
+                                    <AddIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    İlan Ver
+                                </MenuItem>
+
+                                <MenuItem
+                                    onClick={() => { handleMenuClose(); navigate('/ilanlarim'); }}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '8px 12px',
+                                        borderRadius: '4px',
+                                        marginBottom: '8px',
+                                        fontSize: '13px',
+                                        fontWeight: 500,
+                                        color: '#1e293b',
+                                        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(237, 149, 23, 0.1)',
+                                            color: '#d97706'
+                                        },
+                                    }}
+                                >
+                                    <HomeIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    İlanlarım
+                                </MenuItem>
+
+                                <MenuItem
+                                    onClick={handleLogout}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '8px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '13px',
+                                        fontWeight: 500,
+                                        color: '#dc2626',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                                            color: '#dc2626'
+                                        },
+                                    }}
+                                >
+                                    <LogoutIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    Çıkış Yap
+                                </MenuItem>
+                            </Menu>
+                        </>
+                    )}
+                </Box>
             </Box>
         </Box>
     );
