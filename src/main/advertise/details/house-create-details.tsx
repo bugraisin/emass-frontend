@@ -34,7 +34,15 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                 { key: 'balcony', label: 'Balkon' },
                 { key: 'terrace', label: 'Teras' },
                 { key: 'garden', label: 'Bahçe' },
-                { key: 'parking', label: 'Otopark' },
+                { key: 'withinSite', label: 'Site İçerisinde' },
+            ]
+        },
+        {
+            title: 'Otopark',
+            features: [
+                { key: 'openPark', label: 'Açık Otopark' },
+                { key: 'closedPark', label: 'Kapalı Otopark' },
+                { key: 'garagePark', label: 'Garaj' },
             ]
         },
         {
@@ -59,22 +67,17 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
             features: [
                 { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
                 { key: 'separateKitchen', label: 'Ayrı Mutfak' },
+                { key: 'americanKitchen', label: 'Amerikan Mutfak' },
                 { key: 'laundryRoom', label: 'Çamaşır Odası' },
             ]
         },
         {
-            title: 'Site Imkanları',
+            title: 'Site İmkanları',
             features: [
                 { key: 'pool', label: 'Havuz' },
                 { key: 'gym', label: 'Spor Salonu' },
                 { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
-            ]
-        },
-        {
-            title: 'Diğer Özellikler',
-            features: [
-                { key: 'petsAllowed', label: 'Evcil Hayvan Kabul' },
-                { key: 'internetFiber', label: 'Fiber İnternet' },
+                { key: 'sportsArea', label: 'Spor Alanları' },
             ]
         }
     ];
@@ -146,6 +149,30 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                         <TextField
                             fullWidth
                             type="number"
+                            label="Brüt Alan (m²)"
+                            value={details.grossArea || ''}
+                            onChange={(e) => handleDetailChange('grossArea', parseInt(e.target.value))}
+                            InputProps={{
+                                autoComplete: 'off',
+                                startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
+                            }}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
                             label="Net Alan (m²)"
                             value={details.netArea || ''}
                             onChange={(e) => handleDetailChange('netArea', parseInt(e.target.value))}
@@ -169,27 +196,28 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                     
                     {/* Bina Bilgileri */}
                     <Grid item xs={12} sm={6} md={4}>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            label="Bina Yaşı"
-                            value={details.buildingAge || ''}
-                            onChange={(e) => handleDetailChange('buildingAge', parseInt(e.target.value))}
-                            InputProps={{
-                                autoComplete: 'off',
-                                startAdornment: <CalendarToday sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
-                            }}
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Bina Yaşı</InputLabel>
+                            <Select
+                                value={details.buildingAge || ''}
+                                onChange={(e) => handleDetailChange('buildingAge', e.target.value)}
+                                label="Bina Yaşı"
+                                sx={{
                                     borderRadius: 1,
-                                    '&:hover fieldset': { borderColor: '#1e293b' },
-                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
-                                },
-                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
-                            }}
-                        />
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                }}
+                            >
+                                <MenuItem value="0">0 (Yeni)</MenuItem>
+                                <MenuItem value="1-5">1-5 arası</MenuItem>
+                                <MenuItem value="6-10">6-10 arası</MenuItem>
+                                <MenuItem value="11-15">11-15 arası</MenuItem>
+                                <MenuItem value="16-20">16-20 arası</MenuItem>
+                                <MenuItem value="21-25">21-25 arası</MenuItem>
+                                <MenuItem value="26-30">26-30 arası</MenuItem>
+                                <MenuItem value="31+">31 üzeri</MenuItem>
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
@@ -249,13 +277,8 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                                 }}
                             >
                                 <MenuItem value="DOGALGAZ">Doğalgaz</MenuItem>
-                                <MenuItem value="KOMBI">Kombi (Bireysel)</MenuItem>
                                 <MenuItem value="MERKEZI">Merkezi Sistem</MenuItem>
-                                <MenuItem value="KALORIFER">Kalorifer</MenuItem>
-                                <MenuItem value="KLIMA">Klima</MenuItem>
-                                <MenuItem value="ELEKTRIK">Elektrikli Radyatör</MenuItem>
                                 <MenuItem value="SOBALI">Sobalı</MenuItem>
-                                <MenuItem value="ISITMA_POMPASI">Isı Pompası</MenuItem>
                                 <MenuItem value="YOK">Yok</MenuItem>
                             </Select>
                         </FormControl>
@@ -283,23 +306,24 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            label="Balkon Sayısı"
-                            value={details.balconyCount || ''}
-                            onChange={(e) => handleDetailChange('balconyCount', parseInt(e.target.value))}
-                            variant="outlined"
-                            size="small"
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Tapu Durumu</InputLabel>
+                            <Select
+                                value={details.titleDeedStatus || ''}
+                                onChange={(e) => handleDetailChange('titleDeedStatus', e.target.value)}
+                                label="Tapu Durumu"
+                                sx={{
                                     borderRadius: 1,
-                                    '&:hover fieldset': { borderColor: '#1e293b' },
-                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
-                                },
-                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
-                            }}
-                        />
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                }}
+                            >
+                                <MenuItem value="KAT_MULKIYETLI">Kat Mülkiyetli</MenuItem>
+                                <MenuItem value="KAT_IRTIFAKLI">Kat İrtifaklı</MenuItem>
+                                <MenuItem value="ARSA_PAYLI">Arsa Paylı</MenuItem>
+                                <MenuItem value="MUSTERI_UZERINDE">Müşteri Üzerinde</MenuItem>
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
@@ -327,29 +351,6 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                         </FormControl>
                     </Grid>
 
-                    <Grid item xs={12} sm={6} md={4}>
-                        <FormControl fullWidth variant="outlined" size="small">
-                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Yapı Durumu</InputLabel>
-                            <Select
-                                value={details.buildingCondition || ''}
-                                onChange={(e) => handleDetailChange('buildingCondition', e.target.value)}
-                                label="Yapı Durumu"
-                                sx={{
-                                    borderRadius: 1,
-                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
-                                }}
-                            >
-                                <MenuItem value="SIFIR">Sıfır Bina</MenuItem>
-                                <MenuItem value="IKAMET_EDILEBILIR">İkamet Edilebilir</MenuItem>
-                                <MenuItem value="KAPALI_SITE">Kapalı Site</MenuItem>
-                                <MenuItem value="YAPIM_ASAMASINDA">Yapım Aşamasında</MenuItem>
-                                <MenuItem value="YENI_YAPILACAK">Yeni Yapılacak</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    {/* Site Bilgileri */}
                     <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
@@ -389,6 +390,47 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                                 '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
                             }}
                         />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Depozito (₺)"
+                            value={details.deposit || ''}
+                            onChange={(e) => handleDetailChange('deposit', parseInt(e.target.value))}
+                            variant="outlined"
+                            size="small"
+                            autoComplete='off'
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Kullanım Durumu</InputLabel>
+                            <Select
+                                value={details.usageStatus || ''}
+                                onChange={(e) => handleDetailChange('usageStatus', e.target.value)}
+                                label="Kullanım Durumu"
+                                sx={{
+                                    borderRadius: 1,
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                }}
+                            >
+                                <MenuItem value="BOS">Boş</MenuItem>
+                                <MenuItem value="KIRACI_VAR">Kiracı Var</MenuItem>
+                                <MenuItem value="MAL_SAHIBI_OTURUYOR">Mal Sahibi Oturuyor</MenuItem>
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     {/* Ek Özellikler - Revize Edilmiş Bölüm */}
