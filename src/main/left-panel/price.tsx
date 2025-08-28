@@ -103,53 +103,9 @@ export default function Price({ selectedCategory }: PriceProps) {
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
             <CardContent>
-                <div>
-                    <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", fontWeight: 600 }}>
-                        {config.label}
-                    </Typography>
-                    {getDisplayText() && (
-                        <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 'bold', mb: 1 }}>
-                            {getDisplayText()}
-                        </Typography>
-                    )}
-                </div>
-
-                <Box sx={{ mb: 2, px: 1 }}>
-                    <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>
-                        {config.label} Aralığı
-                    </Typography>
-                    <Slider
-                        value={sliderValue}
-                        onChange={handleSliderChange}
-                        valueLabelDisplay="auto"
-                        valueLabelFormat={(value) => {
-                            if (value === 0) return '₺0';
-                            if (value === config.max) return 'Sınırsız';
-                            return `₺${formatPrice(value)}`;
-                        }}
-                        min={0}
-                        max={config.max}
-                        step={config.step}
-                        sx={{
-                            '& .MuiSlider-thumb': {
-                                width: 16,
-                                height: 16,
-                            },
-                            '& .MuiSlider-valueLabel': {
-                                fontSize: '10px',
-                            }
-                        }}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between'}}>
-                        <Typography sx={{ fontSize: '10px', color: 'text.secondary' }}>
-                            ₺0
-                        </Typography>
-                        <Typography sx={{ fontSize: '12px', color: 'text.secondary', fontWeight: 'bold' }}>
-                            Sınırsız
-                        </Typography>
-                    </Box>
-                </Box>
-
+                <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", fontWeight: 600 }}>
+                    {config.label}
+                </Typography>
                 <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                     <TextField
                         fullWidth
@@ -180,20 +136,6 @@ export default function Price({ selectedCategory }: PriceProps) {
                         }}
                     />
                 </Stack>
-
-                {(minPrice || maxPrice) && (
-                    <Button
-                        onClick={clearPrices}
-                        size="small"
-                        sx={{ 
-                            fontSize: '11px',
-                            textTransform: 'none',
-                            color: 'text.secondary'
-                        }}
-                    >
-                        Fiyat Filtresini Temizle
-                    </Button>
-                )}
             </CardContent>
         </Card>
     );

@@ -276,8 +276,11 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
                                 }}
                             >
-                                <MenuItem value="DOGALGAZ">Doğalgaz</MenuItem>
+                                <MenuItem value="DOGALGAZ">Doğalgaz (Kombi)</MenuItem>
                                 <MenuItem value="MERKEZI">Merkezi Sistem</MenuItem>
+                                <MenuItem value="KALORIFER">Kalorifer</MenuItem>
+                                <MenuItem value="KLIMA">Klima</MenuItem>
+                                <MenuItem value="ELEKTRIKLI">Elektrikli</MenuItem>
                                 <MenuItem value="SOBALI">Sobalı</MenuItem>
                                 <MenuItem value="YOK">Yok</MenuItem>
                             </Select>

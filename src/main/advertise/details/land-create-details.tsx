@@ -25,6 +25,49 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
         setDetails({ ...details, [field]: value });
     };
 
+    const featureCategories = [
+        {
+            title: 'Altyapı',
+            features: [
+                { key: 'electricity', label: 'Elektrik' },
+                { key: 'water', label: 'Su' },
+                { key: 'naturalGas', label: 'Doğalgaz' },
+                { key: 'sewerage', label: 'Kanalizasyon' },
+                { key: 'roadAccess', label: 'Yol Erişimi' },
+            ]
+        },
+        {
+            title: 'Konum & Manzara',
+            features: [
+                { key: 'cornerLot', label: 'Köşe Parsel' },
+                { key: 'seaView', label: 'Deniz Manzarası' },
+                { key: 'cityView', label: 'Şehir Manzarası' },
+                { key: 'forestView', label: 'Orman Manzarası' },
+                { key: 'mountainView', label: 'Dağ Manzarası' },
+            ]
+        },
+        {
+            title: 'Arazi Özellikler',
+            features: [
+                { key: 'flat', label: 'Düz Arazi' },
+                { key: 'slope', label: 'Eğimli Arazi' },
+                { key: 'fenced', label: 'Çevrili/Çitli' },
+                { key: 'agricultural', label: 'Tarımsal Faaliyet' },
+                { key: 'buildingPermit', label: 'Yapı İzni Var' },
+            ]
+        },
+        {
+            title: 'Tarım & Bahçe',
+            features: [
+                { key: 'vineyard', label: 'Bağ/Üzüm' },
+                { key: 'orchard', label: 'Meyve Bahçesi' },
+                { key: 'oliveTrees', label: 'Zeytin Ağaçları' },
+                { key: 'greenhouse', label: 'Sera' },
+                { key: 'well', label: 'Su Kuyusu' },
+            ]
+        }
+    ];
+
     return (
         <Card sx={{ 
             borderRadius: 2,
@@ -43,7 +86,7 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                 </Typography>
                 
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             type="number"
@@ -51,6 +94,7 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                             value={details.landArea || ''}
                             onChange={(e) => handleDetailChange('landArea', parseInt(e.target.value))}
                             InputProps={{
+                                autoComplete: 'off',
                                 startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
                             }}
                             variant="outlined"
@@ -66,7 +110,7 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <FormControl fullWidth variant="outlined" size="small">
                             <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>İmar Durumu</InputLabel>
                             <Select
@@ -90,67 +134,202 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                         </FormControl>
                     </Grid>
 
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Ada No"
+                            value={details.adaNo || ''}
+                            onChange={(e) => handleDetailChange('adaNo', parseInt(e.target.value))}
+                            variant="outlined"
+                            autoComplete='off'
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Parsel No"
+                            value={details.parcelNo || ''}
+                            onChange={(e) => handleDetailChange('parcelNo', parseInt(e.target.value))}
+                            variant="outlined"
+                            autoComplete='off'
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="text"
+                            label="Pafta No"
+                            value={details.paftaNo || ''}
+                            onChange={(e) => handleDetailChange('paftaNo', e.target.value)}
+                            variant="outlined"
+                            autoComplete='off'
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            inputProps={{ step: 0.01 }}
+                            label="KAKS (Emsal)"
+                            value={details.kaks || ''}
+                            onChange={(e) => handleDetailChange('kaks', parseFloat(e.target.value))}
+                            variant="outlined"
+                            autoComplete='off'
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            inputProps={{ step: 0.1 }}
+                            label="Gabari (m)"
+                            value={details.gabari || ''}
+                            onChange={(e) => handleDetailChange('gabari', parseFloat(e.target.value))}
+                            variant="outlined"
+                            autoComplete='off'
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Tapu Durumu</InputLabel>
+                            <Select
+                                value={details.tapuStatus || ''}
+                                onChange={(e) => handleDetailChange('tapuStatus', e.target.value)}
+                                label="Tapu Durumu"
+                                sx={{
+                                    borderRadius: 1,
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                }}
+                            >
+                                <MenuItem value="MUSTAKIL">Müstakil Tapulu</MenuItem>
+                                <MenuItem value="HISSELI">Hisseli Tapu</MenuItem>
+                                <MenuItem value="ARSA_PAYI">Arsa Payı</MenuItem>
+                                <MenuItem value="TAPU_BEKLIYOR">Tapu Bekleniyor</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    
+                    {/* Ek Özellikler */}
                     <Grid item xs={12}>
                         <Typography variant="subtitle1" sx={{ 
-                            mb: 2, 
+                            mt: 2,
+                            mb: 1, 
                             fontWeight: 600, 
                             color: '#1e293b',
                             fontSize: '14px'
                         }}>
                             Ek Özellikler
                         </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                            {[
-                                { key: 'electricity', label: 'Elektrik' },
-                                { key: 'water', label: 'Su' },
-                                { key: 'naturalGas', label: 'Doğalgaz' },
-                                { key: 'sewerage', label: 'Kanalizasyon' },
-                                { key: 'roadAccess', label: 'Yol Erişimi' },
-                                { key: 'internet', label: 'İnternet/Fiber' },
-                                { key: 'cornerLot', label: 'Köşe Parsel' },
-                                { key: 'seaView', label: 'Deniz Manzarası' },
-                                { key: 'cityView', label: 'Şehir Manzarası' },
-                                { key: 'forestView', label: 'Orman Manzarası' },
-                                { key: 'slope', label: 'Eğimli' },
-                                { key: 'flat', label: 'Düz' },
-                                { key: 'fenced', label: 'Çevrili' },
-                                { key: 'vineyard', label: 'Bağ' },
-                                { key: 'orchard', label: 'Meyve Bahçesi' },
-                                { key: 'greenhouse', label: 'Sera' }
-                            ].map((feature) => (
-                                <FormControlLabel
-                                    key={feature.key}
-                                    control={
-                                        <Checkbox
-                                            checked={details[feature.key] || false}
-                                            onChange={(e) => handleDetailChange(feature.key, e.target.checked)}
-                                            sx={{
-                                                color: '#94a3b8',
-                                                '&.Mui-checked': { color: '#1e293b' },
-                                                '& .MuiSvgIcon-root': { fontSize: 18 },
-                                                p: 0.5
-                                            }}
-                                        />
-                                    }
-                                    label={
-                                        <Typography variant="body2" sx={{ 
-                                            color: '#1e293b',
-                                            fontSize: '13px',
-                                            ml: 0.5
+
+                        <Grid container spacing={3}>
+                            {featureCategories.map((category, categoryIndex) => (
+                                <Grid item xs={12} sm={6} md={3} key={categoryIndex}>
+                                    <Box sx={{ 
+                                        p: 2, 
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: 1,
+                                        backgroundColor: '#f8fafc'
+                                    }}>
+                                        <Typography variant="subtitle2" sx={{ 
+                                            mb: 1.5, 
+                                            fontWeight: 600,
+                                            color: '#334155',
+                                            fontSize: '13px'
                                         }}>
-                                            {feature.label}
+                                            {category.title}
                                         </Typography>
-                                    }
-                                    sx={{
-                                        margin: 0,
-                                        alignItems: 'center',
-                                        '& .MuiFormControlLabel-label': {
-                                            paddingLeft: '4px'
-                                        }
-                                    }}
-                                />
+                                        
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                            {category.features.map((feature) => (
+                                                <FormControlLabel
+                                                    key={feature.key}
+                                                    control={
+                                                        <Checkbox
+                                                            checked={details[feature.key] || false}
+                                                            onChange={(e) => handleDetailChange(feature.key, e.target.checked)}
+                                                            sx={{
+                                                                color: '#94a3b8',
+                                                                '&.Mui-checked': { color: '#1e293b' },
+                                                                '& .MuiSvgIcon-root': { fontSize: 16 },
+                                                                p: 0.25
+                                                            }}
+                                                        />
+                                                    }
+                                                    label={
+                                                        <Typography variant="body2" sx={{ 
+                                                            color: '#475569',
+                                                            fontSize: '12px'
+                                                        }}>
+                                                            {feature.label}
+                                                        </Typography>
+                                                    }
+                                                    sx={{
+                                                        margin: 0,
+                                                        alignItems: 'center',
+                                                        '& .MuiFormControlLabel-label': {
+                                                            paddingLeft: '6px'
+                                                        }
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    </Box>
+                                </Grid>
                             ))}
-                        </Box>
+                        </Grid>
                     </Grid>
                 </Grid>
             </CardContent>

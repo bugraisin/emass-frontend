@@ -82,7 +82,6 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
                 </Typography>
                 
                 <Grid container spacing={2}>
-                    {/* Temel Bilgiler */}
                     <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
@@ -108,17 +107,39 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Bina Yaşı</InputLabel>
+                            <Select
+                                value={details.buildingAge || ''}
+                                onChange={(e) => handleDetailChange('buildingAge', e.target.value)}
+                                label="Bina Yaşı"
+                                sx={{
+                                    borderRadius: 1,
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                }}
+                            >
+                                <MenuItem value="0">0 (Yeni)</MenuItem>
+                                <MenuItem value="1-5">1-5 arası</MenuItem>
+                                <MenuItem value="6-10">6-10 arası</MenuItem>
+                                <MenuItem value="11-15">11-15 arası</MenuItem>
+                                <MenuItem value="16-20">16-20 arası</MenuItem>
+                                <MenuItem value="21-25">21-25 arası</MenuItem>
+                                <MenuItem value="26-30">26-30 arası</MenuItem>
+                                <MenuItem value="31+">31 üzeri</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             type="number"
-                            label="Bina Yaşı"
-                            value={details.buildingAge || ''}
-                            onChange={(e) => handleDetailChange('buildingAge', parseInt(e.target.value))}
-                            InputProps={{
-                                autoComplete: 'off',
-                                startAdornment: <CalendarToday sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
-                            }}
+                            label="Bölüm/Oda Sayısı"
+                            value={details.roomCount || ''}
+                            onChange={(e) => handleDetailChange('roomCount', parseInt(e.target.value))}
                             variant="outlined"
+                            autoComplete='off'
                             size="small"
                             sx={{
                                 '& .MuiOutlinedInput-root': {
@@ -153,33 +174,12 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
-                        <FormControl fullWidth variant="outlined" size="small">
-                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Isıtma Tipi</InputLabel>
-                            <Select
-                                value={details.heatingType || ''}
-                                onChange={(e) => handleDetailChange('heatingType', e.target.value)}
-                                label="Isıtma Tipi"
-                                sx={{
-                                    borderRadius: 1,
-                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
-                                }}
-                            >
-                                <MenuItem value="DOGALGAZ">Doğalgaz</MenuItem>
-                                <MenuItem value="MERKEZI">Merkezi Sistem</MenuItem>
-                                <MenuItem value="SOBALI">Sobalı</MenuItem>
-                                <MenuItem value="YOK">Yok</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             type="number"
-                            label="WC Sayısı"
-                            value={details.wcCount || ''}
-                            onChange={(e) => handleDetailChange('wcCount', parseInt(e.target.value))}
+                            label="Kat Sayısı"
+                            value={details.floorCount || ''}
+                            onChange={(e) => handleDetailChange('floorCount', parseInt(e.target.value))}
                             variant="outlined"
                             autoComplete='off'
                             size="small"
@@ -195,15 +195,60 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
                     </Grid>
 
                     <Grid item xs={12} sm={6} md={4}>
+                        <FormControl fullWidth variant="outlined" size="small">
+                            <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Isıtma Tipi</InputLabel>
+                            <Select
+                                value={details.heatingType || ''}
+                                onChange={(e) => handleDetailChange('heatingType', e.target.value)}
+                                label="Isıtma Tipi"
+                                sx={{
+                                    borderRadius: 1,
+                                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
+                                }}
+                            >
+                                <MenuItem value="DOGALGAZ">Doğalgaz (Kombi)</MenuItem>
+                                <MenuItem value="MERKEZI">Merkezi Sistem</MenuItem>
+                                <MenuItem value="KALORIFER">Kalorifer</MenuItem>
+                                <MenuItem value="KLIMA">Klima</MenuItem>
+                                <MenuItem value="ELEKTRIKLI">Elektrikli Radyatör</MenuItem>
+                                <MenuItem value="SOBALI">Sobalı</MenuItem>
+                                <MenuItem value="YOK">Yok</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
                             type="number"
-                            label="Toplam Kat Sayısı"
-                            value={details.totalFloors || ''}
-                            onChange={(e) => handleDetailChange('totalFloors', parseInt(e.target.value))}
+                            label="Aidat (₺)"
+                            value={details.siteFee || ''}
+                            onChange={(e) => handleDetailChange('siteFee', parseInt(e.target.value))}
                             variant="outlined"
-                            autoComplete='off'
                             size="small"
+                            autoComplete='off'
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Depozito (₺)"
+                            value={details.deposit || ''}
+                            onChange={(e) => handleDetailChange('deposit', parseInt(e.target.value))}
+                            variant="outlined"
+                            size="small"
+                            autoComplete='off'
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: 1,
