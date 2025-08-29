@@ -1,12 +1,22 @@
-import { Box, Button, Stepper, Step, StepLabel, Typography, Card, CardMedia, Divider, Grid } from "@mui/material";
+import { Box, Button, Stepper, Step, StepLabel, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import StepOne from "./step-one.tsx";
 import StepTwo from "./step-two.tsx";
 import StepThree from "./step-three.tsx";
+import StepFour from "./step-four.tsx";
+import StepFive from "./step-five.tsx";
+import StepSix from "./step-six.tsx";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
+interface Photo {
+    id: string;
+    file: File;
+    url: string;
+    isMain: boolean;
+}
+
 export default function Advert() {
-    const steps = ['İlan Türü', 'Temel Bilgiler', 'Özellikler'];
+    const steps = ['İlan Türü', 'Temel Bilgiler', 'Özellikler', 'Fotoğraflar', 'Konum', 'Önizleme'];
     const [activeStep, setActiveStep] = useState<number>(0);
 
     // Backend uyumlu state'ler - StepOne
@@ -23,8 +33,60 @@ export default function Advert() {
     const [neighborhood, setNeighborhood] = useState<string>("");
     const [addressText, setAddressText] = useState<string>("");
     
-    // Dinamik detaylar state'i
-    const [details, setDetails] = useState<any>({});
+    // Konum state'leri - StepFive
+    const [latitude, setLatitude] = useState<number | null>(null);
+    const [longitude, setLongitude] = useState<number | null>(null);
+    
+    // Property type'a göre ayrı detay state'leri
+    const [housingDetails, setHousingDetails] = useState<any>({});
+    const [commercialDetails, setCommercialDetails] = useState<any>({});
+    const [officeDetails, setOfficeDetails] = useState<any>({});
+    const [industrialDetails, setIndustrialDetails] = useState<any>({});
+    const [landDetails, setLandDetails] = useState<any>({});
+    const [serviceDetails, setServiceDetails] = useState<any>({});
+    
+    // Fotoğraflar state'i
+    const [photos, setPhotos] = useState<Photo[]>([]);
+
+    // Aktif property type'a göre doğru detay state'ini döndüren helper fonksiyon
+    const getCurrentDetails = () => {
+        switch (propertyType) {
+            case 'KONUT':
+                return housingDetails;
+            case 'TICARI':
+                return commercialDetails;
+            case 'OFIS':
+                return officeDetails;
+            case 'ENDUSTRIYEL':
+                return industrialDetails;
+            case 'ARSA':
+                return landDetails;
+            case 'HIZMET':
+                return serviceDetails;
+            default:
+                return {};
+        }
+    };
+
+    // Aktif property type'a göre doğru setter fonksiyonunu döndüren helper fonksiyon
+    const getCurrentDetailsSetter = () => {
+        switch (propertyType) {
+            case 'KONUT':
+                return setHousingDetails;
+            case 'TICARI':
+                return setCommercialDetails;
+            case 'OFIS':
+                return setOfficeDetails;
+            case 'ENDUSTRIYEL':
+                return setIndustrialDetails;
+            case 'ARSA':
+                return setLandDetails;
+            case 'HIZMET':
+                return setServiceDetails;
+            default:
+                return () => {};
+        }
+    };
 
     const handleNextStep = () => {
         if (activeStep === 0 && listingType && propertyType && subtype) {
@@ -46,7 +108,23 @@ export default function Advert() {
             });
             setActiveStep(2);
         } else if (activeStep === 2) {
-            // İlan detaylarını kaydet
+            console.log(`${propertyType} detayları:`, getCurrentDetails());
+            setActiveStep(3);
+        } else if (activeStep === 3 && photos.length >= 1) {
+            console.log("Fotoğraf bilgileri:", {
+                photoCount: photos.length,
+                mainPhoto: photos.find(p => p.isMain)
+            });
+            setActiveStep(4);
+        } else if (activeStep === 4 && latitude && longitude) {
+            console.log("Konum bilgileri:", {
+                latitude,
+                longitude,
+                addressText
+            });
+            setActiveStep(5);
+        } else if (activeStep === 5) {
+            // Son adım - İlanı kaydet
             const listingData = {
                 // Temel bilgiler
                 title,
@@ -59,15 +137,32 @@ export default function Advert() {
                 neighborhood,
                 addressText,
                 
-                // Tip bazlı detaylar
-                [propertyType.toLowerCase() + 'Details']: {
-                    subtype,
-                    ...details
-                }
+                // Konum bilgileri
+                location: {
+                    latitude,
+                    longitude,
+                    address: addressText
+                },
+                
+                // Property type'a göre doğru detaylar
+                ...(propertyType === 'KONUT' && { housingDetails: { subtype, ...housingDetails } }),
+                ...(propertyType === 'TICARI' && { commercialDetails: { subtype, ...commercialDetails } }),
+                ...(propertyType === 'OFIS' && { officeDetails: { subtype, ...officeDetails } }),
+                ...(propertyType === 'ENDUSTRIYEL' && { industrialDetails: { subtype, ...industrialDetails } }),
+                ...(propertyType === 'ARSA' && { landDetails: { subtype, ...landDetails } }),
+                ...(propertyType === 'HIZMET' && { serviceDetails: { subtype, ...serviceDetails } }),
+                
+                // Fotoğraflar
+                photos: photos.map((photo, index) => ({
+                    file: photo.file,
+                    isMain: photo.isMain,
+                    order: index
+                }))
             };
             
             console.log("Tüm ilan verileri:", listingData);
             // Burada API çağrısı yapılabilir
+            alert("İlan başarıyla oluşturuldu!");
         }
     };
 
@@ -81,22 +176,30 @@ export default function Advert() {
         if (activeStep === 0) {
             return !(listingType && propertyType && subtype);
         } else if (activeStep === 1) {
-            // StepTwo için minimum gerekli alanları kontrol et
             return !(title && description && price && city && district);
         } else if (activeStep === 2) {
-            // StepThree için gerekli alan kontrolü yapılabilir
             return false;
+        } else if (activeStep === 3) {
+            return photos.length < 1;
+        } else if (activeStep === 4) {
+            return !(latitude && longitude);
+        } else if (activeStep === 5) {
+            return false; // Önizleme adımında her zaman yayınlayabilir
         }
         return false;
     }
 
-    // Step değiştiğinde detay state'ini temizle
+    // Property type değiştiğinde ilgili detay state'ini subtype ile başlat
     useEffect(() => {
-        if (activeStep === 2 && Object.keys(details).length === 0) {
-            // İlk kez step 3'e gelindiğinde subtype'ı detaylara ekle
-            setDetails({ subtype });
+        if (propertyType && subtype) {
+            const currentDetails = getCurrentDetails();
+            const currentSetter = getCurrentDetailsSetter();
+            
+            if (Object.keys(currentDetails).length === 0) {
+                currentSetter({ subtype });
+            }
         }
-    }, [activeStep, subtype, details]);
+    }, [propertyType, subtype]);
 
     return (
         <Box
@@ -118,13 +221,13 @@ export default function Advert() {
                     height: "auto",
                     marginTop: '1%',
                     marginBottom: '1%',
-                    padding: '2%',
+                    padding: '1%',
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
                 }}    
             >
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 2 }}>
                     <Stepper activeStep={activeStep} sx={{ 
                         width: '90%',
                         '& .MuiStepConnector-line': {
@@ -145,12 +248,12 @@ export default function Advert() {
                                         '& .MuiStepLabel-label': {
                                             color: activeStep === index ? '#1e293b' : '#64748b',
                                             fontWeight: activeStep === index ? 700 : 500,
-                                            fontSize: '1rem',
+                                            fontSize: '0.9rem',
                                             transition: 'all 0.3s ease'
                                         },
                                         '& .MuiStepIcon-root': {
                                             color: activeStep >= index ? '#475569' : '#cbd5e1',
-                                            fontSize: '2rem',
+                                            fontSize: '1.8rem',
                                             transition: 'all 0.3s ease',
                                             '&.Mui-active': {
                                                 color: '#1e293b',
@@ -169,7 +272,7 @@ export default function Advert() {
                     </Stepper>
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: 2, flex: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', flex: 1, minHeight: '500px' }}>
                     {activeStep === 0 && (
                         <StepOne
                             listingType={listingType}
@@ -206,8 +309,45 @@ export default function Advert() {
                             listingType={listingType}
                             propertyType={propertyType}
                             subtype={subtype}
-                            details={details}
-                            setDetails={setDetails}
+                            details={getCurrentDetails()}
+                            setDetails={getCurrentDetailsSetter()}
+                        />
+                    )}
+                    
+                    {activeStep === 3 && (
+                        <StepFour
+                            photos={photos}
+                            setPhotos={setPhotos}
+                        />
+                    )}
+                    
+                    {activeStep === 4 && (
+                        <StepFive
+                            latitude={latitude}
+                            longitude={longitude}
+                            setLatitude={setLatitude}
+                            setLongitude={setLongitude}
+                            addressText={addressText}
+                            setAddressText={setAddressText}
+                        />
+                    )}
+                    
+                    {activeStep === 5 && (
+                        <StepSix
+                            listingType={listingType}
+                            propertyType={propertyType}
+                            subtype={subtype}
+                            title={title}
+                            description={description}
+                            price={price}
+                            city={city}
+                            district={district}
+                            neighborhood={neighborhood}
+                            addressText={addressText}
+                            details={getCurrentDetails()}
+                            photos={photos}
+                            latitude={latitude}
+                            longitude={longitude}
                         />
                     )}
                 </Box>
@@ -248,11 +388,11 @@ export default function Advert() {
                             width: '10%',
                             display: 'flex',
                             justifyContent: 'center',
-                            backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : '#475569', 
+                            backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : (activeStep === 5 ? '#059669' : '#475569'), 
                             color: 'white',
                             borderRadius: '12px', 
                             '&:hover': {
-                                backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : '#334155',
+                                backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : (activeStep === 5 ? '#047857' : '#334155'),
                             },
                             '&:disabled': {
                                 backgroundColor: '#e5e7eb',
@@ -261,7 +401,12 @@ export default function Advert() {
                         }}
                         endIcon={<ArrowForward />}
                     >
-                        {activeStep === 0 ? "İleri" : activeStep === 1 ? "İleri" : "Tamamla"}
+                        {activeStep === 0 ? "İleri" : 
+                         activeStep === 1 ? "İleri" : 
+                         activeStep === 2 ? "İleri" : 
+                         activeStep === 3 ? "İleri" : 
+                         activeStep === 4 ? "Önizleme" :
+                         "İlanı Yayınla"}
                     </Button>
                 </Box>
             </Box>
