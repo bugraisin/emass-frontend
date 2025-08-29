@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Box, Typography, Grid, IconButton, Divider } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos, LocationOn } from "@mui/icons-material";
+import { Box, Typography, Grid, IconButton, Divider, Modal, Backdrop } from "@mui/material";
+import { ArrowBackIos, ArrowForwardIos, LocationOn, Close, Fullscreen } from "@mui/icons-material";
 
 interface Photo {
   id: string;
@@ -45,6 +45,146 @@ const getImportantDetailsForKonut = (details: any) => {
     "Aidat (₺)": details.siteFee || 'Belirtilmemiş',
     "Depozito (₺)": details.deposit || 'Belirtilmemiş',
   };
+};
+
+// Photo Modal Component
+const PhotoModal = ({ 
+  open, 
+  onClose, 
+  photos, 
+  currentIndex, 
+  onPrev, 
+  onNext 
+}: {
+  open: boolean;
+  onClose: () => void;
+  photos: Photo[];
+  currentIndex: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) => {
+  if (photos.length === 0) return null;
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 300,
+        sx: { backgroundColor: 'rgba(0, 0, 0, 0.9)' }
+      }}
+    >
+      <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        outline: 'none'
+      }}>
+        {/* Kapat butonu */}
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            color: 'white',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.7)' },
+            zIndex: 1000
+          }}
+        >
+          <Close />
+        </IconButton>
+
+        {/* Fotoğraf */}
+        <Box sx={{
+          maxWidth: '90vw',
+          maxHeight: '90vh',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <img
+            src={photos[currentIndex].url}
+            alt={`Fotoğraf ${currentIndex + 1}`}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              borderRadius: 8
+            }}
+          />
+
+          {/* Sol ok */}
+          {photos.length > 1 && (
+            <IconButton
+              onClick={onPrev}
+              sx={{
+                position: 'fixed',
+                left: 20,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.8)' },
+                width: 50,
+                height: 50,
+                zIndex: 1001
+              }}
+            >
+              <ArrowBackIos />
+            </IconButton>
+          )}
+
+          {/* Sağ ok */}
+          {photos.length > 1 && (
+            <IconButton
+              onClick={onNext}
+              sx={{
+                position: 'fixed',
+                right: 20,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.8)' },
+                width: 50,
+                height: 50,
+                zIndex: 1001
+              }}
+            >
+              <ArrowForwardIos />
+            </IconButton>
+          )}
+        </Box>
+
+        {/* Fotoğraf sayısı */}
+        {photos.length > 1 && (
+          <Box sx={{
+            position: 'absolute',
+            bottom: 30,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: 2,
+            fontSize: 14
+          }}>
+            {currentIndex + 1} / {photos.length}
+          </Box>
+        )}
+      </Box>
+    </Modal>
+  );
 };
 
 const FEATURE_CATEGORIES = [
@@ -103,133 +243,274 @@ const FEATURE_CATEGORIES = [
   }
 ];
 
-// Photo Gallery Component
+// Photo Gallery Component - FIXED VERSION
 const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
   photos: Photo[];
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
 }) => {
+  const [modalOpen, setModalOpen] = useState(false);
+
   const handlePrev = () => setCurrentIndex(currentIndex === 0 ? photos.length - 1 : currentIndex - 1);
   const handleNext = () => setCurrentIndex(currentIndex === photos.length - 1 ? 0 : currentIndex + 1);
 
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+
   if (photos.length === 0) return (
     <Box sx={{ 
-      height: 480, 
+      width: "100%",
+      height: "400px", // SABİT YÜKSEKLIK
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
       backgroundColor: '#f8fafc',
       borderRadius: 2,
-      border: '2px dashed #cbd5e1'
+      border: '2px dashed #cbd5e1',
+      flexShrink: 0, // Küçülmesini engelle
+      minHeight: "400px", // Minimum yükseklik
+      maxHeight: "400px"  // Maksimum yükseklik
     }}>
       <Typography sx={{ color: '#64748b' }}>Fotoğraf yüklenmemiş</Typography>
     </Box>
   );
 
   return (
-    <Box sx={{ position: "relative", height: 480, overflow: "hidden", borderRadius: 2 }}>
-      <img
-        src={photos[currentIndex].url}
-        alt="ilan"
-        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }}
-      />
-      {photos.length > 1 && (
-        <>
-          <IconButton onClick={handlePrev} sx={{
-            position: "absolute", top: "50%", left: 10, transform: "translateY(-50%)",
-            background: "rgba(0,0,0,0.5)", color: "#fff", borderRadius: 1,
-            "&:hover": { background: "rgba(0,0,0,0.7)" }
-          }}>
-            <ArrowBackIos fontSize="small" />
-          </IconButton>
-          <IconButton onClick={handleNext} sx={{
-            position: "absolute", top: "50%", right: 10, transform: "translateY(-50%)",
-            background: "rgba(0,0,0,0.5)", color: "#fff", borderRadius: 1,
-            "&:hover": { background: "rgba(0,0,0,0.7)" }
-          }}>
-            <ArrowForwardIos fontSize="small" />
-          </IconButton>
-          <Box sx={{
-            position: "absolute", bottom: 10, right: 10,
-            background: "rgba(0,0,0,0.6)", color: "#fff",
-            padding: "4px 8px", borderRadius: 1, fontSize: 12
-          }}>
-            {currentIndex + 1} / {photos.length}
+    <>
+      {/* Ana fotoğraf container - TAMAMEN SABİT BOYUT */}
+      <Box sx={{ 
+        position: "relative", 
+        width: "100%",
+        height: "400px", // SABİT YÜKSEKLIK
+        minHeight: "400px", // Minimum yükseklik
+        maxHeight: "400px", // Maksimum yükseklik
+        overflow: "hidden", 
+        borderRadius: 2,
+        backgroundColor: '#000000',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0 // Küçülmesini engelle
+      }}>
+        {/* Ana fotoğraf - tıklanabilir */}
+        <Box
+          onClick={openModal}
+          sx={{
+            cursor: 'pointer',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            '&:hover .fullscreen-icon': {
+              opacity: 1
+            }
+          }}
+        >
+          <img
+            src={photos[currentIndex].url}
+            alt="ilan"
+            style={{ 
+              maxWidth: "100%", // Maksimum genişlik container'ın %100'ü
+              maxHeight: "100%", // Maksimum yükseklik container'ın %100'ü
+              width: "auto", // Genişlik otomatik
+              height: "auto", // Yükseklik otomatik
+              objectFit: "contain", // Fotoğrafı kırpmadan tam sığdır
+              display: 'block'
+            }}
+          />
+          
+          {/* Büyütme ikonu */}
+          <Box
+            className="fullscreen-icon"
+            sx={{
+              position: 'absolute',
+              top: 10,
+              left: 10,
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              color: 'white',
+              borderRadius: 1,
+              padding: '4px',
+              opacity: 0,
+              transition: 'opacity 0.3s ease'
+            }}
+          >
+            <Fullscreen fontSize="small" />
           </Box>
-        </>
-      )}
-    </Box>
+        </Box>
+
+        {/* Thumbnail strip */}
+        {photos.length > 1 && (
+          <Box sx={{
+            position: 'absolute',
+            bottom: 10,
+            left: 10,
+            right: 10,
+            display: 'flex',
+            gap: 0.5,
+            justifyContent: 'center'
+          }}>
+            {photos.slice(0, 5).map((photo, index) => (
+              <Box
+                key={photo.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(index);
+                }}
+                sx={{
+                  width: 40,
+                  height: 30,
+                  borderRadius: 0.5,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  border: index === currentIndex ? '2px solid white' : '1px solid rgba(255,255,255,0.5)',
+                  opacity: index === currentIndex ? 1 : 0.7,
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0 // Küçük resimlerin de boyutunu koru
+                }}
+              >
+                <img
+                  src={photo.url}
+                  alt=""
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              </Box>
+            ))}
+            {photos.length > 5 && (
+              <Box sx={{
+                width: 40,
+                height: 30,
+                borderRadius: 0.5,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '10px',
+                flexShrink: 0
+              }}>
+                +{photos.length - 5}
+              </Box>
+            )}
+          </Box>
+        )}
+
+        {/* Navigation Arrows */}
+        {photos.length > 1 && (
+          <>
+            <IconButton onClick={handlePrev} sx={{
+              position: "absolute", top: "50%", left: 10, transform: "translateY(-50%)",
+              background: "rgba(0,0,0,0.5)", color: "#fff", borderRadius: 1,
+              "&:hover": { background: "rgba(0,0,0,0.7)" },
+              zIndex: 2
+            }}>
+              <ArrowBackIos fontSize="small" />
+            </IconButton>
+            <IconButton onClick={handleNext} sx={{
+              position: "absolute", top: "50%", right: 10, transform: "translateY(-50%)",
+              background: "rgba(0,0,0,0.5)", color: "#fff", borderRadius: 1,
+              "&:hover": { background: "rgba(0,0,0,0.7)" },
+              zIndex: 2
+            }}>
+              <ArrowForwardIos fontSize="small" />
+            </IconButton>
+          </>
+        )}
+      </Box>
+
+      {/* Photo Modal */}
+      <PhotoModal
+        open={modalOpen}
+        onClose={closeModal}
+        photos={photos}
+        currentIndex={currentIndex}
+        onPrev={handlePrev}
+        onNext={handleNext}
+      />
+    </>
   );
 };
 
-// Property Info Panel Component
 const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
-  listingType: string;
-  title: string;
-  price: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  details: any;
+ listingType: string;
+ title: string;
+ price: string;
+ city: string;
+ district: string;
+ neighborhood: string;
+ details: any;
 }) => {
-  const importantDetails = getImportantDetailsForKonut(details);
+ const importantDetails = getImportantDetailsForKonut(details);
 
-  return (
-    <Box sx={{ 
-      p: 2, 
-      border: "1px solid #e2e8f0", 
-      borderRadius: 1, 
-      height: 480,
-      backgroundColor: '#f8fafc',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-      <Typography variant="h4" sx={{ fontWeight: 700, color: "#059669", mb: 1.5 }}>
-        {formatPrice(price)} TL
-        {listingType === "rent" && (
-          <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
-            /ay
-          </Typography>
-        )}
-      </Typography>
-      
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: "#1e293b", fontSize: '16px' }}>
-        {title}
-      </Typography>
-      
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <LocationOn fontSize="small" sx={{ color: "#ef4444", mr: 0.5 }} />
-        <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-          {neighborhood && `${neighborhood}, `} {district}, {city}
-        </Typography>
-      </Box>
-      
-      <Divider sx={{ my: 1.5, borderColor: '#e2e8f0' }} />
+ return (
+   <Box sx={{ 
+     p: 1,
+     border: "1px solid #e2e8f0", 
+     borderRadius: 1, 
+     backgroundColor: '#f8fafc',
+     display: 'flex',
+     flexDirection: 'column',
+   }}>
+     <Typography variant="h5" sx={{ fontWeight: 700, color: "#059669" }}>
+       {formatPrice(price)} TL
+       {listingType === "rent" && (
+         <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
+           /ay
+         </Typography>
+       )}
+     </Typography>
+     
+     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1e293b", fontSize: '16px' }}>
+       {title}
+     </Typography>
+     
+     <Box sx={{ display: "flex", alignItems: "center" }}>
+       <LocationOn fontSize="small" sx={{ color: "#ef4444", mr: 0.5 }} />
+       <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
+         {neighborhood && `${neighborhood}, `} {district}, {city}
+       </Typography>
+     </Box>
+     
+     <Divider sx={{ my: 1.5, borderColor: '#e2e8f0' }} />
 
-      <Box sx={{ flex: 1, overflowY: 'auto' }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Emlak Özellikleri
-        </Typography>
-        
-        <Grid container spacing={0.25}>
-          {Object.entries(importantDetails).map(([key, value]) => (
-            <React.Fragment key={key}>
-              <Grid item xs={7}>
-                <Typography variant="body2" sx={{ color: "#64748b", fontSize: '11px', py: 0.25 }}>
-                  {key}
-                </Typography>
-              </Grid>
-              <Grid item xs={5} sx={{ textAlign: 'right' }}>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: "#1e293b", fontSize: '11px', py: 0.25 }}>
-                  {value}
-                </Typography>
-              </Grid>
-            </React.Fragment>
-          ))}
-        </Grid>
-      </Box>
-    </Box>
-  );
+     <Box sx={{ flex: 1, overflowY: 'auto' }}>
+       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
+         Emlak Özellikleri
+       </Typography>
+       
+       <Box>
+         {Object.entries(importantDetails).map(([key, value], index, array) => (
+           <Box key={key}>
+             <Box sx={{
+               display: 'flex',
+               justifyContent: 'space-between',
+               alignItems: 'center',
+               py: 0.5,
+               px: 0.5
+             }}>
+               <Typography variant="body2" sx={{ color: "#64748b", fontSize: '11px' }}>
+                 {key}
+               </Typography>
+               <Typography variant="body2" sx={{ fontWeight: 500, color: "#1e293b", fontSize: '11px' }}>
+                 {value}
+               </Typography>
+             </Box>
+             {index < array.length - 1 && (
+               <Divider sx={{ borderColor: '#e5e7eb' }} />
+             )}
+           </Box>
+         ))}
+       </Box>
+     </Box>
+   </Box>
+ );
 };
 
 // Checkbox Feature Component
@@ -257,50 +538,165 @@ const CheckboxFeature = ({ feature, isSelected }: { feature: { key: string; labe
 
 // Feature Categories Component
 const FeatureCategories = ({ details }: { details: any }) => (
- <Box sx={{ mt: 3 }}>
-   <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: "#1e293b", fontSize: '14px' }}>
-     Ek Özellikler
-   </Typography>
-   
-   <Grid container spacing={2}>
-     {FEATURE_CATEGORIES.map((category, index) => (
-       <Grid item xs={12} sm={6} md={4} key={index}>
-         <Box sx={{
-           p: 1.5, 
-           border: '1px solid #e2e8f0', 
-           borderRadius: 1, 
-           backgroundColor: '#f8fafc',
-           height: 180,
-           display: 'flex',
-           flexDirection: 'column'
-         }}>
-           <Typography variant="subtitle2" sx={{
-             mb: 1, fontWeight: 600, color: '#334155', fontSize: '12px'
-           }}>
-             {category.title}
-           </Typography>
-           
-           <Box sx={{ 
-             display: 'flex', 
-             flexDirection: 'column', 
-             gap: 0.25,
-             flex: 1,
-             overflowY: 'auto'
-           }}>
-             {category.features.map((feature) => (
-               <CheckboxFeature
-                 key={feature.key}
-                 feature={feature}
-                 isSelected={details[feature.key] || false}
-               />
-             ))}
-           </Box>
-         </Box>
-       </Grid>
-     ))}
-   </Grid>
- </Box>
+  <Grid container spacing={1}>
+    {FEATURE_CATEGORIES.map((category, index) => (
+      <Grid item xs={12} sm={6} md={4} key={index}>
+        <Box sx={{
+          p: 1.5, 
+          border: '1px solid #e2e8f0', 
+          borderRadius: 1, 
+          backgroundColor: '#f8fafc',
+          height: 150,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Typography variant="subtitle2" sx={{
+            mb: 1, fontWeight: 600, color: '#334155', fontSize: '12px'
+          }}>
+            {category.title}
+          </Typography>
+          
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 0.25,
+            flex: 1,
+            overflowY: 'auto'
+          }}>
+            {category.features.map((feature) => (
+              <CheckboxFeature
+                key={feature.key}
+                feature={feature}
+                isSelected={details[feature.key] || false}
+              />
+            ))}
+          </Box>
+        </Box>
+      </Grid>
+    ))}
+  </Grid>
 );
+
+// Location Component
+const LocationPanel = ({ latitude, longitude, addressText, city, district, neighborhood }: {
+  latitude: number | null;
+  longitude: number | null;
+  addressText: string;
+  city: string;
+  district: string;
+  neighborhood: string;
+}) => (
+  <Box sx={{ 
+    height: 400,
+    border: "1px solid #e2e8f0", 
+    borderRadius: 1, 
+    backgroundColor: "#f8fafc",
+    position: 'relative',
+    overflow: 'hidden'
+  }}>
+    {latitude && longitude ? (
+      <iframe
+        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`}
+        width="100%"
+        height="100%"
+        style={{ border: 0, borderRadius: 4 }}
+      />
+    ) : (
+      <Box sx={{
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        color: '#64748b'
+      }}>
+        <LocationOn sx={{ fontSize: 40, mb: 1, opacity: 0.5 }} />
+        <Typography sx={{ fontSize: '14px' }}>
+          {addressText || `${neighborhood && `${neighborhood}, `}${district}, ${city}`}
+        </Typography>
+        <Typography sx={{ fontSize: '12px', mt: 0.5, opacity: 0.7 }}>
+          Konum bilgisi mevcut değil
+        </Typography>
+      </Box>
+    )}
+  </Box>
+);
+
+// Tabbed Panel Component
+const TabbedPanel = ({ details, latitude, longitude, addressText, city, district, neighborhood }: {
+  details: any;
+  latitude: number | null;
+  longitude: number | null;
+  addressText: string;
+  city: string;
+  district: string;
+  neighborhood: string;
+}) => {
+  const [activeTab, setActiveTab] = useState(0);
+
+  return (
+    <Box sx={{ mt: 3 }}>
+      {/* Custom Tab Headers */}
+      <Box sx={{ 
+        display: 'flex',
+        borderBottom: '1px solid #e2e8f0',
+        mb: 3
+      }}>
+        <Box
+          onClick={() => setActiveTab(0)}
+          sx={{
+            px: 3,
+            py: 2,
+            cursor: 'pointer',
+            borderBottom: activeTab === 0 ? '2px solid #475569' : 'none',
+            color: activeTab === 0 ? '#1e293b' : '#64748b',
+            fontWeight: activeTab === 0 ? 600 : 400,
+            fontSize: '14px',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              color: '#1e293b'
+            }
+          }}
+        >
+          Ek Özellikler
+        </Box>
+        <Box
+          onClick={() => setActiveTab(1)}
+          sx={{
+            px: 3,
+            py: 2,
+            cursor: 'pointer',
+            borderBottom: activeTab === 1 ? '2px solid #475569' : 'none',
+            color: activeTab === 1 ? '#1e293b' : '#64748b',
+            fontWeight: activeTab === 1 ? 600 : 400,
+            fontSize: '14px',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              color: '#1e293b'
+            }
+          }}
+        >
+          Konum
+        </Box>
+      </Box>
+      
+      {/* Tab Content - Fixed Height */}
+      <Box>
+        {activeTab === 0 && <FeatureCategories details={details} />}
+        {activeTab === 1 && (
+          <LocationPanel
+            latitude={latitude}
+            longitude={longitude}
+            addressText={addressText}
+            city={city}
+            district={district}
+            neighborhood={neighborhood}
+          />
+        )}
+      </Box>
+    </Box>
+  );
+};
 
 // Main Component
 export default function StepSix({
@@ -310,13 +706,13 @@ export default function StepSix({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", fontFamily: "sans-serif" }}>
-      {/* Ana içerik: Fotoğraf + Bilgiler */}
+    <Box sx={{ width: "100%", mx: "auto", fontFamily: "sans-serif", p: 2, background: "white", mb: 2, mt: 1 }}>
+      {/* Ana içerik: Fotoğraf + Bilgiler - SABİT YÜKSEKLIK */}
       <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={7}>
           <PhotoGallery photos={photos} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={5}>
           <PropertyInfoPanel
             listingType={listingType}
             title={title}
@@ -328,36 +724,60 @@ export default function StepSix({
           />
         </Grid>
       </Grid>
-
-      {/* Ek Özellikler */}
-      <FeatureCategories details={details} />
-
-      {/* Açıklama */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: "#1e293b", fontSize: '14px' }}>
-          Açıklama
-        </Typography>
-        <Typography variant="body1" sx={{ color: "#374151", lineHeight: 1.6, fontSize: '14px' }}>
-          {description}
-        </Typography>
-      </Box>
-
-      {/* Konum */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: "#1e293b", fontSize: '14px' }}>
-          Konum
-        </Typography>
-        <Box sx={{ p: 2, border: "1px solid #e2e8f0", borderRadius: 1, backgroundColor: "#f8fafc" }}>
-          <Typography variant="body1" sx={{ color: "#374151", mb: 1, fontSize: '14px' }}>
-            {addressText || `${neighborhood && `${neighborhood}, `}${district}, ${city}`}
+      
+      <Box
+        sx={{
+          mt: 3,
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          background: "white",
+        }}
+      >
+        {/* Header */}
+        <Box
+          sx={{
+            borderBottom: "1px solid #e5e7eb",
+            px: 2,
+            py: 1,
+            background: "#f9fafb",
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: "13px",
+              color: "#1e293b",
+            }}
+          >
+            Açıklama
           </Typography>
-          {latitude && longitude && (
-            <Typography variant="body2" sx={{ color: "#64748b", fontSize: '12px' }}>
-              Koordinatlar: {latitude.toFixed(6)}, {longitude.toFixed(6)}
-            </Typography>
-          )}
         </Box>
+
+        {/* Body */}
+        <Box
+          dangerouslySetInnerHTML={{ __html: description }}
+          sx={{
+            fontSize: "12px",
+            color: "#374151",
+            lineHeight: 1.4,
+            px: 2,
+            py: 1.5,
+            whiteSpace: "pre-line",
+            "& p": { margin: "0 0 8px 0" },
+          }}
+        />
       </Box>
+            
+      {/* Tab'li Panel: Ek Özellikler / Konum */}
+      <TabbedPanel
+        details={details}
+        latitude={latitude}
+        longitude={longitude}
+        addressText={addressText}
+        city={city}
+        district={district}
+        neighborhood={neighborhood}
+      />
     </Box>
   );
 }

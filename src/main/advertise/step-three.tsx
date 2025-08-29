@@ -45,7 +45,7 @@ export default function StepThree({
     return (
         <Box sx={{ 
             width: "100%", 
-            padding: 2,
+            mt: 1,
             overflowY: 'auto',
             '&::-webkit-scrollbar': {
                 width: '6px',

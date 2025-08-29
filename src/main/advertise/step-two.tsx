@@ -401,7 +401,7 @@ export default function StepTwo({
             border: '1px solid rgba(0, 0, 0, 0.12)',
             mb: 3
         }}>
-            <CardContent sx={{ p: 3 }}>
+            <CardContent sx={{ p: 2 }}>
                 <Typography variant="h6" sx={{ 
                     fontWeight: 600,
                     color: '#1e293b',
@@ -519,8 +519,8 @@ export default function StepTwo({
 
     return (
         <Box sx={{ 
-            width: "100%", 
-            padding: 2,
+            width: "100%",
+            mt: 1,
             maxHeight: '80vh',
             overflowY: 'auto',
             '&::-webkit-scrollbar': {

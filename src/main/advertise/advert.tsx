@@ -227,7 +227,7 @@ export default function Advert() {
                     position: 'relative',
                 }}    
             >
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 1 }}>
                     <Stepper activeStep={activeStep} sx={{ 
                         width: '90%',
                         '& .MuiStepConnector-line': {
@@ -243,7 +243,7 @@ export default function Advert() {
                     }}>
                         {steps.map((label, index) => (
                             <Step key={label}>
-                                <StepLabel 
+                                <StepLabel
                                     sx={{
                                         '& .MuiStepLabel-label': {
                                             color: activeStep === index ? '#1e293b' : '#64748b',
@@ -352,21 +352,21 @@ export default function Advert() {
                     )}
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Button
                         variant="outlined"
                         onClick={handleBackStep}
                         disabled={activeStep === 0}
                         sx={{
                             textTransform: 'none',
-                            padding: '10px 20px',
+                            padding: '5px 10px',
                             alignSelf: 'center',
                             width: '10%',
                             display: 'flex',
                             justifyContent: 'center',
                             backgroundColor: activeStep === 0 ? '#f1f5f9' : '#64748b',
                             color: activeStep === 0 ? '#9ca3af' : 'white',
-                            borderRadius: '12px',
+                            borderRadius: '8px',
                             border: `1px solid ${activeStep === 0 ? '#e5e7eb' : '#64748b'}`, 
                             '&:hover': {
                                 backgroundColor: activeStep === 0 ? '#f1f5f9' : '#475569', 
@@ -383,14 +383,14 @@ export default function Advert() {
                         disabled={isNextButtonDisabled()}
                         sx={{
                             textTransform: 'none',
-                            padding: '10px 20px',
+                            padding: '5px 10px',
                             alignSelf: 'center',
                             width: '10%',
                             display: 'flex',
                             justifyContent: 'center',
                             backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : (activeStep === 5 ? '#059669' : '#475569'), 
                             color: 'white',
-                            borderRadius: '12px', 
+                            borderRadius: '8px', 
                             '&:hover': {
                                 backgroundColor: isNextButtonDisabled() ? '#e5e7eb' : (activeStep === 5 ? '#047857' : '#334155'),
                             },
@@ -405,8 +405,8 @@ export default function Advert() {
                          activeStep === 1 ? "İleri" : 
                          activeStep === 2 ? "İleri" : 
                          activeStep === 3 ? "İleri" : 
-                         activeStep === 4 ? "Önizleme" :
-                         "İlanı Yayınla"}
+                         activeStep === 4 ? "İleri" :
+                         "Tamamla"}
                     </Button>
                 </Box>
             </Box>

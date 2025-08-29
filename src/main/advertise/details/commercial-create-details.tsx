@@ -65,23 +65,23 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
     ];
 
     return (
-        <Card sx={{ 
+        <Card sx={{
             borderRadius: 2,
             boxShadow: 2,
             border: '1px solid rgba(0, 0, 0, 0.12)',
             mb: 3
         }}>
-            <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ 
+            <CardContent sx={{ p: 2 }}>
+                <Typography variant="h6" sx={{
                     fontWeight: 600,
                     color: '#1e293b',
                     fontSize: '16px',
-                    mb: 3
+                    mb: 1
                 }}>
                     Ticari Özellikler
                 </Typography>
                 
-                <Grid container spacing={2}>
+                <Grid container spacing={1}>
                     <Grid item xs={12} sm={6} md={4}>
                         <TextField
                             fullWidth
@@ -284,35 +284,41 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
 
                     {/* Ek Özellikler */}
                     <Grid item xs={12}>
-                        <Typography variant="subtitle1" sx={{ 
+                        <Typography variant="subtitle1" sx={{
                             mt: 2,
-                            mb: 1, 
-                            fontWeight: 600, 
+                            fontWeight: 600,
                             color: '#1e293b',
                             fontSize: '14px'
                         }}>
                             Ek Özellikler
                         </Typography>
 
-                        <Grid container spacing={3}>
+                        <Grid container spacing={1}>
                             {featureCategories.map((category, categoryIndex) => (
-                                <Grid item xs={12} sm={6} md={3} key={categoryIndex}>
-                                    <Box sx={{ 
-                                        p: 2, 
+                                <Grid item xs={12} sm={6} md={4} key={categoryIndex}>
+                                    <Box sx={{
+                                        p: 1,
                                         border: '1px solid #e2e8f0',
                                         borderRadius: 1,
-                                        backgroundColor: '#f8fafc'
+                                        backgroundColor: '#f8fafc',
+                                        minHeight: 150,
+                                        display: 'flex',
+                                        flexDirection: 'column'
                                     }}>
-                                        <Typography variant="subtitle2" sx={{ 
-                                            mb: 1.5, 
+                                        <Typography variant="subtitle2" sx={{
+                                            mb: 1.5,
                                             fontWeight: 600,
                                             color: '#334155',
                                             fontSize: '13px'
                                         }}>
                                             {category.title}
                                         </Typography>
-                                        
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+
+                                        <Box sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            flex: 1
+                                        }}>
                                             {category.features.map((feature) => (
                                                 <FormControlLabel
                                                     key={feature.key}
@@ -329,7 +335,7 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
                                                         />
                                                     }
                                                     label={
-                                                        <Typography variant="body2" sx={{ 
+                                                        <Typography variant="body2" sx={{
                                                             color: '#475569',
                                                             fontSize: '12px'
                                                         }}>

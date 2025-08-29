@@ -9,7 +9,6 @@ import {
     IconButton,
     Dialog,
     DialogContent,
-    DialogActions,
     Alert
 } from '@mui/material';
 import {
@@ -49,19 +48,10 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
     const handleFileSelect = (files: FileList | null) => {
         if (!files) return;
 
-        const maxFiles = 20;
         const maxFileSize = 10 * 1024 * 1024; // 10MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-        const currentCount = photos.length;
-        const remainingSlots = maxFiles - currentCount;
-
-        if (remainingSlots <= 0) {
-            alert(`En fazla ${maxFiles} fotoğraf yükleyebilirsiniz.`);
-            return;
-        }
-
-        const filesToProcess = Array.from(files).slice(0, remainingSlots);
+        const filesToProcess = Array.from(files);
         const newPhotos: Photo[] = [];
 
         filesToProcess.forEach((file) => {
@@ -180,7 +170,7 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
     return (
         <Box sx={{ 
             width: "100%", 
-            padding: 2,
+            mt: 1,
             maxHeight: 'none',
             overflowY: 'visible',
         }}>
@@ -198,14 +188,6 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
                         mb: 2
                     }}>
                         İlan Fotoğrafları
-                    </Typography>
-
-                    <Typography variant="body2" sx={{ 
-                        color: '#64748b',
-                        fontSize: '14px',
-                        mb: 3
-                    }}>
-                        En az 1, en fazla 20 fotoğraf yükleyebilirsiniz. İlk fotoğraf ana fotoğraf olarak kullanılacaktır.
                     </Typography>
 
                     {/* Fotoğraf yükleme alanı */}
@@ -267,16 +249,6 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
                         onChange={(e) => handleFileSelect(e.target.files)}
                         style={{ display: 'none' }}
                     />
-
-                    {/* Fotoğraf sayısı bilgisi */}
-                    {photos.length > 0 && (
-                        <Alert 
-                            severity="success"
-                            sx={{ mb: 3, fontSize: '14px' }}
-                        >
-                            {`${photos.length} fotoğraf yüklendi. (En fazla 20)`}
-                        </Alert>
-                    )}
 
                     {/* Fotoğraf listesi */}
                     {photos.length > 0 && (
@@ -399,13 +371,44 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
             <Dialog
                 open={!!previewPhoto}
                 onClose={() => setPreviewPhoto(null)}
-                maxWidth="md"
+                maxWidth="lg"
                 fullWidth
                 PaperProps={{
-                    sx: { borderRadius: 2 }
+                    sx: { 
+                        borderRadius: 2,
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none'
+                    }
                 }}
             >
-                <DialogContent sx={{ p: 0, position: 'relative' }}>
+                <DialogContent sx={{ 
+                    p: 0, 
+                    position: 'relative',
+                    backgroundColor: 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    {/* Kapat butonu - sağ üstte */}
+                    <IconButton
+                        onClick={() => setPreviewPhoto(null)}
+                        sx={{
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            color: 'white',
+                            zIndex: 1000,
+                            width: 40,
+                            height: 40,
+                            '&:hover': { 
+                                backgroundColor: 'rgba(220, 38, 38, 0.8)'
+                            }
+                        }}
+                    >
+                        <Close sx={{ fontSize: 20 }} />
+                    </IconButton>
+
                     {previewPhoto && (
                         <img
                             src={previewPhoto.url}
@@ -413,23 +416,13 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
                             style={{
                                 width: '100%',
                                 height: 'auto',
-                                maxHeight: '80vh',
-                                objectFit: 'contain'
+                                maxHeight: '90vh',
+                                objectFit: 'contain',
+                                borderRadius: '8px'
                             }}
                         />
                     )}
                 </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    <Button 
-                        onClick={() => setPreviewPhoto(null)}
-                        sx={{ 
-                            color: '#64748b',
-                            textTransform: 'none'
-                        }}
-                    >
-                        Kapat
-                    </Button>
-                </DialogActions>
             </Dialog>
         </Box>
     );

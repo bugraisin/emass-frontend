@@ -6,17 +6,15 @@ import {
     Typography,
     Button,
     Alert,
-    Chip
 } from '@mui/material';
 import {
-    LocationOn,
     MyLocation,
-    Clear
 } from '@mui/icons-material';
 
+// Add global declaration for Leaflet
 declare global {
     interface Window {
-        initMap: () => void;
+        L: any;
     }
 }
 
@@ -38,142 +36,226 @@ export default function StepFive({
     setAddressText
 }: StepFiveProps) {
     const mapRef = useRef<HTMLDivElement>(null);
-    const [map, setMap] = useState<google.maps.Map | null>(null);
-    const markerRef = useRef<google.maps.Marker | null>(null);
+    const mapInstanceRef = useRef<any>(null);
+    const markerRef = useRef<any>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+    const [leafletLoaded, setLeafletLoaded] = useState(false);
+    const [mapInitialized, setMapInitialized] = useState(false);
 
-    // Varsayılan başlangıç konumu (Türkiye merkezi - Ankara yakını)
-    const defaultCenter = { lat: 39.9334, lng: 32.8597 };
+    // Varsayılan başlangıç konumu (Türkiye merkezi - Ankara)
+    const defaultCenter = [39.9334, 32.8597];
 
-    // Reverse geocoding - koordinatlardan adres bulma
-    const reverseGeocode = useCallback((lat: number, lng: number) => {
-        if (geocoderRef.current) {
-            geocoderRef.current.geocode(
-                { location: { lat, lng } },
-                (results, status) => {
-                    if (status === 'OK' && results && results[0]) {
-                        setAddressText(results[0].formatted_address);
-                    }
-                }
+    // Reverse geocoding - Nominatim API kullanarak
+    const reverseGeocode = useCallback(async (lat: number, lng: number) => {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=tr`
             );
+            const data = await response.json();
+            if (data.display_name) {
+                setAddressText(data.display_name);
+            }
+        } catch (error) {
+            console.error('Reverse geocoding hatası:', error);
         }
     }, [setAddressText]);
 
-    // Marker oluştur/güncelle fonksiyonu
-    const updateMarker = useCallback((lat: number, lng: number, mapInstance: google.maps.Map) => {
-        // Mevcut marker'ı temizle
+    // Marker ekleme fonksiyonu
+    const addMarker = useCallback((lat: number, lng: number) => {
+        if (!mapInstanceRef.current) return;
+
+        // Eski marker'ı kaldır
         if (markerRef.current) {
-            markerRef.current.setMap(null);
-            markerRef.current = null;
+            mapInstanceRef.current.removeLayer(markerRef.current);
         }
 
-        // Yeni marker oluştur
-        const newMarker = new google.maps.Marker({
-            position: { lat, lng },
-            map: mapInstance,
-            draggable: true,
-            title: 'İlan Konumu'
-        });
+        // Yeni marker ekle
+        const newMarker = window.L.marker([lat, lng], {
+            draggable: true
+        }).addTo(mapInstanceRef.current);
 
         // Drag eventi ekle
-        newMarker.addListener('dragend', (event: google.maps.MapMouseEvent) => {
-            const newLat = event.latLng?.lat();
-            const newLng = event.latLng?.lng();
-            if (newLat && newLng) {
-                setLatitude(newLat);
-                setLongitude(newLng);
-                reverseGeocode(newLat, newLng);
-            }
+        newMarker.on('dragend', (dragEvent: any) => {
+            const newLatLng = dragEvent.target.getLatLng();
+            setLatitude(newLatLng.lat);
+            setLongitude(newLatLng.lng);
+            reverseGeocode(newLatLng.lat, newLatLng.lng);
         });
 
         markerRef.current = newMarker;
-    }, [setLatitude, setLongitude, reverseGeocode]);
+    }, [reverseGeocode, setLatitude, setLongitude]);
 
-    // Google Maps yükleme kontrolü
+    // Leaflet kütüphanesini yükle
     useEffect(() => {
-        const initializeMap = () => {
-            if (!mapRef.current) return;
+        const loadLeaflet = () => {
+            // Eğer zaten yüklüyse, tekrar yükleme
+            if (window.L) {
+                setLeafletLoaded(true);
+                return;
+            }
 
-            // Harita her zaman varsayılan konumda başlasın
-            const center = latitude && longitude ? { lat: latitude, lng: longitude } : defaultCenter;
+            // CSS yükle
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+            link.crossOrigin = '';
+            document.head.appendChild(link);
 
-            const mapInstance = new google.maps.Map(mapRef.current, {
-                zoom: latitude && longitude ? 16 : 6, // Türkiye tamamı için zoom 6
-                center: center,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false,
-                gestureHandling: 'greedy',
-                scrollwheel: true,
-                disableDoubleClickZoom: false,
-            });
+            // JS yükle
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+            script.crossOrigin = '';
+            script.onload = () => {
+                // Leaflet yüklendikten sonra kısa bir gecikme
+                setTimeout(() => {
+                    setLeafletLoaded(true);
+                }, 100);
+            };
+            script.onerror = () => {
+                console.error('Leaflet yüklenemedi');
+                setIsLoading(false);
+            };
+            document.head.appendChild(script);
+        };
 
-            const geocoderInstance = new google.maps.Geocoder();
-            geocoderRef.current = geocoderInstance;
+        loadLeaflet();
+    }, []);
 
-            // Başlangıç marker'ı (sadece latitude ve longitude varsa)
+    // Harita başlat
+    useEffect(() => {
+        if (!leafletLoaded || !mapRef.current || mapInitialized) return;
+
+        const center = latitude && longitude ? [latitude, longitude] : defaultCenter;
+        const zoom = latitude && longitude ? 16 : 6;
+
+        try {
+            // Harita oluştur
+            const mapInstance = window.L.map(mapRef.current, {
+                zoomControl: true,
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                dragging: true
+            }).setView(center, zoom);
+
+            // OpenStreetMap tile layer ekle
+            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(mapInstance);
+
+            // Başlangıç marker'ı (sadece koordinat varsa)
             if (latitude && longitude) {
-                updateMarker(latitude, longitude, mapInstance);
+                addMarker(latitude, longitude);
             }
 
             // Harita tıklama eventi
-            mapInstance.addListener('click', (event: google.maps.MapMouseEvent) => {
-                const lat = event.latLng?.lat();
-                const lng = event.latLng?.lng();
+            mapInstance.on('click', (e: any) => {
+                const { lat, lng } = e.latlng;
                 
-                if (lat && lng) {
-                    setLatitude(lat);
-                    setLongitude(lng);
-                    updateMarker(lat, lng, mapInstance);
-                    reverseGeocode(lat, lng);
-                }
+                setLatitude(lat);
+                setLongitude(lng);
+                addMarker(lat, lng);
+                reverseGeocode(lat, lng);
             });
 
-            setMap(mapInstance);
-            setIsLoading(false);
-        };
+            // Harita hazır olduğunda
+            mapInstance.whenReady(() => {
+                setIsLoading(false);
+                // Harita boyutlarını yeniden hesapla
+                setTimeout(() => {
+                    mapInstance.invalidateSize();
+                }, 100);
+            });
 
-        // Google Maps API yüklü mü kontrol et
-        if (window.google && window.google.maps) {
-            initializeMap();
-        } else {
-            // Google Maps API'yi yükle
-            const script = document.createElement('script');
-            const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
-            script.async = true;
-            script.defer = true;
-            
-            window.initMap = initializeMap;
-            document.head.appendChild(script);
+            mapInstanceRef.current = mapInstance;
+            setMapInitialized(true);
+
+        } catch (error) {
+            console.error('Harita başlatma hatası:', error);
+            setIsLoading(false);
         }
-    }, [latitude, longitude, updateMarker, reverseGeocode, setLatitude, setLongitude]);
+
+        // Cleanup fonksiyonu
+        return () => {
+            if (mapInstanceRef.current) {
+                try {
+                    mapInstanceRef.current.remove();
+                } catch (error) {
+                    console.error('Harita temizleme hatası:', error);
+                }
+                mapInstanceRef.current = null;
+            }
+            setMapInitialized(false);
+        };
+    }, [leafletLoaded, addMarker, reverseGeocode, setLatitude, setLongitude]);
+
+    // Koordinat değişikliklerini izle ve haritayı güncelle
+    useEffect(() => {
+        if (!mapInstanceRef.current || !mapInitialized) return;
+
+        if (latitude && longitude) {
+            // Harita görünümünü güncelle
+            mapInstanceRef.current.setView([latitude, longitude], mapInstanceRef.current.getZoom());
+            
+            // Marker'ı güncelle
+            if (!markerRef.current) {
+                addMarker(latitude, longitude);
+            }
+        }
+    }, [latitude, longitude, mapInitialized, addMarker]);
 
     // Mevcut konumu al
     const getCurrentLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    
-                    setLatitude(lat);
-                    setLongitude(lng);
-                    
-                    if (map) {
-                        map.setCenter({ lat, lng });
-                        map.setZoom(16);
-                        updateMarker(lat, lng, map);
-                        reverseGeocode(lat, lng);
-                    }
-                },
-                (error) => {
-                    console.error('Konum alınamadı:', error);
-                    alert('Mevcut konumunuz alınamadı. Lütfen manuel olarak konumu seçin.');
-                }
-            );
+        if (!navigator.geolocation) {
+            alert('Tarayıcınız konum servislerini desteklemiyor.');
+            return;
         }
+
+        setIsLoading(true);
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                setLatitude(lat);
+                setLongitude(lng);
+                
+                if (mapInstanceRef.current) {
+                    mapInstanceRef.current.setView([lat, lng], 16);
+                    addMarker(lat, lng);
+                    reverseGeocode(lat, lng);
+                }
+                
+                setIsLoading(false);
+            },
+            (error) => {
+                console.error('Konum alınamadı:', error);
+                let errorMessage = 'Mevcut konumunuz alınamadı.';
+                
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += ' Konum erişim izni verilmedi.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += ' Konum bilgisi mevcut değil.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += ' Konum alma işlemi zaman aşımına uğradı.';
+                        break;
+                }
+                
+                alert(errorMessage + ' Lütfen manuel olarak konumu seçin.');
+                setIsLoading(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000
+            }
+        );
     };
 
     // Konumu temizle
@@ -182,14 +264,13 @@ export default function StepFive({
         setLongitude(null);
         setAddressText('');
         
-        if (markerRef.current) {
-            markerRef.current.setMap(null);
+        if (markerRef.current && mapInstanceRef.current) {
+            mapInstanceRef.current.removeLayer(markerRef.current);
             markerRef.current = null;
         }
         
-        if (map) {
-            map.setCenter(defaultCenter);
-            map.setZoom(6); // Türkiye tamamı zoom seviyesi
+        if (mapInstanceRef.current) {
+            mapInstanceRef.current.setView(defaultCenter, 6);
         }
     };
 
@@ -211,17 +292,9 @@ export default function StepFive({
                         fontWeight: 600,
                         color: '#1e293b',
                         fontSize: '16px',
-                        mb: 2
+                        mb: 1
                     }}>
                         Konum Seçimi
-                    </Typography>
-
-                    <Typography variant="body2" sx={{ 
-                        color: '#64748b',
-                        fontSize: '14px',
-                        mb: 3
-                    }}>
-                        İlanınızın tam konumunu harita üzerinde işaretleyin. Haritaya tıklayarak konum seçebilirsiniz.
                     </Typography>
 
                     {/* Harita */}
@@ -231,9 +304,9 @@ export default function StepFive({
                         overflow: 'hidden',
                         border: '2px solid #e5e7eb',
                         position: 'relative',
-                        mb: 3
+                        mb: 1
                     }}>
-                        {isLoading && (
+                        {(isLoading || !leafletLoaded || !mapInitialized) && (
                             <Box sx={{
                                 position: 'absolute',
                                 top: 0,
@@ -244,53 +317,49 @@ export default function StepFive({
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 backgroundColor: '#f8fafc',
-                                zIndex: 1
+                                zIndex: 1000
                             }}>
                                 <Typography variant="body2" sx={{ color: '#64748b' }}>
-                                    Harita yükleniyor...
+                                    {!leafletLoaded ? 'Harita kütüphanesi yükleniyor...' : 'Harita başlatılıyor...'}
                                 </Typography>
                             </Box>
                         )}
-                        <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
-                    </Box>
-
-                    {/* Konumum butonu - Harita altında */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        mb: 3 
-                    }}>
+                        
+                        {/* Mevcut Konumum Butonu - Harita üzerinde */}
                         <Button
-                            variant="contained"
-                            onClick={getCurrentLocation}
-                            startIcon={<MyLocation />}
-                            sx={{
-                                px: 4,
-                                py: 1.5,
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                backgroundColor: '#475569',
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                '&:hover': {
-                                    backgroundColor: '#334155'
-                                }
-                            }}
+                        variant="contained"
+                        onClick={getCurrentLocation}
+                        disabled={isLoading || !mapInitialized}
+                        startIcon={<MyLocation />}
+                        sx={{
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            zIndex: 1000,
+                            borderRadius: 2,
+                            backgroundColor: '#475569',
+                            color: 'white',
+                            fontSize: '12px',
+                            textTransform: 'none',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                            '&:hover': {
+                                backgroundColor: '#334155',
+                                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
+                            }
+                        }}
                         >
-                            Mevcut Konumumu Kullan
+                        Konumumu Bul
                         </Button>
-                    </Box>
 
-                    {/* Durum mesajları */}
-                    {latitude && longitude ? (
-                        <Alert severity="success" sx={{ mb: 3, fontSize: '14px' }}>
-                            Konum başarıyla seçildi. Marker'ı sürükleyerek konumu hassas ayarlayabilirsiniz.
-                        </Alert>
-                    ) : (
-                        <Alert severity="info" sx={{ mb: 3, fontSize: '14px' }}>
-                            Lütfen harita üzerinde bir konum seçin. Haritaya tıklayabilir veya mevcut konumunuzu kullanabilirsiniz.
-                        </Alert>
-                    )}
+                        <div 
+                            ref={mapRef} 
+                            style={{ 
+                                width: '100%', 
+                                height: '100%',
+                                minHeight: '600px'
+                            }} 
+                        />
+                    </Box>
                 </CardContent>
             </Card>
         </Box>
