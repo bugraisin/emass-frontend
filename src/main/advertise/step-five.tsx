@@ -140,7 +140,8 @@ export default function StepFive({
         } else {
             // Google Maps API'yi yükle
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDpadBabY_4rFGLLG_wNe4iQwpVIoxV4MI&callback=initMap`;
+            const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
             script.async = true;
             script.defer = true;
             
