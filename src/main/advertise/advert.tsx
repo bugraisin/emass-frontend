@@ -5,8 +5,17 @@ import StepTwo from "./step-two.tsx";
 import StepThree from "./step-three.tsx";
 import StepFour from "./step-four.tsx";
 import StepFive from "./step-five.tsx";
-import StepSix from "./step-six.tsx";
 import { ArrowBack, ArrowForward, CheckCircle, Close } from "@mui/icons-material";
+import StepSixOffice from "./step-six/step-six-office.tsx";
+import StepSixHouse from "./step-six/step-six-house.tsx";
+import { 
+  HousingDetails, 
+  OfficeDetails, 
+  CommercialDetails,
+  IndustrialDetails,
+  LandDetails,
+  ServiceDetails 
+} from './details/propert-details.ts';
 
 interface Photo {
     id: string;
@@ -40,11 +49,11 @@ export default function Advert() {
     // Konum state'leri - StepFive
     const [latitude, setLatitude] = useState<number | null>(null);
     const [longitude, setLongitude] = useState<number | null>(null);
-    
+
     // Property type'a göre ayrı detay state'leri
-    const [housingDetails, setHousingDetails] = useState<any>({});
+    const [housingDetails, setHousingDetails] = useState<HousingDetails | {}>({});
     const [commercialDetails, setCommercialDetails] = useState<any>({});
-    const [officeDetails, setOfficeDetails] = useState<any>({});
+    const [officeDetails, setOfficeDetails] = useState<OfficeDetails | {}>({});
     const [industrialDetails, setIndustrialDetails] = useState<any>({});
     const [landDetails, setLandDetails] = useState<any>({});
     const [serviceDetails, setServiceDetails] = useState<any>({});
@@ -271,39 +280,65 @@ export default function Advert() {
             const currentSetter = getCurrentDetailsSetter();
             
             if (Object.keys(currentDetails).length === 0) {
-                // Boolean değerleri false ile başlat
-                const initialDetails = { 
-                    subtype,
-                    // Boolean değerler için false varsayılan değerleri
-                    furnished: false,
-                    balcony: false,
-                    terrace: false,
-                    garden: false,
-                    withinSite: false,
-                    openPark: false,
-                    closedPark: false,
-                    garagePark: false,
-                    elevator: false,
-                    security: false,
-                    concierge: false,
-                    generator: false,
-                    airConditioning: false,
-                    floorHeating: false,
-                    fireplace: false,
-                    builtinKitchen: false,
-                    separateKitchen: false,
-                    americanKitchen: false,
-                    laundryRoom: false,
-                    pool: false,
-                    gym: false,
-                    childrenPlayground: false,
-                    sportsArea: false
-                };
+                let initialDetails: any = { subtype };
+                
+                // Property type'a göre farklı başlangıç değerleri
+                if (propertyType === 'KONUT') {
+                    initialDetails = {
+                        subtype,
+                        furnished: false,
+                        balcony: false,
+                        terrace: false,
+                        garden: false,
+                        withinSite: false,
+                        openPark: false,
+                        closedPark: false,
+                        garagePark: false,
+                        elevator: false,
+                        security: false,
+                        concierge: false,
+                        generator: false,
+                        airConditioning: false,
+                        floorHeating: false,
+                        fireplace: false,
+                        builtinKitchen: false,
+                        separateKitchen: false,
+                        americanKitchen: false,
+                        laundryRoom: false,
+                        pool: false,
+                        gym: false,
+                        childrenPlayground: false,
+                        sportsArea: false
+                    } as HousingDetails;
+                } else if (propertyType === 'OFIS') {
+                    initialDetails = {
+                        subtype,
+                        furnished: false,
+                        parking: false,
+                        elevator: false,
+                        security: false,
+                        generator: false,
+                        airConditioning: false,
+                        internet: false,
+                        kitchen: false,
+                        fireSystem: false,
+                        reception: false,
+                        meetingRoom: false,
+                        waitingArea: false,
+                        archive: false,
+                        library: false,
+                        serverRoom: false,
+                        accessControl: false,
+                        fiberInternet: false,
+                        soundproof: false
+                    } as OfficeDetails;
+                }
+                
                 currentSetter(initialDetails);
             }
         }
     }, [propertyType, subtype]);
-
+    
     return (
         <Box
             sx={{
@@ -435,8 +470,27 @@ export default function Advert() {
                         />
                     )}
                     
-                    {activeStep === 5 && (
-                        <StepSix
+                   {activeStep === 5 && propertyType === 'KONUT' && (
+                        <StepSixHouse
+                            listingType={listingType}
+                            propertyType={propertyType}
+                            subtype={subtype}
+                            title={title}
+                            description={description}
+                            price={price}
+                            city={city}
+                            district={district}
+                            neighborhood={neighborhood}
+                            addressText={addressText}
+                            details={getCurrentDetails()}
+                            photos={photos}
+                            latitude={latitude}
+                            longitude={longitude}
+                        />
+                    )}
+                    
+                    {activeStep === 5 && propertyType === 'OFIS' && (
+                        <StepSixOffice
                             listingType={listingType}
                             propertyType={propertyType}
                             subtype={subtype}

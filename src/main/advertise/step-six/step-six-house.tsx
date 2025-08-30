@@ -9,7 +9,7 @@ interface Photo {
   isMain: boolean;
 }
 
-interface StepSixProps {
+interface StepSixHouse {
   listingType: string;
   propertyType: string;
   subtype: string;
@@ -48,13 +48,13 @@ const getImportantDetailsForKonut = (details: any) => {
 };
 
 // Photo Modal Component
-const PhotoModal = ({ 
-  open, 
-  onClose, 
-  photos, 
-  currentIndex, 
-  onPrev, 
-  onNext 
+const PhotoModal = ({
+  open,
+  onClose,
+  photos,
+  currentIndex,
+  onPrev,
+  onNext
 }: {
   open: boolean;
   onClose: () => void;
@@ -258,18 +258,18 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
   const closeModal = () => setModalOpen(false);
 
   if (photos.length === 0) return (
-    <Box sx={{ 
+    <Box sx={{
       width: "100%",
-      height: "400px", // SABİT YÜKSEKLIK
-      display: 'flex', 
-      alignItems: 'center', 
+      height: "400px",
+      display: 'flex',
+      alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#f8fafc',
       borderRadius: 2,
       border: '2px dashed #cbd5e1',
-      flexShrink: 0, // Küçülmesini engelle
-      minHeight: "400px", // Minimum yükseklik
-      maxHeight: "400px"  // Maksimum yükseklik
+      flexShrink: 0,
+      minHeight: "400px",
+      maxHeight: "400px"
     }}>
       <Typography sx={{ color: '#64748b' }}>Fotoğraf yüklenmemiş</Typography>
     </Box>
@@ -278,19 +278,19 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
   return (
     <>
       {/* Ana fotoğraf container - TAMAMEN SABİT BOYUT */}
-      <Box sx={{ 
-        position: "relative", 
+      <Box sx={{
+        position: "relative",
         width: "100%",
         height: "400px", // SABİT YÜKSEKLIK
-        minHeight: "400px", // Minimum yükseklik
-        maxHeight: "400px", // Maksimum yükseklik
-        overflow: "hidden", 
+        minHeight: "400px",
+        maxHeight: "400px",
+        overflow: "hidden",
         borderRadius: 2,
         backgroundColor: '#000000',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        flexShrink: 0 // Küçülmesini engelle
+        flexShrink: 0
       }}>
         {/* Ana fotoğraf - tıklanabilir */}
         <Box
@@ -313,16 +313,16 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
           <img
             src={photos[currentIndex].url}
             alt="ilan"
-            style={{ 
-              maxWidth: "100%", // Maksimum genişlik container'ın %100'ü
-              maxHeight: "100%", // Maksimum yükseklik container'ın %100'ü
-              width: "auto", // Genişlik otomatik
-              height: "auto", // Yükseklik otomatik
-              objectFit: "contain", // Fotoğrafı kırpmadan tam sığdır
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              width: "auto",
+              height: "auto",
+              objectFit: "contain",
               display: 'block'
             }}
           />
-          
+
           {/* Büyütme ikonu */}
           <Box
             className="fullscreen-icon"
@@ -439,78 +439,78 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
 };
 
 const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
- listingType: string;
- title: string;
- price: string;
- city: string;
- district: string;
- neighborhood: string;
- details: any;
+  listingType: string;
+  title: string;
+  price: string;
+  city: string;
+  district: string;
+  neighborhood: string;
+  details: any;
 }) => {
- const importantDetails = getImportantDetailsForKonut(details);
+  const importantDetails = getImportantDetailsForKonut(details);
 
- return (
-   <Box sx={{ 
-     p: 1,
-     border: "1px solid #e2e8f0", 
-     borderRadius: 1, 
-     backgroundColor: '#f8fafc',
-     display: 'flex',
-     flexDirection: 'column',
-   }}>
-     <Typography variant="h5" sx={{ fontWeight: 700, color: "#059669" }}>
-       {formatPrice(price)} TL
-       {listingType === "rent" && (
-         <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
-           /ay
-         </Typography>
-       )}
-     </Typography>
-     
-     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1e293b", fontSize: '16px' }}>
-       {title}
-     </Typography>
-     
-     <Box sx={{ display: "flex", alignItems: "center" }}>
-       <LocationOn fontSize="small" sx={{ color: "#ef4444", mr: 0.5 }} />
-       <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-         {neighborhood && `${neighborhood}, `} {district}, {city}
-       </Typography>
-     </Box>
-     
-     <Divider sx={{ my: 1.5, borderColor: '#e2e8f0' }} />
+  return (
+    <Box sx={{
+      p: 1,
+      border: "1px solid #e2e8f0",
+      borderRadius: 1,
+      backgroundColor: '#f8fafc',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      <Typography variant="h5" sx={{ fontWeight: 700, color: "#059669" }}>
+        {formatPrice(price)} TL
+        {listingType === "rent" && (
+          <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
+            /ay
+          </Typography>
+        )}
+      </Typography>
 
-     <Box sx={{ flex: 1, overflowY: 'auto' }}>
-       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-         Emlak Özellikleri
-       </Typography>
-       
-       <Box>
-         {Object.entries(importantDetails).map(([key, value], index, array) => (
-           <Box key={key}>
-             <Box sx={{
-               display: 'flex',
-               justifyContent: 'space-between',
-               alignItems: 'center',
-               py: 0.5,
-               px: 0.5
-             }}>
-               <Typography variant="body2" sx={{ color: "#64748b", fontSize: '11px' }}>
-                 {key}
-               </Typography>
-               <Typography variant="body2" sx={{ fontWeight: 500, color: "#1e293b", fontSize: '11px' }}>
-                 {value}
-               </Typography>
-             </Box>
-             {index < array.length - 1 && (
-               <Divider sx={{ borderColor: '#e5e7eb' }} />
-             )}
-           </Box>
-         ))}
-       </Box>
-     </Box>
-   </Box>
- );
+      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1e293b", fontSize: '16px' }}>
+        {title}
+      </Typography>
+
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <LocationOn fontSize="small" sx={{ color: "#ef4444", mr: 0.5 }} />
+        <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
+          {neighborhood && `${neighborhood}, `} {district}, {city}
+        </Typography>
+      </Box>
+
+      <Divider sx={{ my: 1.5, borderColor: '#e2e8f0' }} />
+
+      <Box sx={{ flex: 1, overflowY: 'auto' }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
+          Emlak Özellikleri
+        </Typography>
+
+        <Box>
+          {Object.entries(importantDetails).map(([key, value], index, array) => (
+            <Box key={key}>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                py: 0.5,
+                px: 0.5
+              }}>
+                <Typography variant="body2" sx={{ color: "#64748b", fontSize: '11px' }}>
+                  {key}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 500, color: "#1e293b", fontSize: '11px' }}>
+                  {value}
+                </Typography>
+              </Box>
+              {index < array.length - 1 && (
+                <Divider sx={{ borderColor: '#e5e7eb' }} />
+              )}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </Box>
+  );
 };
 
 // Checkbox Feature Component
@@ -542,9 +542,9 @@ const FeatureCategories = ({ details }: { details: any }) => (
     {FEATURE_CATEGORIES.map((category, index) => (
       <Grid item xs={12} sm={6} md={4} key={index}>
         <Box sx={{
-          p: 1.5, 
-          border: '1px solid #e2e8f0', 
-          borderRadius: 1, 
+          p: 1.5,
+          border: '1px solid #e2e8f0',
+          borderRadius: 1,
           backgroundColor: '#f8fafc',
           height: 150,
           display: 'flex',
@@ -555,10 +555,10 @@ const FeatureCategories = ({ details }: { details: any }) => (
           }}>
             {category.title}
           </Typography>
-          
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
+
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
             gap: 0.25,
             flex: 1,
             overflowY: 'auto'
@@ -586,17 +586,17 @@ const LocationPanel = ({ latitude, longitude, addressText, city, district, neigh
   district: string;
   neighborhood: string;
 }) => (
-  <Box sx={{ 
+  <Box sx={{
     height: 400,
-    border: "1px solid #e2e8f0", 
-    borderRadius: 1, 
+    border: "1px solid #e2e8f0",
+    borderRadius: 1,
     backgroundColor: "#f8fafc",
     position: 'relative',
     overflow: 'hidden'
   }}>
     {latitude && longitude ? (
       <iframe
-        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`}
+        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.01},${latitude - 0.01},${longitude + 0.01},${latitude + 0.01}&layer=mapnik&marker=${latitude},${longitude}`}
         width="100%"
         height="100%"
         style={{ border: 0, borderRadius: 4 }}
@@ -637,7 +637,7 @@ const TabbedPanel = ({ details, latitude, longitude, addressText, city, district
   return (
     <Box sx={{ mt: 3 }}>
       {/* Custom Tab Headers */}
-      <Box sx={{ 
+      <Box sx={{
         display: 'flex',
         borderBottom: '1px solid #e2e8f0',
         mb: 3
@@ -679,7 +679,7 @@ const TabbedPanel = ({ details, latitude, longitude, addressText, city, district
           Konum
         </Box>
       </Box>
-      
+
       {/* Tab Content - Fixed Height */}
       <Box>
         {activeTab === 0 && <FeatureCategories details={details} />}
@@ -699,10 +699,10 @@ const TabbedPanel = ({ details, latitude, longitude, addressText, city, district
 };
 
 // Main Component
-export default function StepSix({
+export default function StepSixHouse({
   listingType, propertyType, subtype, title, description, price,
   city, district, neighborhood, addressText, details, photos, latitude, longitude
-}: StepSixProps) {
+}: StepSixHouse) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
@@ -724,7 +724,7 @@ export default function StepSix({
           />
         </Grid>
       </Grid>
-      
+
       <Box
         sx={{
           mt: 3,
@@ -767,7 +767,7 @@ export default function StepSix({
           }}
         />
       </Box>
-            
+
       {/* Tab'li Panel: Ek Özellikler / Konum */}
       <TabbedPanel
         details={details}

@@ -142,7 +142,7 @@ export default function LeftPanel() {
 
     return (
         <Box sx={{ 
-            padding: '12px',
+            padding: '8px',
             height: '100%',
             position: 'relative'
         }}>

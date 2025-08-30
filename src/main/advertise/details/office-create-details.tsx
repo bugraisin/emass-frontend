@@ -49,6 +49,7 @@ export default function OfficeDetails({ details, setDetails }: OfficeDetailsProp
             title: 'Çalışma Alanları',
             features: [
                 { key: 'reception', label: 'Resepsiyon Alanı' },
+                { key: 'meetingRoom', label: 'Toplantı Odası' },
                 { key: 'waitingArea', label: 'Bekleme Salonu' },
                 { key: 'archive', label: 'Arşiv Odası' },
                 { key: 'library', label: 'Kütüphane/Dosya Odası' },
