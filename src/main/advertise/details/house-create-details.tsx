@@ -26,6 +26,10 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
         setDetails({ ...details, [field]: value });
     };
 
+    const getBooleanValue = (key: string): boolean => {
+        return details[key] === true;
+    };
+
     const featureCategories = [
         {
             title: 'Temel Özellikler',
@@ -192,7 +196,6 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                             }}
                         />
                     </Grid>
-
 
                     {/* Bina Bilgileri */}
                     <Grid item xs={12} sm={6} md={4}>
@@ -436,7 +439,7 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                         </FormControl>
                     </Grid>
 
-                    {/* Ek Özellikler - Revize Edilmiş Bölüm */}
+                    {/* Ek Özellikler - Boolean Fix */}
                     <Grid item xs={12}>
                         <Typography variant="subtitle1" sx={{
                             mt: 2,
@@ -478,7 +481,7 @@ export default function HousingDetails({ details, setDetails }: HousingDetailsPr
                                                     key={feature.key}
                                                     control={
                                                         <Checkbox
-                                                            checked={details[feature.key] || false}
+                                                            checked={getBooleanValue(feature.key)}
                                                             onChange={(e) => handleDetailChange(feature.key, e.target.checked)}
                                                             sx={{
                                                                 color: '#94a3b8',

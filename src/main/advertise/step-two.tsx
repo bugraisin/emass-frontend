@@ -521,7 +521,6 @@ export default function StepTwo({
         <Box sx={{ 
             width: "100%",
             mt: 1,
-            maxHeight: '80vh',
             overflowY: 'auto',
             '&::-webkit-scrollbar': {
                 width: '6px',
