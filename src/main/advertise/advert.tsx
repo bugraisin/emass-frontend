@@ -303,7 +303,7 @@ export default function Advert() {
         'showcase', 'warehouse', 'loadingDock', 'cashRegister',
         'outdoorSeating', 'waitingArea', 'changingRoom'
         ],
-        'SANAYI': [
+        'ENDUSTRIYEL': [
         'parking', 'security', 'generator', 'compressedAir', 'steamLine',
         'railwayAccess', 'dockAccess', 'officeArea', 'changeRoom',
         'threephaseElectricity', 'naturalGasLine', 'waterSystem', 'wasteWaterSystem',
