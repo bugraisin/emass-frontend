@@ -106,17 +106,30 @@ export interface CommercialDetails extends BasePropertyDetails {
   deposit?: number;
   ceilingHeight?: number;
   
-  // Boolean özellikler
+  // Boolean özellikler - Temel
   furnished?: boolean;
   parking?: boolean;
   elevator?: boolean;
   security?: boolean;
   generator?: boolean;
+
+  // Boolean özellikler - Konfor & Sistem
   airConditioning?: boolean;
-  storageArea?: boolean;
+  internet?: boolean;
+  kitchen?: boolean;
+  toilet?: boolean;
+  
+  // Boolean Özellikler - Ticari Özel Alanlar
   showcase?: boolean;
-  cornerLocation?: boolean;
-  accessibleEntrance?: boolean;
+  warehouse?: boolean;
+  loadingDock?: boolean;
+  cashRegister?: boolean;
+
+  // Boolean Özellikler - Müşteri Alanları
+  outdootSeating?: boolean;
+  waitingArea?: boolean;
+  changingRoom?: boolean;
+
 }
 
 export interface IndustrialDetails extends BasePropertyDetails {
@@ -138,6 +151,32 @@ export interface IndustrialDetails extends BasePropertyDetails {
   dockAccess?: boolean;
   officeArea?: boolean;
   changeRoom?: boolean;
+  
+  // Altyapı & Enerji
+  threephaseElectricity?: boolean;
+  naturalGasLine?: boolean;
+  waterSystem?: boolean;
+  wasteWaterSystem?: boolean;
+  
+  // Üretim & İmalat
+  craneSystem?: boolean;
+  ventilationSystem?: boolean;
+  airConditioning?: boolean;
+  wideOpenArea?: boolean;
+  machineMountingSuitable?: boolean;
+  
+  // Depolama & Lojistik
+  loadingRamp?: boolean;
+  truckEntrance?: boolean;
+  forkliftTraffic?: boolean;
+  rackingSystem?: boolean;
+  coldStorage?: boolean;
+  
+  // Güvenlik & Sistem
+  fireExtinguishingSystem?: boolean;
+  securityCameras?: boolean;
+  alarmSystem?: boolean;
+  fencedArea?: boolean;
 }
 
 export interface LandDetails extends BasePropertyDetails {
@@ -147,7 +186,17 @@ export interface LandDetails extends BasePropertyDetails {
   titleDeedStatus?: string;
   exchangeAllowed?: boolean;
   
-  // Boolean özellikler
+  // Yeni eklenen özellikler
+  landArea?: number;
+  zoningStatus?: string;
+  adaNo?: number;
+  parcelNo?: number;
+  paftaNo?: string;
+  kaks?: number;
+  gabari?: number;
+  tapuStatus?: string;
+  
+  // Boolean özellikler - mevcut
   electricity?: boolean;
   water?: boolean;
   naturalGas?: boolean;
@@ -156,6 +205,27 @@ export interface LandDetails extends BasePropertyDetails {
   forestView?: boolean;
   cityView?: boolean;
   southFacing?: boolean;
+  
+  // Altyapı - ek
+  sewerage?: boolean;
+  
+  // Konum & Manzara - ek
+  cornerLot?: boolean;
+  mountainView?: boolean;
+  
+  // Arazi Özellikler
+  flat?: boolean;
+  slope?: boolean;
+  fenced?: boolean;
+  agricultural?: boolean;
+  buildingPermit?: boolean;
+  
+  // Tarım & Bahçe
+  vineyard?: boolean;
+  orchard?: boolean;
+  oliveTrees?: boolean;
+  greenhouse?: boolean;
+  well?: boolean;
 }
 
 export interface ServiceDetails extends BasePropertyDetails {
@@ -165,7 +235,14 @@ export interface ServiceDetails extends BasePropertyDetails {
   floorNo?: number;
   capacity?: number;
   
-  // Boolean özellikler
+  // ServiceDetails'den eklenen yeni özellikler
+  area?: number;
+  grossArea?: number;
+  spaceType?: string;
+  deposit?: number;
+  operatingCost?: number;
+  
+  // Boolean özellikler - mevcut
   furnished?: boolean;
   parking?: boolean;
   elevator?: boolean;
@@ -175,6 +252,25 @@ export interface ServiceDetails extends BasePropertyDetails {
   kitchen?: boolean;
   restroom?: boolean;
   disabledAccess?: boolean;
+  
+  // Temel Altyapı
+  lighting?: boolean;
+  cctv?: boolean;
+  internet?: boolean;
+  
+  // Hizmet Alanları
+  reception?: boolean;
+  restRoom?: boolean;
+  
+  // Teknik Donanım
+  washingArea?: boolean;
+  maintenanceArea?: boolean;
+  ventilationSystem?: boolean;
+  
+  // Ek Hizmetler
+  storage?: boolean;
+  officeArea?: boolean;
+  customerParking?: boolean;
 }
 
 // Union type for all property details

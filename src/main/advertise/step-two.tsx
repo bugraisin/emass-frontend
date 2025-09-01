@@ -70,10 +70,43 @@ export default function StepTwo({
 
     // Modal state'leri
     const [openAddressModal, setOpenAddressModal] = useState(false);
-    const [addressStep, setAddressStep] = useState(0); // 0: şehir, 1: ilçe, 2: mahalle
+    const [addressStep, setAddressStep] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
 
     const BASE_URL = "http://localhost:8080/api/location";
+
+    const formatNumber = (value: string, cursorPosition?: number): { formattedValue: string, newCursorPosition: number } => {
+        const numbers = value.replace(/\D/g, '');
+        if (!numbers) return { formattedValue: '', newCursorPosition: 0 };
+        
+        const formatted = new Intl.NumberFormat('tr-TR').format(parseInt(numbers));
+        
+        // Cursor pozisyonunu hesapla
+        let newCursorPosition = cursorPosition || formatted.length;
+        if (cursorPosition !== undefined) {
+            // Cursor'dan önceki rakam sayısını bul
+            const beforeCursor = value.slice(0, cursorPosition);
+            const numbersBeforeCursor = beforeCursor.replace(/\D/g, '').length;
+            
+            // Formatted string'de aynı rakam sayısına karşılık gelen pozisyonu bul
+            let count = 0;
+            newCursorPosition = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) {
+                    count++;
+                    if (count > numbersBeforeCursor) break;
+                }
+                newCursorPosition = i + 1;
+            }
+        }
+        
+        return { formattedValue: formatted, newCursorPosition };
+    };
+
+    const parseNumber = (formattedValue: string): string => {
+        // Noktaları kaldır, sadece rakamları döndür
+        return formattedValue.replace(/\./g, '');
+    };
 
     // Şehirleri yükle
     useEffect(() => {
@@ -459,10 +492,21 @@ export default function StepTwo({
                         <TextField
                             fullWidth
                             label="Fiyat (₺)"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
+                            value={formatNumber(price).formattedValue}
+                            onChange={(e) => {
+                                const input = e.target;
+                                const cursorPosition = input.selectionStart || 0;
+                                const rawValue = parseNumber(e.target.value);
+                                
+                                setPrice(rawValue);
+                                
+                                // Cursor pozisyonunu güncelle
+                                setTimeout(() => {
+                                    const { newCursorPosition } = formatNumber(rawValue, cursorPosition);
+                                    input.setSelectionRange(newCursorPosition, newCursorPosition);
+                                }, 0);
+                            }}
                             variant="outlined"
-                            type="number"
                             placeholder="0"
                             autoComplete='off'
                             size="small"

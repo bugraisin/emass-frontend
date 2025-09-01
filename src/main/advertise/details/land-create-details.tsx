@@ -80,7 +80,7 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                     fontWeight: 600,
                     color: '#1e293b',
                     fontSize: '16px',
-                    mb: 1
+                    mb: 2
                 }}>
                     Arsa Özellikleri
                 </Typography>

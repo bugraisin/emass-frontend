@@ -16,6 +16,10 @@ import {
   LandDetails,
   ServiceDetails 
 } from './details/propert-details.ts';
+import StepSixCommercial from "./step-six/step-six-commercial.tsx";
+import StepSixIndustrial from "./step-six/step-six-industrial.tsx";
+import StepSixLand from "./step-six/step-six-land.tsx";
+import StepSixService from "./step-six/step-six-service.tsx";
 
 interface Photo {
     id: string;
@@ -23,6 +27,14 @@ interface Photo {
     url: string;
     isMain: boolean;
 }
+const StepSixComponents = {
+KONUT: StepSixHouse,
+OFIS: StepSixOffice,
+TICARI: StepSixCommercial,
+ENDUSTRIYEL: StepSixIndustrial,
+ARSA: StepSixLand,
+HIZMET: StepSixService,
+} as const;
 
 export default function Advert() {
     const steps = ['İlan Türü', 'Temel Bilgiler', 'Özellikler', 'Fotoğraflar', 'Konum', 'Önizleme'];
@@ -44,7 +56,6 @@ export default function Advert() {
     const [city, setCity] = useState<string>("");
     const [district, setDistrict] = useState<string>("");
     const [neighborhood, setNeighborhood] = useState<string>("");
-    const [addressText, setAddressText] = useState<string>("");
     
     // Konum state'leri - StepFive
     const [latitude, setLatitude] = useState<number | null>(null);
@@ -52,11 +63,11 @@ export default function Advert() {
 
     // Property type'a göre ayrı detay state'leri
     const [housingDetails, setHousingDetails] = useState<HousingDetails | {}>({});
-    const [commercialDetails, setCommercialDetails] = useState<any>({});
+    const [commercialDetails, setCommercialDetails] = useState<CommercialDetails| {}>({});
     const [officeDetails, setOfficeDetails] = useState<OfficeDetails | {}>({});
-    const [industrialDetails, setIndustrialDetails] = useState<any>({});
-    const [landDetails, setLandDetails] = useState<any>({});
-    const [serviceDetails, setServiceDetails] = useState<any>({});
+    const [industrialDetails, setIndustrialDetails] = useState<IndustrialDetails| {}>({});
+    const [landDetails, setLandDetails] = useState<LandDetails| {}>({});
+    const [serviceDetails, setServiceDetails] = useState<ServiceDetails| {}>({});
     
     // Fotoğraflar state'i
     const [photos, setPhotos] = useState<Photo[]>([]);
@@ -113,7 +124,6 @@ export default function Advert() {
         setCity("");
         setDistrict("");
         setNeighborhood("");
-        setAddressText("");
         setLatitude(null);
         setLongitude(null);
         setHousingDetails({});
@@ -140,8 +150,7 @@ export default function Advert() {
                 price,
                 city,
                 district,
-                neighborhood,
-                addressText
+                neighborhood
             });
             setActiveStep(2);
         } else if (activeStep === 2) {
@@ -156,8 +165,7 @@ export default function Advert() {
         } else if (activeStep === 4 && latitude && longitude) {
             console.log("Konum bilgileri:", {
                 latitude,
-                longitude,
-                addressText
+                longitude
             });
             setActiveStep(5);
         } else if (activeStep === 5) {
@@ -172,7 +180,6 @@ export default function Advert() {
                 city,
                 district,
                 neighborhood,
-                addressText,
                 latitude,
                 longitude,
                 
@@ -274,66 +281,88 @@ export default function Advert() {
     }
 
     // Property type değiştiğinde ilgili detay state'ini subtype ile başlat
+    // Helper function to get initial boolean properties
+    const getInitialBooleans = (propertyType: string): Record<string, boolean> => {
+    const booleanMap: Record<string, string[]> = {
+        'KONUT': [
+        'furnished', 'balcony', 'terrace', 'garden', 'withinSite',
+        'openPark', 'closedPark', 'garagePark', 'elevator', 'security',
+        'concierge', 'generator', 'airConditioning', 'floorHeating',
+        'fireplace', 'builtinKitchen', 'separateKitchen', 'americanKitchen',
+        'laundryRoom', 'pool', 'gym', 'childrenPlayground', 'sportsArea'
+        ],
+        'OFIS': [
+        'furnished', 'parking', 'elevator', 'security', 'generator',
+        'airConditioning', 'internet', 'kitchen', 'fireSystem',
+        'reception', 'waitingArea', 'archive', 'library',
+        'serverRoom', 'accessControl', 'fiberInternet', 'soundproof'
+        ],
+        'TICARI': [
+        'furnished', 'parking', 'elevator', 'security', 'generator',
+        'airConditioning', 'internet', 'kitchen', 'toilet',
+        'showcase', 'warehouse', 'loadingDock', 'cashRegister',
+        'outdoorSeating', 'waitingArea', 'changingRoom'
+        ],
+        'SANAYI': [
+        'parking', 'security', 'generator', 'compressedAir', 'steamLine',
+        'railwayAccess', 'dockAccess', 'officeArea', 'changeRoom',
+        'threephaseElectricity', 'naturalGasLine', 'waterSystem', 'wasteWaterSystem',
+        'craneSystem', 'ventilationSystem', 'airConditioning', 'wideOpenArea',
+        'machineMountingSuitable', 'loadingRamp', 'truckEntrance', 'forkliftTraffic',
+        'rackingSystem', 'coldStorage', 'fireExtinguishingSystem', 'securityCameras',
+        'alarmSystem', 'fencedArea'
+        ],
+        'ARSA': [
+        'electricity', 'water', 'naturalGas', 'roadAccess', 'seaView',
+        'forestView', 'cityView', 'southFacing', 'sewerage', 'cornerLot',
+        'mountainView', 'flat', 'slope', 'fenced', 'agricultural',
+        'buildingPermit', 'vineyard', 'orchard', 'oliveTrees', 'greenhouse', 'well'
+        ],
+        'HIZMET': [
+        'furnished', 'parking', 'elevator', 'security', 'generator',
+        'airConditioning', 'kitchen', 'restroom', 'disabledAccess',
+        'lighting', 'cctv', 'internet', 'reception', 'restRoom',
+        'washingArea', 'maintenanceArea', 'ventilationSystem',
+        'storage', 'officeArea', 'customerParking'
+        ]
+    };
+
+    // Component mapping objesi (component dosyalarının başında tanımla
+
+    const booleans: Record<string, boolean> = {};
+    const keys = booleanMap[propertyType] || [];
+    keys.forEach(key => booleans[key] = false);
+    return booleans;
+    };
+
+        // Ortak props objesi
+    const stepSixProps = {
+        listingType,
+        propertyType,
+        subtype,
+        title,
+        description,
+        price,
+        city,
+        district,
+        neighborhood,
+        details: getCurrentDetails(),
+        photos,
+        latitude,
+        longitude,
+    };
+
+    // useEffect kısmı
     useEffect(() => {
         if (propertyType && subtype) {
             const currentDetails = getCurrentDetails();
             const currentSetter = getCurrentDetailsSetter();
             
             if (Object.keys(currentDetails).length === 0) {
-                let initialDetails: any = { subtype };
-                
-                // Property type'a göre farklı başlangıç değerleri
-                if (propertyType === 'KONUT') {
-                    initialDetails = {
-                        subtype,
-                        furnished: false,
-                        balcony: false,
-                        terrace: false,
-                        garden: false,
-                        withinSite: false,
-                        openPark: false,
-                        closedPark: false,
-                        garagePark: false,
-                        elevator: false,
-                        security: false,
-                        concierge: false,
-                        generator: false,
-                        airConditioning: false,
-                        floorHeating: false,
-                        fireplace: false,
-                        builtinKitchen: false,
-                        separateKitchen: false,
-                        americanKitchen: false,
-                        laundryRoom: false,
-                        pool: false,
-                        gym: false,
-                        childrenPlayground: false,
-                        sportsArea: false
-                    } as HousingDetails;
-                } else if (propertyType === 'OFIS') {
-                    initialDetails = {
-                        subtype,
-                        furnished: false,
-                        parking: false,
-                        elevator: false,
-                        security: false,
-                        generator: false,
-                        airConditioning: false,
-                        internet: false,
-                        kitchen: false,
-                        fireSystem: false,
-                        reception: false,
-                        meetingRoom: false,
-                        waitingArea: false,
-                        archive: false,
-                        library: false,
-                        serverRoom: false,
-                        accessControl: false,
-                        fiberInternet: false,
-                        soundproof: false
-                    } as OfficeDetails;
-                }
-                
+                const initialDetails = {
+                    subtype,
+                    ...getInitialBooleans(propertyType)
+                };
                 currentSetter(initialDetails);
             }
         }
@@ -353,7 +382,7 @@ export default function Advert() {
                 sx={{
                     backgroundColor: 'rgba(0, 0, 0, 0.1)',
                     borderRadius: '12px',
-                    border: '2px solid #d3d3d3',
+                    border: '1px solid #d3d3d3',
                     alignItems: 'center',
                     width: '1200px',
                     height: "auto",
@@ -465,48 +494,13 @@ export default function Advert() {
                             longitude={longitude}
                             setLatitude={setLatitude}
                             setLongitude={setLongitude}
-                            addressText={addressText}
-                            setAddressText={setAddressText}
                         />
                     )}
                     
-                   {activeStep === 5 && propertyType === 'KONUT' && (
-                        <StepSixHouse
-                            listingType={listingType}
-                            propertyType={propertyType}
-                            subtype={subtype}
-                            title={title}
-                            description={description}
-                            price={price}
-                            city={city}
-                            district={district}
-                            neighborhood={neighborhood}
-                            addressText={addressText}
-                            details={getCurrentDetails()}
-                            photos={photos}
-                            latitude={latitude}
-                            longitude={longitude}
-                        />
-                    )}
-                    
-                    {activeStep === 5 && propertyType === 'OFIS' && (
-                        <StepSixOffice
-                            listingType={listingType}
-                            propertyType={propertyType}
-                            subtype={subtype}
-                            title={title}
-                            description={description}
-                            price={price}
-                            city={city}
-                            district={district}
-                            neighborhood={neighborhood}
-                            addressText={addressText}
-                            details={getCurrentDetails()}
-                            photos={photos}
-                            latitude={latitude}
-                            longitude={longitude}
-                        />
-                    )}
+                    {activeStep === 5 && (() => {
+                    const StepComponent = StepSixComponents[propertyType as keyof typeof StepSixComponents];
+                    return StepComponent ? <StepComponent {...stepSixProps} /> : null;
+                    })()}
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>

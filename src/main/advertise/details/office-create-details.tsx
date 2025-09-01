@@ -78,7 +78,7 @@ export default function OfficeDetails({ details, setDetails }: OfficeDetailsProp
                     fontWeight: 600,
                     color: '#1e293b',
                     fontSize: '16px',
-                    mb: 1
+                    mb: 2
                 }}>
                     Ofis Özellikleri
                 </Typography>
@@ -107,7 +107,29 @@ export default function OfficeDetails({ details, setDetails }: OfficeDetailsProp
                             }}
                         />
                     </Grid>
-
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Brüt Alan (m²)"
+                            value={details.grossArea || ''}
+                            onChange={(e) => handleDetailChange('grossArea', parseInt(e.target.value))}
+                            InputProps={{
+                                autoComplete: 'off',
+                                startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
+                            }}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                         <FormControl fullWidth variant="outlined" size="small">
                             <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Bina Yaşı</InputLabel>

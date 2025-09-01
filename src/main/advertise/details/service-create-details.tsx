@@ -74,7 +74,7 @@ export default function ServiceDetails({ details, setDetails }: ServiceDetailsPr
                     fontWeight: 600,
                     color: '#1e293b',
                     fontSize: '16px',
-                    mb: 1
+                    mb: 2
                 }}>
                     Hizmet Alanı Özellikleri
                 </Typography>
@@ -87,6 +87,30 @@ export default function ServiceDetails({ details, setDetails }: ServiceDetailsPr
                             label="Alan (m²)"
                             value={details.area || ''}
                             onChange={(e) => handleDetailChange('area', parseInt(e.target.value))}
+                            InputProps={{
+                                autoComplete: 'off',
+                                startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
+                            }}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Brüt Alan (m²)"
+                            value={details.grossArea || ''}
+                            onChange={(e) => handleDetailChange('grossArea', parseInt(e.target.value))}
                             InputProps={{
                                 autoComplete: 'off',
                                 startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,

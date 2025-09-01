@@ -19,7 +19,6 @@ interface StepSixOfficeProps {
   city: string;
   district: string;
   neighborhood: string;
-  addressText: string;
   details: any;
   photos: Photo[];
   latitude: number | null;
@@ -35,6 +34,7 @@ const formatPrice = (priceString: string): string => {
 const getImportantDetailsForOffice = (details: any) => {
   return {
     "Net Alan (m²)": details.netArea || 'Belirtilmemiş',
+    "Brüt Alan (m²)": details.grossArea || 'Belirtilmemiş',
     "Oda Sayısı": details.roomCount || 'Belirtilmemiş',
     "Bina Yaşı": details.buildingAge || 'Belirtilmemiş',
     "Bulunduğu Kat": details.floorNo || 'Belirtilmemiş',
@@ -550,10 +550,9 @@ const FeatureCategories = ({ details }: { details: any }) => (
 );
 
 // Location Component
-const LocationPanel = ({ latitude, longitude, addressText, city, district, neighborhood }: {
+const LocationPanel = ({ latitude, longitude, city, district, neighborhood }: {
   latitude: number | null;
   longitude: number | null;
-  addressText: string;
   city: string;
   district: string;
   neighborhood: string;
@@ -583,9 +582,6 @@ const LocationPanel = ({ latitude, longitude, addressText, city, district, neigh
         color: '#64748b'
       }}>
         <LocationOn sx={{ fontSize: 40, mb: 1, opacity: 0.5 }} />
-        <Typography sx={{ fontSize: '14px' }}>
-          {addressText || `${neighborhood && `${neighborhood}, `}${district}, ${city}`}
-        </Typography>
         <Typography sx={{ fontSize: '12px', mt: 0.5, opacity: 0.7 }}>
           Konum bilgisi mevcut değil
         </Typography>
@@ -595,11 +591,10 @@ const LocationPanel = ({ latitude, longitude, addressText, city, district, neigh
 );
 
 // Tabbed Panel Component
-const TabbedPanel = ({ details, latitude, longitude, addressText, city, district, neighborhood }: {
+const TabbedPanel = ({ details, latitude, longitude, city, district, neighborhood }: {
   details: any;
   latitude: number | null;
   longitude: number | null;
-  addressText: string;
   city: string;
   district: string;
   neighborhood: string;
@@ -657,7 +652,6 @@ const TabbedPanel = ({ details, latitude, longitude, addressText, city, district
           <LocationPanel
             latitude={latitude}
             longitude={longitude}
-            addressText={addressText}
             city={city}
             district={district}
             neighborhood={neighborhood}
@@ -671,7 +665,7 @@ const TabbedPanel = ({ details, latitude, longitude, addressText, city, district
 // Main Component
 export default function StepSixOffice({
   listingType, propertyType, subtype, title, description, price,
-  city, district, neighborhood, addressText, details, photos, latitude, longitude
+  city, district, neighborhood, details, photos, latitude, longitude
 }: StepSixOfficeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -739,7 +733,6 @@ export default function StepSixOffice({
         details={details}
         latitude={latitude}
         longitude={longitude}
-        addressText={addressText}
         city={city}
         district={district}
         neighborhood={neighborhood}

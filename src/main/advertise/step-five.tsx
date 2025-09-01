@@ -23,8 +23,6 @@ interface StepFiveProps {
     longitude: number | null;
     setLatitude: (lat: number | null) => void;
     setLongitude: (lng: number | null) => void;
-    addressText: string;
-    setAddressText: (address: string) => void;
 }
 
 export default function StepFive({ 
@@ -32,8 +30,6 @@ export default function StepFive({
     longitude, 
     setLatitude, 
     setLongitude,
-    addressText,
-    setAddressText
 }: StepFiveProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
@@ -44,21 +40,6 @@ export default function StepFive({
 
     // Varsayılan başlangıç konumu (Türkiye merkezi - Ankara)
     const defaultCenter = [39.9334, 32.8597];
-
-    // Reverse geocoding - Nominatim API kullanarak
-    const reverseGeocode = useCallback(async (lat: number, lng: number) => {
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=tr`
-            );
-            const data = await response.json();
-            if (data.display_name) {
-                setAddressText(data.display_name);
-            }
-        } catch (error) {
-            console.error('Reverse geocoding hatası:', error);
-        }
-    }, [setAddressText]);
 
     // Marker ekleme fonksiyonu
     const addMarker = useCallback((lat: number, lng: number) => {
@@ -79,11 +60,10 @@ export default function StepFive({
             const newLatLng = dragEvent.target.getLatLng();
             setLatitude(newLatLng.lat);
             setLongitude(newLatLng.lng);
-            reverseGeocode(newLatLng.lat, newLatLng.lng);
         });
 
         markerRef.current = newMarker;
-    }, [reverseGeocode, setLatitude, setLongitude]);
+    }, [setLatitude, setLongitude]);
 
     // Leaflet kütüphanesini yükle
     useEffect(() => {
@@ -157,7 +137,6 @@ export default function StepFive({
                 setLatitude(lat);
                 setLongitude(lng);
                 addMarker(lat, lng);
-                reverseGeocode(lat, lng);
             });
 
             // Harita hazır olduğunda
@@ -189,7 +168,7 @@ export default function StepFive({
             }
             setMapInitialized(false);
         };
-    }, [leafletLoaded, addMarker, reverseGeocode, setLatitude, setLongitude]);
+    }, [leafletLoaded, addMarker, setLatitude, setLongitude]);
 
     // Koordinat değişikliklerini izle ve haritayı güncelle
     useEffect(() => {
@@ -226,7 +205,6 @@ export default function StepFive({
                 if (mapInstanceRef.current) {
                     mapInstanceRef.current.setView([lat, lng], 16);
                     addMarker(lat, lng);
-                    reverseGeocode(lat, lng);
                 }
                 
                 setIsLoading(false);
@@ -262,7 +240,6 @@ export default function StepFive({
     const clearLocation = () => {
         setLatitude(null);
         setLongitude(null);
-        setAddressText('');
         
         if (markerRef.current && mapInstanceRef.current) {
             mapInstanceRef.current.removeLayer(markerRef.current);

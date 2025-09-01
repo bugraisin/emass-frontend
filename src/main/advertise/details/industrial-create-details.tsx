@@ -79,7 +79,7 @@ export default function IndustrialDetails({ details, setDetails }: IndustrialDet
                     fontWeight: 600,
                     color: '#1e293b',
                     fontSize: '16px',
-                    mb: 1
+                    mb: 2
                 }}>
                     Endüstriyel Özellikler
                 </Typography>
@@ -108,7 +108,52 @@ export default function IndustrialDetails({ details, setDetails }: IndustrialDet
                             }}
                         />
                     </Grid>
-
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Brüt Alan (m²)"
+                            value={details.grossArea || ''}
+                            onChange={(e) => handleDetailChange('grossArea', parseInt(e.target.value))}
+                            InputProps={{
+                                autoComplete: 'off',
+                                startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
+                            }}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            label="Tavan Yüksekliği (m)"
+                            value={details.ceilingHeight || ''}
+                            onChange={(e) => handleDetailChange('ceilingHeight', parseFloat(e.target.value))}
+                            InputProps={{
+                                autoComplete: 'off',
+                                startAdornment: <Height sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
+                            }}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 1,
+                                    '&:hover fieldset': { borderColor: '#1e293b' },
+                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
+                                },
+                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
+                            }}
+                        />
+                    </Grid>
                     <Grid item xs={12} sm={6} md={4}>
                         <FormControl fullWidth variant="outlined" size="small">
                             <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Bina Yaşı</InputLabel>
@@ -164,30 +209,6 @@ export default function IndustrialDetails({ details, setDetails }: IndustrialDet
                             onChange={(e) => handleDetailChange('floorCount', parseInt(e.target.value))}
                             variant="outlined"
                             autoComplete='off'
-                            size="small"
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: 1,
-                                    '&:hover fieldset': { borderColor: '#1e293b' },
-                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
-                                },
-                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            label="Tavan Yüksekliği (m)"
-                            value={details.ceilingHeight || ''}
-                            onChange={(e) => handleDetailChange('ceilingHeight', parseFloat(e.target.value))}
-                            InputProps={{
-                                autoComplete: 'off',
-                                startAdornment: <Height sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,
-                            }}
-                            variant="outlined"
                             size="small"
                             sx={{
                                 '& .MuiOutlinedInput-root': {
