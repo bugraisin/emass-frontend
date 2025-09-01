@@ -3,12 +3,12 @@ import { Box, Divider, Button } from "@mui/material";
 import Categories from "./left-panel/categories.tsx";
 import Address from "./left-panel/address.tsx";
 import Price from "./left-panel/price.tsx";
-import HousingDetails from "./left-panel/housing-details.tsx";
-import OfficeDetails from "./left-panel/office-details.tsx";
-import CommercialDetails from "./left-panel/commercial-details.tsx";
-import LandDetails from "./left-panel/land-details.tsx";
-import IndustrialDetails from "./left-panel/industrial-details.tsx";
-import ServiceDetails from "./left-panel/service-details.tsx";
+import HousingDetails from "./left-panel/details/housing-details.tsx";
+import OfficeDetails from "./left-panel/details/office-details.tsx";
+import CommercialDetails from "./left-panel/details/commercial-details.tsx";
+import ServiceDetails from "./left-panel/details/service-details.tsx";
+import LandDetails from "./left-panel/details/land-details.tsx";
+import IndustrialDetails from "./left-panel/details/industrial-details.tsx";
 
 export default function LeftPanel() {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -164,17 +164,10 @@ export default function LeftPanel() {
             <Box
                 sx={{
                     position: 'sticky',
-                    bottom: 20,
+                    bottom: 16,
                     width: '100%',
-                    padding: '10px',
-                    background: '#fff',
-                    borderRadius: '10px',
-                    marginTop: '24px',
-                    zIndex: 1000,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.2)',
+                    marginTop: '20px',
+                    padding: '0 4px',
                 }}
             >
                 <Button
@@ -182,19 +175,21 @@ export default function LeftPanel() {
                     sx={{
                         width: '100%',
                         color: '#fff',
-                        fontSize: '15px',
-                        fontWeight: 600,
-                        boxShadow: 'none',
-                        background: 'linear-gradient(90deg, #1976d2 0%, #2563eb 100%)',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                        background: '#ed9517',
+                        border: '1px solid rgba(148, 163, 184, 0.2)',
                         '&:hover': { 
-                            background: 'linear-gradient(90deg, #2563eb 0%, #1976d2 100%)',
+                            background: '#d97706',
+                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.12)',
                         },
-                        padding: '10px 0', 
-                        borderRadius: '8px',
+                        padding: '8px 0', 
+                        borderRadius: '6px',
                         textTransform: 'none',
                     }}
                 >
-                    Emlakları Ara
+                    Ara
                 </Button>
             </Box>
         </Box>

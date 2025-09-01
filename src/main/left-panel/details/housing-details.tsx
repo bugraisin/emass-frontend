@@ -8,44 +8,117 @@ interface HousingDetailsProps {
 }
 
 export default function HousingDetails({ selectedCategory }: HousingDetailsProps) {
-    const siteFeeOptions = [
-        "Yok", "0-250₺", "251-500₺", "501-750₺", "751-1000₺", "1001-1500₺", "1501₺+"
-    ];
-    const [selectedSiteFees, setSelectedSiteFees] = useState<string[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee' | 'facade' | null>(null);
+    const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'facade' | 'floor' | 'totalFloor' | 'Temel Özellikler' | 'Otopark' | 'Bina & Güvenlik' | 'Konfor & Isıtma' | 'Mutfak & İç Mekan' | 'Site İmkanları' | null>(null);
     
     // Form states
     const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
-    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
     const [selectedFloors, setSelectedFloors] = useState<string[]>([]);
     const [selectedTotalFloors, setSelectedTotalFloors] = useState<string[]>([]);
     const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
     const [selectedHeatingTypes, setSelectedHeatingTypes] = useState<string[]>([]);
     const [selectedFacadeTypes, setSelectedFacadeTypes] = useState<string[]>([]);
-    const [siteName, setSiteName] = useState<string>('');
-    const [siteFee, setSiteFee] = useState<string>('');
     
-    // Boolean features
+    // Min-Max states for areas and fees
+    const [netAreaMin, setNetAreaMin] = useState<string>('');
+    const [netAreaMax, setNetAreaMax] = useState<string>('');
+    const [siteFeeMin, setSiteFeeMin] = useState<string>('');
+    const [siteFeeMax, setSiteFeeMax] = useState<string>('');
+    const [depositMin, setDepositMin] = useState<string>('');
+    const [depositMax, setDepositMax] = useState<string>('');
+    
+    // Boolean features organized by categories
     const [features, setFeatures] = useState<Record<string, boolean>>({
+        // Temel Özellikler
         furnished: false,
         balcony: false,
-        parking: false
+        terrace: false,
+        garden: false,
+        withinSite: false,
+        // Otopark
+        openPark: false,
+        closedPark: false,
+        garagePark: false,
+        // Bina & Güvenlik
+        elevator: false,
+        security: false,
+        concierge: false,
+        generator: false,
+        // Konfor & Isıtma
+        airConditioning: false,
+        floorHeating: false,
+        fireplace: false,
+        // Mutfak & İç Mekan
+        builtinKitchen: false,
+        separateKitchen: false,
+        americanKitchen: false,
+        laundryRoom: false,
+        // Site İmkanları
+        pool: false,
+        gym: false,
+        childrenPlayground: false,
+        sportsArea: false
     });
+
+    const featureCategories = [
+        {
+            title: 'Temel Özellikler',
+            features: [
+                { key: 'furnished', label: 'Eşyalı' },
+                { key: 'balcony', label: 'Balkon' },
+                { key: 'terrace', label: 'Teras' },
+                { key: 'garden', label: 'Bahçe' },
+                { key: 'withinSite', label: 'Site İçerisinde' },
+            ]
+        },
+        {
+            title: 'Otopark',
+            features: [
+                { key: 'openPark', label: 'Açık Otopark' },
+                { key: 'closedPark', label: 'Kapalı Otopark' },
+                { key: 'garagePark', label: 'Garaj' },
+            ]
+        },
+        {
+            title: 'Bina & Güvenlik',
+            features: [
+                { key: 'elevator', label: 'Asansör' },
+                { key: 'security', label: 'Güvenlik' },
+                { key: 'concierge', label: 'Kapıcı' },
+                { key: 'generator', label: 'Jeneratör' },
+            ]
+        },
+        {
+            title: 'Konfor & Isıtma',
+            features: [
+                { key: 'airConditioning', label: 'Klima' },
+                { key: 'floorHeating', label: 'Yerden Isıtma' },
+                { key: 'fireplace', label: 'Şömine' },
+            ]
+        },
+        {
+            title: 'Mutfak & İç Mekan',
+            features: [
+                { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
+                { key: 'separateKitchen', label: 'Ayrı Mutfak' },
+                { key: 'americanKitchen', label: 'Amerikan Mutfak' },
+                { key: 'laundryRoom', label: 'Çamaşır Odası' },
+            ]
+        },
+        {
+            title: 'Site İmkanları',
+            features: [
+                { key: 'pool', label: 'Havuz' },
+                { key: 'gym', label: 'Spor Salonu' },
+                { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
+                { key: 'sportsArea', label: 'Spor Alanları' },
+            ]
+        }
+    ];
 
     const roomOptions = [
         "1+0", "1+1", "2+1", "2+2", "3+1", "3+2", 
         "4+1", "4+2", "5+1", "5+2", "6+1", "7+"
-    ];
-
-    const netAreaRanges = [
-        "50 m² - 75 m²",
-        "75 m² - 100 m²", 
-        "100 m² - 125 m²",
-        "125 m² - 150 m²",
-        "150 m² - 200 m²",
-        "200 m² - 300 m²",
-        "300 m² +"
     ];
 
     const floorOptions = [
@@ -90,7 +163,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         return value.replace(/[^0-9]/g, '');
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'features' | 'area' | 'floor' | 'totalFloor' | 'siteFee' | 'facade') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'facade' | 'floor' | 'totalFloor' | 'Temel Özellikler' | 'Otopark' | 'Bina & Güvenlik' | 'Konfor & Isıtma' | 'Mutfak & İç Mekan' | 'Site İmkanları') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -130,16 +203,6 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         });
     };
 
-    const toggleAreaRange = (range: string) => {
-        setSelectedAreaRanges(prev => {
-            if (prev.includes(range)) {
-                return prev.filter(r => r !== range);
-            } else {
-                return [...prev, range];
-            }
-        });
-    };
-
     const toggleBuildingAge = (age: string) => {
         setSelectedBuildingAges(prev => {
             if (prev.includes(age)) {
@@ -172,9 +235,27 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
 
     const open = Boolean(anchorEl);
 
+    const getSelectedFeaturesCount = () => {
+        return Object.values(features).filter(f => f).length;
+    };
+
+    const getAreaDisplayText = (min: string, max: string) => {
+        if (min && max) return `${min} - ${max} m²`;
+        if (min) return `${min}+ m²`;
+        if (max) return `${max} m²'ye kadar`;
+        return '';
+    };
+
+    const getFeeDisplayText = (min: string, max: string) => {
+        if (min && max) return `${min} - ${max} ₺`;
+        if (min) return `${min}+ ₺`;
+        if (max) return `${max} ₺'ye kadar`;
+        return '';
+    };
+
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CardContent sx={{ p: 2, '&:last-child': { pb: 1 } }}>
                 <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", mb: 1.5, fontWeight: 600 }}>
                     Konut Detayları
                 </Typography>
@@ -212,37 +293,45 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Net Metrekare Aralığı */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'area')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Net Metrekare
-                        </Typography>
-                        {selectedAreaRanges.length > 0 && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedAreaRanges.join(', ')}
-                            </Typography>
-                        )}
+                
+                {/* Net Metrekare Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Net Metrekare
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min"
+                            value={netAreaMin}
+                            onChange={(e) => setNetAreaMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>-</Typography>
+                        <TextField
+                            placeholder="Max"
+                            value={netAreaMax}
+                            onChange={(e) => setNetAreaMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
                     </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Bulunduğu Kat Seçimi */}
@@ -344,6 +433,86 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
+                                {/* Aidat Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Aidat
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min ₺"
+                            value={siteFeeMin}
+                            onChange={(e) => setSiteFeeMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>-</Typography>
+                        <TextField
+                            placeholder="Max ₺"
+                            value={siteFeeMax}
+                            onChange={(e) => setSiteFeeMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                    </Box>
+                </Box>
+
+                {/* Depozito Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Depozito
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min ₺"
+                            value={depositMin}
+                            onChange={(e) => setDepositMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>-</Typography>
+                        <TextField
+                            placeholder="Max ₺"
+                            value={depositMax}
+                            onChange={(e) => setDepositMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                    </Box>
+                </Box>
+
                 {/* Isıtma Türü Seçimi */}
                 <Box 
                     onClick={(e) => handlePopoverOpen(e, 'heating')}
@@ -376,6 +545,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
+
                 {/* Cephe Yönü Seçimi */}
                 <Box 
                     onClick={(e) => handlePopoverOpen(e, 'facade')}
@@ -408,71 +578,42 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
-                {/* Aidat Seçimi */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'siteFee')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'siteFee' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'siteFee' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'siteFee' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Aidat
-                        </Typography>
-                        {selectedSiteFees.length > 0 && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedSiteFees.join(', ')}
-                            </Typography>
-                        )}
-                    </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
-                </Box>
 
-                {/* Özellikler Seçimi */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'features')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'features' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'features' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'features' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Özellikler
-                        </Typography>
-                        {Object.values(features).some(f => f) && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {Object.values(features).filter(f => f).length} özellik seçili
+                {/* Feature Category Panels */}
+                {featureCategories.map((category) => (
+                    <Box 
+                        key={category.title}
+                        onClick={(e) => handlePopoverOpen(e, category.title as any)}
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            border: '1px solid rgba(0, 0, 0, 0.12)',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            marginBottom: '6px',
+                            minHeight: '36px',
+                            backgroundColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                            borderColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                            '&:hover': {
+                                backgroundColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }}
+                    >
+                        <Box sx={{ flex: 1 }}>
+                            <Typography sx={{ fontSize: "13px" }}>
+                                {category.title}
                             </Typography>
-                        )}
+                            {category.features.some(feature => features[feature.key]) && (
+                                <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                    {category.features.filter(feature => features[feature.key]).length} özellik seçili
+                                </Typography>
+                            )}
+                        </Box>
+                        <ChevronRightIcon sx={{ fontSize: "16px" }} />
                     </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
-                </Box>
+                ))}
 
                 {/* Popover Panel */}
                 <Popover
@@ -502,14 +643,12 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
                             <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>
                                 {popoverType === 'room' && 'Oda + Salon Seçin'}
-                                {popoverType === 'area' && 'Net Metrekare Aralığı'}
                                 {popoverType === 'floor' && 'Bulunduğu Kat Seçin'}
                                 {popoverType === 'totalFloor' && 'Toplam Kat Seçin'}
                                 {popoverType === 'age' && 'Bina Yaşı Seçin'}
                                 {popoverType === 'heating' && 'Isıtma Türü Seçin'}
                                 {popoverType === 'facade' && 'Cephe Yönü Seçin'}
-                                {popoverType === 'features' && 'Özellikler Seçin'}
-                                {popoverType === 'siteFee' && 'Aidat Seçin'}
+                                {featureCategories.map(cat => cat.title).includes(popoverType as string) && popoverType}
                             </Typography>
                             <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
@@ -543,6 +682,39 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 ))}
                             </List>
                         )}
+
+                        {/* Individual Feature Category Lists */}
+                        {featureCategories.map((category) => {
+                            if (popoverType === category.title) {
+                                return (
+                                    <List key={category.title} sx={{ padding: 0 }}>
+                                        {category.features.map((feature) => (
+                                            <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
+                                                <ListItemButton 
+                                                    onClick={() => handleFeatureChange(feature.key)} 
+                                                    sx={{
+                                                        p: '4px 8px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        borderRadius: '4px',
+                                                        '&:hover': {
+                                                            backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                        }
+                                                    }}
+                                                >
+                                                    <Checkbox
+                                                        checked={features[feature.key] || false}
+                                                        sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                                    />
+                                                    <Typography sx={{ fontSize: '13px', m: 0 }}>{feature.label}</Typography>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                );
+                            }
+                            return null;
+                        })}
 
                         {/* Bulunduğu Kat Seçimi Listesi */}
                         {popoverType === 'floor' && (
@@ -594,34 +766,6 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{floor}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
-
-                        {/* Net Metrekare Aralığı Listesi */}
-                        {popoverType === 'area' && (
-                            <List sx={{ padding: 0 }}>
-                                {netAreaRanges.map((range) => (
-                                    <ListItem disablePadding key={range} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => toggleAreaRange(range)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={selectedAreaRanges.includes(range)}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{range}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
@@ -683,6 +827,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 ))}
                             </List>
                         )}
+
                         {/* Cephe Yönü Listesi */}
                         {popoverType === 'facade' && (
                             <List sx={{ padding: 0 }}>
@@ -710,63 +855,7 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                                 ))}
                             </List>
                         )}
-                        {/* Özellikler Listesi */}
-                        {popoverType === 'features' && (
-                            <List sx={{ padding: 0 }}>
-                                {[{ key: 'furnished', label: 'Eşyalı' }, { key: 'balcony', label: 'Balkon' }, { key: 'parking', label: 'Otopark' }, { key: 'site', label: 'Site İçerisinde' }].map((feature) => (
-                                    <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => handleFeatureChange(feature.key)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={features[feature.key]}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{feature.label}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
 
-                        {/* Aidat Seçenekleri Listesi */}
-                        {popoverType === 'siteFee' && (
-                            <List sx={{ padding: 0 }}>
-                                {siteFeeOptions.map((fee) => (
-                                    <ListItem disablePadding key={fee} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => {
-                                                setSelectedSiteFees(prev => prev.includes(fee) ? prev.filter(f => f !== fee) : [...prev, fee]);
-                                            }}
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={selectedSiteFees.includes(fee)}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{fee}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
                     </Paper>
                 </Popover>
             </CardContent>

@@ -104,7 +104,6 @@ export interface CommercialDetails extends BasePropertyDetails {
   heatingType?: string;
   siteFee?: number;
   deposit?: number;
-  ceilingHeight?: number;
   
   // Boolean özellikler - Temel
   furnished?: boolean;

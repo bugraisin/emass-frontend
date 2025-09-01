@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, Typography, TextField, Stack, Slider, Box, Button } from '@mui/material';
+import { Card, CardContent, Typography, TextField, Slider, Box, Button } from '@mui/material';
 
 interface PriceProps {
     selectedCategory: string;
@@ -103,39 +103,45 @@ export default function Price({ selectedCategory }: PriceProps) {
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>
             <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", fontWeight: 600 }}>
+                <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", fontWeight: 600, mb: 2 }}>
                     {config.label}
                 </Typography>
-                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <TextField
-                        fullWidth
-                        label="Min Fiyat"
-                        variant="outlined"
+                        placeholder="Min"
                         value={minPrice ? formatNumber(minPrice) : ''}
                         onChange={handleMinChange}
                         size="small"
                         autoComplete="off"
-                        placeholder="0"
                         sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
+                            flex: 1,
+                            '& .MuiOutlinedInput-root': {
+                                fontSize: '13px',
+                                height: '32px'
+                            }
                         }}
+                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                     />
+                    
+                    <Typography sx={{ fontSize: '13px', color: 'text.secondary', px: 0.5 }}>-</Typography>
+                    
                     <TextField
-                        fullWidth
-                        label="Max Fiyat"
-                        variant="outlined"
+                        placeholder="Max"
                         value={maxPrice ? formatNumber(maxPrice) : ''}
                         onChange={handleMaxChange}
                         size="small"
                         autoComplete="off"
-                        placeholder="Sınırsız"
                         sx={{ 
-                            '& .MuiInputBase-root': { fontSize: '13px' },
-                            '& .MuiInputLabel-root': { fontSize: '12px' }
+                            flex: 1,
+                            '& .MuiOutlinedInput-root': {
+                                fontSize: '13px',
+                                height: '32px'
+                            }
                         }}
+                        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                     />
-                </Stack>
+                </Box>
             </CardContent>
         </Card>
     );

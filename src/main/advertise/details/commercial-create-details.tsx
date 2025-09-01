@@ -159,27 +159,6 @@ export default function CommercialDetails({ details, setDetails }: CommercialDet
                         <TextField
                             fullWidth
                             type="number"
-                            label="Bölüm/Oda Sayısı"
-                            value={details.roomCount || ''}
-                            onChange={(e) => handleDetailChange('roomCount', parseInt(e.target.value))}
-                            variant="outlined"
-                            autoComplete='off'
-                            size="small"
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: 1,
-                                    '&:hover fieldset': { borderColor: '#1e293b' },
-                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
-                                },
-                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <TextField
-                            fullWidth
-                            type="number"
                             label="Bulunduğu Kat"
                             value={details.floorNo || ''}
                             onChange={(e) => handleDetailChange('floorNo', parseInt(e.target.value))}

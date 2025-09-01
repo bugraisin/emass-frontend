@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Popover, Paper, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Popover, Paper, IconButton, TextField } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -9,12 +9,16 @@ interface LandDetailsProps {
 
 export default function LandDetails({ selectedCategory }: LandDetailsProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'area' | 'zoning' | 'title' | 'infrastructure' | null>(null);
+    const [popoverType, setPopoverType] = useState<'area' | 'zoning' | 'title' | 'infrastructure' | 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe' | null>(null);
     
     // Form states - multiple choice yapıldı
     const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
     const [selectedZoningTypes, setSelectedZoningTypes] = useState<string[]>([]);
     const [selectedTitleTypes, setSelectedTitleTypes] = useState<string[]>([]);
+    
+    // Min-Max states for area
+    const [areaMin, setAreaMin] = useState<string>('');
+    const [areaMax, setAreaMax] = useState<string>('');
     
     // Boolean features
     const [infrastructure, setInfrastructure] = useState<Record<string, boolean>>({
@@ -25,6 +29,77 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
         sewerage: false,
         internet: false
     });
+
+    // Features organized by categories
+    const [features, setFeatures] = useState<Record<string, boolean>>({
+        // Altyapı
+        electricity: false,
+        water: false,
+        naturalGas: false,
+        sewerage: false,
+        roadAccess: false,
+        // Konum & Manzara
+        cornerLot: false,
+        seaView: false,
+        cityView: false,
+        forestView: false,
+        mountainView: false,
+        // Arazi Özellikler
+        flat: false,
+        slope: false,
+        fenced: false,
+        agricultural: false,
+        buildingPermit: false,
+        // Tarım & Bahçe
+        vineyard: false,
+        orchard: false,
+        oliveTrees: false,
+        greenhouse: false,
+        well: false,
+    });
+
+    const featureCategories = [
+        {
+            title: 'Altyapı',
+            features: [
+                { key: 'electricity', label: 'Elektrik' },
+                { key: 'water', label: 'Su' },
+                { key: 'naturalGas', label: 'Doğalgaz' },
+                { key: 'sewerage', label: 'Kanalizasyon' },
+                { key: 'roadAccess', label: 'Yol Erişimi' },
+            ]
+        },
+        {
+            title: 'Konum & Manzara',
+            features: [
+                { key: 'cornerLot', label: 'Köşe Parsel' },
+                { key: 'seaView', label: 'Deniz Manzarası' },
+                { key: 'cityView', label: 'Şehir Manzarası' },
+                { key: 'forestView', label: 'Orman Manzarası' },
+                { key: 'mountainView', label: 'Dağ Manzarası' },
+            ]
+        },
+        {
+            title: 'Arazi Özellikler',
+            features: [
+                { key: 'flat', label: 'Düz Arazi' },
+                { key: 'slope', label: 'Eğimli Arazi' },
+                { key: 'fenced', label: 'Çevrili/Çitli' },
+                { key: 'agricultural', label: 'Tarımsal Faaliyet' },
+                { key: 'buildingPermit', label: 'Yapı İzni Var' },
+            ]
+        },
+        {
+            title: 'Tarım & Bahçe',
+            features: [
+                { key: 'vineyard', label: 'Bağ/Üzüm' },
+                { key: 'orchard', label: 'Meyve Bahçesi' },
+                { key: 'oliveTrees', label: 'Zeytin Ağaçları' },
+                { key: 'greenhouse', label: 'Sera' },
+                { key: 'well', label: 'Su Kuyusu' },
+            ]
+        }
+    ];
 
     const areaRanges = [
         "0-500 m²",
@@ -38,16 +113,12 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
     ];
 
     const zoningOptions = [
+        "İmarlı",
+        "Tarla",
+        "Bahçe",
         "Konut İmarlı",
-        "Ticari İmarlı", 
+        "Ticari İmarlı",
         "Sanayi İmarlı",
-        "Turizm İmarlı",
-        "Kentsel Dönüşüm Alanı",
-        "TOKİ Rezerv Alanı",
-        "Sit Alanı",
-        "Tarım Arazisi",
-        "Orman Arazisi",
-        "İmarsız",
         "Diğer"
     ];
 
@@ -67,7 +138,14 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
         }));
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'zoning' | 'title' | 'infrastructure') => {
+    const handleFeatureChange = (feature: string) => {
+        setFeatures(prev => ({
+            ...prev,
+            [feature]: !prev[feature]
+        }));
+    };
+
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'zoning' | 'title' | 'infrastructure' | 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -116,37 +194,46 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                     Arsa Detayları
                 </Typography>
 
-                {/* Toplam Alan Aralığı */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'area')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Toplam Alan
-                        </Typography>
-                        {selectedAreaRanges.length > 0 && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedAreaRanges.join(', ')}
-                            </Typography>
-                        )}
+                {/* Metrekare Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Metrekare
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min"
+                            value={areaMin}
+                            onChange={(e) => setAreaMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        
+                        <Typography sx={{ fontSize: '13px', color: 'text.secondary', px: 0.5 }}>-</Typography>
+                        
+                        <TextField
+                            placeholder="Max"
+                            value={areaMax}
+                            onChange={(e) => setAreaMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
                     </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* İmar Durumu */}
@@ -248,6 +335,42 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
+                {/* Feature Categories */}
+                {featureCategories.map((category) => (
+                    <Box 
+                        key={category.title}
+                        onClick={(e) => handlePopoverOpen(e, category.title as 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe')}
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            border: '1px solid rgba(0, 0, 0, 0.12)',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            marginBottom: '6px',
+                            minHeight: '36px',
+                            backgroundColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                            borderColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                            '&:hover': {
+                                backgroundColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }}
+                    >
+                        <Box sx={{ flex: 1 }}>
+                            <Typography sx={{ fontSize: "13px" }}>
+                                {category.title}
+                            </Typography>
+                            {category.features.some(feature => features[feature.key]) && (
+                                <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                    {category.features.filter(feature => features[feature.key]).length} özellik seçili
+                                </Typography>
+                            )}
+                        </Box>
+                        <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                    </Box>
+                ))}
+
                 {/* Popover Panel */}
                 <Popover
                     open={open}
@@ -279,6 +402,10 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                                 {popoverType === 'zoning' && 'İmar Durumu Seçin'}
                                 {popoverType === 'title' && 'Tapu Durumu Seçin'}
                                 {popoverType === 'infrastructure' && 'Altyapı Durumu Seçin'}
+                                {popoverType === 'Altyapı' && 'Altyapı Özellikleri'}
+                                {popoverType === 'Konum & Manzara' && 'Konum & Manzara Seçin'}
+                                {popoverType === 'Arazi Özellikler' && 'Arazi Özelliklerini Seçin'}
+                                {popoverType === 'Tarım & Bahçe' && 'Tarım & Bahçe Özellikleri'}
                             </Typography>
                             <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
@@ -402,6 +529,36 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                                     </ListItem>
                                 ))}
                             </List>
+                        )}
+
+                        {/* Feature Categories Lists */}
+                        {featureCategories.map((category) => 
+                            popoverType === category.title && (
+                                <List key={category.title} sx={{ padding: 0 }}>
+                                    {category.features.map((feature) => (
+                                        <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
+                                            <ListItemButton 
+                                                onClick={() => handleFeatureChange(feature.key)} 
+                                                sx={{
+                                                    p: '4px 8px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    borderRadius: '4px',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                    }
+                                                }}
+                                            >
+                                                <Checkbox
+                                                    checked={features[feature.key]}
+                                                    sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                                />
+                                                <Typography sx={{ fontSize: '13px', m: 0 }}>{feature.label}</Typography>
+                                            </ListItemButton>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            )
                         )}
                     </Paper>
                 </Popover>

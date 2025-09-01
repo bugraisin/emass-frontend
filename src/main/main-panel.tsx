@@ -33,7 +33,7 @@ export default function MainPanel() {
   const [open, setOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Sayfa başına 10 ilan
+  const itemsPerPage =162 // Sayfa başına 12 ilan
 
   // Pagination hesaplaması
   const totalPages = Math.ceil(properties.length / itemsPerPage);
@@ -60,7 +60,7 @@ export default function MainPanel() {
       flexDirection="column" 
       height="100%" 
       sx={{
-        padding: '8px',
+        padding: '12px',
       }}
     >
       {/* Kategori başlığı barı */}
@@ -74,8 +74,8 @@ export default function MainPanel() {
         fontWeight: 700,
         color: '#1e293b',
         fontSize: '15px',
-        borderRadius: "4px",
-        mb: 1
+        letterSpacing: '-0.1px',
+        marginBottom: '8px',
       }}>
         <Box sx={{ width: 140 }} />
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0, flex: 1, paddingLeft: '32px' }}>
@@ -93,13 +93,16 @@ export default function MainPanel() {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
-                padding: '6px',
+                padding: '8px',
                 cursor: "pointer",
                 background: '#fff',
-                borderRadius: '4px',  
+                borderRadius: '4px',
                 border: '1px solid #e5e7eb',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 position: 'relative',
+                overflow: 'hidden',
                 "&:hover": {
+                  boxShadow: '0 4px 16px rgba(30,41,59,0.08)',
                   borderColor: '#1e293b',
                 },
               }}
@@ -112,6 +115,7 @@ export default function MainPanel() {
                   height: 100, 
                   borderRadius: '4px',
                   objectFit: 'cover',
+                  boxShadow: 'none'
                 }}
                 image={property.image}
                 alt={property.title}

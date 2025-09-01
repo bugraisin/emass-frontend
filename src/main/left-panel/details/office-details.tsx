@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Radio, Popover, Paper, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Radio, Popover, Paper, IconButton, TextField } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -9,7 +9,7 @@ interface OfficeDetailsProps {
 
 export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'area' | 'floor' | 'age' | 'features' | 'room' | 'meetingRoom' | 'facade' | null>(null);
+    const [popoverType, setPopoverType] = useState<'area' | 'floor' | 'age' | 'room' | 'meetingRoom' | 'facade' | 'Temel Özellikler' | 'Ofis Konfor' | 'Çalışma Alanları' | 'Teknik Altyapı' | null>(null);
     
     // Form states
     const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
@@ -19,17 +19,80 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
     const [selectedMeetingRoomCounts, setSelectedMeetingRoomCounts] = useState<string[]>([]);
     const [selectedFacadeTypes, setSelectedFacadeTypes] = useState<string[]>([]);
     
-    // Boolean features
+    // Min-Max states for areas and fees
+    const [netAreaMin, setNetAreaMin] = useState<string>('');
+    const [netAreaMax, setNetAreaMax] = useState<string>('');
+    const [siteFeeMin, setSiteFeeMin] = useState<string>('');
+    const [siteFeeMax, setSiteFeeMax] = useState<string>('');
+    const [depositMin, setDepositMin] = useState<string>('');
+    const [depositMax, setDepositMax] = useState<string>('');
+    
+    // Boolean features organized by categories
     const [features, setFeatures] = useState<Record<string, boolean>>({
+        // Temel Özellikler
         furnished: false,
-        airConditioning: false,
         parking: false,
         elevator: false,
+        security: false,
         generator: false,
-        internetIncluded: false,
-        security24: false,
-        kitchen: false
+        // Ofis Konfor
+        airConditioning: false,
+        internet: false,
+        kitchen: false,
+        fireSystem: false,
+        // Çalışma Alanları
+        reception: false,
+        meetingRoom: false,
+        waitingArea: false,
+        archive: false,
+        library: false,
+        // Teknik Altyapı
+        serverRoom: false,
+        accessControl: false,
+        fiberInternet: false,
+        soundproof: false
     });
+
+    const featureCategories = [
+        {
+            title: 'Temel Özellikler',
+            features: [
+                { key: 'furnished', label: 'Eşyalı' },
+                { key: 'parking', label: 'Otopark' },
+                { key: 'elevator', label: 'Asansör' },
+                { key: 'security', label: 'Güvenlik' },
+                { key: 'generator', label: 'Jeneratör' },
+            ]
+        },
+        {
+            title: 'Ofis Konfor',
+            features: [
+                { key: 'airConditioning', label: 'Klima' },
+                { key: 'internet', label: 'İnternet' },
+                { key: 'kitchen', label: 'Mutfak/Çay Ocağı' },
+                { key: 'fireSystem', label: 'Yangın Sistemi' },
+            ]
+        },
+        {
+            title: 'Çalışma Alanları',
+            features: [
+                { key: 'reception', label: 'Resepsiyon Alanı' },
+                { key: 'meetingRoom', label: 'Toplantı Odası' },
+                { key: 'waitingArea', label: 'Bekleme Salonu' },
+                { key: 'archive', label: 'Arşiv Odası' },
+                { key: 'library', label: 'Kütüphane/Dosya Odası' },
+            ]
+        },
+        {
+            title: 'Teknik Altyapı',
+            features: [
+                { key: 'serverRoom', label: 'Sunucu Odası' },
+                { key: 'accessControl', label: 'Kartlı Giriş Sistemi' },
+                { key: 'fiberInternet', label: 'Fiber İnternet Altyapısı' },
+                { key: 'soundproof', label: 'Ses Yalıtımı' },
+            ]
+        }
+    ];
 
     const ageRanges = [
         "0 (Yeni)", "1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31+"
@@ -69,7 +132,7 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         }));
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'floor' | 'age' | 'features' | 'room' | 'meetingRoom' | 'facade') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'floor' | 'age' | 'room' | 'meetingRoom' | 'facade' | 'Temel Özellikler' | 'Ofis Konfor' | 'Çalışma Alanları' | 'Teknik Altyapı') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -179,6 +242,46 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                         )}
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
+
+                {/* Net Metrekare Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Net Metrekare
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min"
+                            value={netAreaMin}
+                            onChange={(e) => setNetAreaMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>-</Typography>
+                        <TextField
+                            placeholder="Max"
+                            value={netAreaMax}
+                            onChange={(e) => setNetAreaMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                    </Box>
                 </Box>
 
                 {/* Bulunduğu Kat Seçimi */}
@@ -346,38 +449,121 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                {/* Özellikler Seçimi */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'features')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'features' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'features' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'features' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Özellikler
-                        </Typography>
-                        {Object.values(features).some(f => f) && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {Object.values(features).filter(f => f).length} özellik seçili
-                            </Typography>
-                        )}
+                {/* Aidat Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Aidat
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min ₺"
+                            value={siteFeeMin}
+                            onChange={(e) => setSiteFeeMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>-</Typography>
+                        <TextField
+                            placeholder="Max ₺"
+                            value={siteFeeMax}
+                            onChange={(e) => setSiteFeeMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
                     </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
+
+                {/* Depozito Min-Max */}
+                <Box sx={{ marginBottom: '12px' }}>
+                    <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
+                        Depozito
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        <TextField
+                            placeholder="Min ₺"
+                            value={depositMin}
+                            onChange={(e) => setDepositMin(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>-</Typography>
+                        <TextField
+                            placeholder="Max ₺"
+                            value={depositMax}
+                            onChange={(e) => setDepositMax(e.target.value)}
+                            size="small"
+                            autoComplete="off"
+                            sx={{ 
+                                flex: 1,
+                                '& .MuiOutlinedInput-root': {
+                                    fontSize: '13px',
+                                    height: '32px'
+                                }
+                            }}
+                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                        />
+                    </Box>
+                </Box>
+
+                {/* Feature Category Panels */}
+                {featureCategories.map((category) => (
+                    <Box 
+                        key={category.title}
+                        onClick={(e) => handlePopoverOpen(e, category.title as any)}
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            border: '1px solid rgba(0, 0, 0, 0.12)',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            marginBottom: '6px',
+                            minHeight: '36px',
+                            backgroundColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                            borderColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                            '&:hover': {
+                                backgroundColor: popoverType === category.title && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                            }
+                        }}
+                    >
+                        <Box sx={{ flex: 1 }}>
+                            <Typography sx={{ fontSize: "13px" }}>
+                                {category.title}
+                            </Typography>
+                            {category.features.some(feature => features[feature.key]) && (
+                                <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                    {category.features.filter(feature => features[feature.key]).length} özellik seçili
+                                </Typography>
+                            )}
+                        </Box>
+                        <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                    </Box>
+                ))}
 
                 {/* Popover Panel */}
                 <Popover
@@ -412,7 +598,7 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                 {popoverType === 'room' && 'Oda Sayısı Seçin'}
                                 {popoverType === 'meetingRoom' && 'Toplantı Odası Seçin'}
                                 {popoverType === 'facade' && 'Cephe Yönü Seçin'}
-                                {popoverType === 'features' && 'Özellikler Seçin'}
+                                {featureCategories.map(cat => cat.title).includes(popoverType as string) && popoverType}
                             </Typography>
                             <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
@@ -587,42 +773,39 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                             </List>
                         )}
 
-                        {/* Özellikler Listesi */}
-                        {popoverType === 'features' && (
-                            <List sx={{ padding: 0 }}>
-                                {[
-                                    { key: 'furnished', label: 'Eşyalı' },
-                                    { key: 'airConditioning', label: 'Klima' },
-                                    { key: 'parking', label: 'Otopark' },
-                                    { key: 'elevator', label: 'Asansör' },
-                                    { key: 'generator', label: 'Jeneratör' },
-                                    { key: 'internetIncluded', label: 'İnternet Dahil' },
-                                    { key: 'security24', label: '7/24 Güvenlik' },
-                                    { key: 'kitchen', label: 'Mutfak/Çay Ocağı' }
-                                ].map((feature) => (
-                                    <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => handleFeatureChange(feature.key)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={features[feature.key]}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{feature.label}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
+                        {/* Individual Feature Category Lists */}
+                        {featureCategories.map((category) => {
+                            if (popoverType === category.title) {
+                                return (
+                                    <List key={category.title} sx={{ padding: 0 }}>
+                                        {category.features.map((feature) => (
+                                            <ListItem disablePadding key={feature.key} sx={{ p: 0 }}>
+                                                <ListItemButton 
+                                                    onClick={() => handleFeatureChange(feature.key)} 
+                                                    sx={{
+                                                        p: '4px 8px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        borderRadius: '4px',
+                                                        '&:hover': {
+                                                            backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                        }
+                                                    }}
+                                                >
+                                                    <Checkbox
+                                                        checked={features[feature.key] || false}
+                                                        sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                                    />
+                                                    <Typography sx={{ fontSize: '13px', m: 0 }}>{feature.label}</Typography>
+                                                </ListItemButton>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                );
+                            }
+                            return null;
+                        })}
+
                     </Paper>
                 </Popover>
             </CardContent>

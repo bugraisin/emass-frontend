@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, InputAdornment, TextField, Menu, MenuItem } from "@mui/material";
+import { Box, Button, InputAdornment, TextField, Menu, MenuItem, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate, useLocation } from "react-router-dom";
@@ -14,6 +14,8 @@ export default function TopPanel() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userName, setUserName] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
     const isHomePage = location.pathname === "/";
 
@@ -35,11 +37,20 @@ export default function TopPanel() {
     };
 
     const handleLogout = () => {
+        setAnchorEl(null);
+        setLogoutDialogOpen(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.removeItem('user');
         setIsLoggedIn(false);
         setUserName('');
-        handleMenuClose();
+        setLogoutDialogOpen(false);
         navigate('/');
+    };
+
+    const cancelLogout = () => {
+        setLogoutDialogOpen(false);
     };
 
     return (
@@ -106,31 +117,33 @@ export default function TopPanel() {
                             variant="outlined"
                             fullWidth
                             autoComplete="off"
+                            onFocus={() => setIsSearchFocused(true)}
+                            onBlur={() => setIsSearchFocused(false)}
                             sx={{
                                 '& .MuiInputBase-root': {
-                                    fontSize: '15px',
-                                    height: '52px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    height: '42px',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '6px',
                                     paddingLeft: '12px',
-                                    backdropFilter: 'blur(10px)',
                                     border: '1px solid rgba(255, 255, 255, 0.2)',
-                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     '&.Mui-focused': {
                                         backgroundColor: 'white',
-                                        boxShadow: '0 0 0 3px rgba(237, 149, 23, 0.2), 0 12px 40px rgba(0, 0, 0, 0.15)',
-                                        border: '1px solid rgba(237, 149, 23, 0.3)',
+                                        border: '1px solid rgba(255, 255, 255, 0.5)',
                                     }
                                 },
                                 '& .MuiOutlinedInput-notchedOutline': {
                                     border: 'none',
                                 },
                                 '& .MuiInputBase-input': {
-                                    padding: '14px 0',
+                                    padding: '10px 0',
                                     fontWeight: 500,
+                                    color: 'rgba(255, 255, 255, 0.9)',
+                                    '&:focus': {
+                                        color: '#1e293b',
+                                    },
                                     '&::placeholder': {
-                                        color: '#64748b',
+                                        color: 'rgba(255, 255, 255, 0.6)',
                                         opacity: 1,
                                         fontWeight: 400
                                     }
@@ -141,20 +154,20 @@ export default function TopPanel() {
                                     <InputAdornment position="end">
                                         <Button
                                             sx={{
-                                                background: 'linear-gradient(135deg, #ed9517 0%, #f59e0b 100%)',
-                                                color: 'white',
-                                                minWidth: '52px',
-                                                height: '40px',
-                                                borderRadius: '10px',
-                                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                background: isSearchFocused ? '#1e293b' : 'transparent',
+                                                color: isSearchFocused ? 'white' : 'rgba(255, 255, 255, 0.8)',
+                                                minWidth: '42px',
+                                                height: '32px',
+                                                borderRadius: '6px',
                                                 '&:hover': {
-                                                    background: 'linear-gradient(135deg, #d97706 0%, #ed9517 100%)',
-                                                    transform: 'translateY(-1px)',
-                                                    boxShadow: '0 6px 20px rgba(237, 149, 23, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                                                    background: isSearchFocused ? '#334155' : 'rgba(255, 255, 255, 0.1)',
                                                 },
                                             }}
                                         >
-                                            <SearchIcon sx={{ fontSize: '20px' }} />
+                                            <SearchIcon sx={{ 
+                                                fontSize: '18px', 
+                                                color: isSearchFocused ? 'white' : 'rgba(255, 255, 255, 0.9)' 
+                                            }} />
                                         </Button>
                                     </InputAdornment>
                                 ),
@@ -168,85 +181,72 @@ export default function TopPanel() {
                     flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 3,
                     marginRight: '20px'
                 }}>
                     {isHomePage && (
                         <>
                             {!isLoggedIn ? (
-                                <>
-                                    <Button
-                                        variant="outlined"
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '10px',
+                                    color: 'rgba(255, 255, 255, 0.8)',
+                                    fontSize: '14px'
+                                }}>
+                                    <Typography
                                         onClick={() => navigate("/giris-yap")}
                                         sx={{
-                                            color: 'white',
-                                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                            '&:hover': {
-                                                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                                                borderColor: 'rgba(255, 255, 255, 0.5)',
+                                            cursor: "pointer",
+                                            color: "inherit",
+                                            fontSize: "inherit",
+                                            "&:hover": {
+                                                textDecoration: "underline",
                                             },
-                                            padding: '8px 16px',
-                                            borderRadius: '6px',
-                                            textTransform: 'none',
-                                            fontWeight: 500,
-                                            fontSize: '14px',
-                                            transition: 'all 0.2s ease',
                                         }}
                                     >
                                         Giriş Yap
-                                    </Button>
-                                    <Button
-                                        variant="contained"
+                                    </Typography>
+                                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px' }}>|</Typography>
+                                    <Typography
                                         onClick={() => navigate("/kayit-ol")}
                                         sx={{
-                                            backgroundColor: '#ed9517',
-                                            color: 'white',
-                                            padding: '8px 16px',
-                                            borderRadius: '6px',
-                                            textTransform: 'none',
-                                            fontWeight: 600,
-                                            fontSize: '14px',
-                                            transition: 'all 0.2s ease',
-                                            boxShadow: 'none',
-                                            '&:hover': {
-                                                boxShadow: 'none',
-                                                backgroundColor: '#d97706',
-                                            }
+                                            cursor: "pointer",
+                                            color: "inherit",
+                                            fontSize: "inherit",
+                                            "&:hover": {
+                                                textDecoration: "underline",
+                                            },
                                         }}
                                     >
                                         Kayıt Ol
-                                    </Button>
-                                </>
+                                    </Typography>
+                                </Box>
                             ) : (
-                                <Button
-                                    variant="contained"
+                                <Typography
                                     onClick={handleMenuOpen}
-                                    startIcon={<AccountCircleIcon sx={{ fontSize: '18px' }} />}
                                     sx={{
-                                        backgroundColor: 'white',
-                                        color: '#1e293b',
-                                        padding: '8px 16px',
-                                        borderRadius: '6px',
-                                        textTransform: 'none',
-                                        fontWeight: 600,
-                                        fontSize: '14px',
-                                        transition: 'all 0.2s ease',
-                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                                        '&:hover': {
-                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                                            backgroundColor: '#f8fafc',
-                                        }
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        cursor: "pointer",
+                                        color: "rgba(255, 255, 255, 0.9)",
+                                        fontSize: "14px",
+                                        "&:hover": {
+                                            textDecoration: "underline",
+                                        },
                                     }}
                                 >
+                                    <PersonIcon sx={{ fontSize: "18px" }} />
                                     {userName}
-                                </Button>
+                                </Typography>
                             )}
 
                             <Menu
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
                                 onClose={handleMenuClose}
+                                disableAutoFocusItem={true}
+                                transitionDuration={0}
                                 anchorOrigin={{
                                     vertical: 'bottom',
                                     horizontal: 'right',
@@ -257,13 +257,28 @@ export default function TopPanel() {
                                 }}
                                 PaperProps={{
                                     sx: {
-                                        mt: 1,
-                                        borderRadius: '8px',
-                                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
-                                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                                        minWidth: '150px',
+                                        mt: 0.5,
+                                        borderRadius: '4px',
+                                        border: 'none',
+                                        minWidth: '120px',
                                         background: 'white',
-                                        overflow: 'visible',
+                                        boxShadow: '0 1px 6px rgba(0, 0, 0, 0.15)',
+                                        '& .MuiList-root': {
+                                            padding: '4px',
+                                        },
+                                        transition: 'none !important',
+                                        transform: 'none !important',
+                                        '& *': {
+                                            transition: 'none !important',
+                                        }
+                                    }
+                                }}
+                                MenuListProps={{
+                                    sx: {
+                                        padding: 0,
+                                        '& .MuiMenuItem-root': {
+                                            transition: 'none !important',
+                                        }
                                     }
                                 }}
                             >
@@ -272,19 +287,18 @@ export default function TopPanel() {
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        padding: '8px 12px',
-                                        borderRadius: '4px',
-                                        marginBottom: '4px',
-                                        fontSize: '13px',
-                                        fontWeight: 500,
-                                        color: '#1e293b',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        color: '#374151',
+                                        minHeight: 'auto',
+                                        transition: 'none !important',
                                         '&:hover': {
-                                            backgroundColor: 'rgba(237, 149, 23, 0.1)',
-                                            color: '#d97706'
+                                            backgroundColor: '#f9fafb',
+                                            textDecoration: 'underline',
                                         },
                                     }}
                                 >
-                                    <PersonIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    <PersonIcon sx={{ fontSize: '14px', mr: 1 }} />
                                     Hesabım
                                 </MenuItem>
 
@@ -293,19 +307,18 @@ export default function TopPanel() {
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        padding: '8px 12px',
-                                        borderRadius: '4px',
-                                        marginBottom: '4px',
-                                        fontSize: '13px',
-                                        fontWeight: 500,
-                                        color: '#1e293b',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        color: '#374151',
+                                        minHeight: 'auto',
+                                        transition: 'none !important',
                                         '&:hover': {
-                                            backgroundColor: 'rgba(237, 149, 23, 0.1)',
-                                            color: '#d97706'
+                                            backgroundColor: '#f9fafb',
+                                            textDecoration: 'underline',
                                         },
                                     }}
                                 >
-                                    <AddIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    <AddIcon sx={{ fontSize: '14px', mr: 1 }} />
                                     İlan Ver
                                 </MenuItem>
 
@@ -314,20 +327,19 @@ export default function TopPanel() {
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        padding: '8px 12px',
-                                        borderRadius: '4px',
-                                        marginBottom: '8px',
-                                        fontSize: '13px',
-                                        fontWeight: 500,
-                                        color: '#1e293b',
-                                        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        color: '#374151',
+                                        minHeight: 'auto',
+                                        borderBottom: '1px solid #f3f4f6',
+                                        transition: 'none !important',
                                         '&:hover': {
-                                            backgroundColor: 'rgba(237, 149, 23, 0.1)',
-                                            color: '#d97706'
+                                            backgroundColor: '#f9fafb',
+                                            textDecoration: 'underline',
                                         },
                                     }}
                                 >
-                                    <HomeIcon sx={{ fontSize: '16px', mr: 1.5 }} />
+                                    <HomeIcon sx={{ fontSize: '14px', mr: 1 }} />
                                     İlanlarım
                                 </MenuItem>
 
@@ -336,25 +348,77 @@ export default function TopPanel() {
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        padding: '8px 12px',
-                                        borderRadius: '4px',
-                                        fontSize: '13px',
-                                        fontWeight: 500,
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
                                         color: '#dc2626',
+                                        minHeight: 'auto',
+                                        transition: 'none !important',
                                         '&:hover': {
-                                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                                            color: '#dc2626'
+                                            backgroundColor: '#fef2f2',
+                                            textDecoration: 'underline',
                                         },
                                     }}
                                 >
-                                    <LogoutIcon sx={{ fontSize: '16px', mr: 1.5 }} />
-                                    Çıkış Yap
+                                    <LogoutIcon sx={{ fontSize: '14px', mr: 1 }} />
+                                    Çıkış
                                 </MenuItem>
                             </Menu>
                         </>
                     )}
                 </Box>
             </Box>
+            
+            <Dialog
+                open={logoutDialogOpen}
+                onClose={cancelLogout}
+                PaperProps={{
+                    sx: {
+                        borderRadius: '8px',
+                        padding: '4px',
+                        minWidth: '300px'
+                    }
+                }}
+            >
+                <DialogTitle sx={{ textAlign: 'center', fontSize: '18px', fontWeight: 600 }}>
+                    Çıkış Yap
+                </DialogTitle>
+                <DialogContent>
+                    <Typography sx={{ textAlign: 'center', color: '#666' }}>
+                        Hesabınızdan çıkış yapmak istediğinizden emin misiniz?
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', gap: 1, pb: 1 }}>
+                    <Typography
+                        onClick={cancelLogout}
+                        sx={{
+                            padding: '4px 12px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            color: '#666',
+                            '&:hover': {
+                                textDecoration: 'underline'
+                            }
+                        }}
+                    >
+                        İptal
+                    </Typography>
+                    <Typography
+                        onClick={confirmLogout}
+                        sx={{
+                            padding: '4px 12px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            color: '#dc2626',
+                            fontWeight: 600,
+                            '&:hover': {
+                                textDecoration: 'underline'
+                            }
+                        }}
+                    >
+                        Çıkış Yap
+                    </Typography>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

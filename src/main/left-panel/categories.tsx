@@ -337,7 +337,7 @@ export default function Categories({ onCategoryChange }: CategoriesProps) {
                                                 alignItems: 'center',
                                                 borderRadius: '4px',
                                                 '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)',
                                                 }
                                             }}
                                         >

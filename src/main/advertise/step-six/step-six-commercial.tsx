@@ -36,7 +36,6 @@ const getImportantDetailsForCommercial = (details: any) => {
     "Net Alan (m²)": details.netArea || 'Belirtilmemiş',
     "Brüt Alan (m²)": details.grossArea || 'Belirtilmemiş',
     "Bina Yaşı": details.buildingAge || 'Belirtilmemiş',
-    "Bölüm/Oda Sayısı": details.roomCount || 'Belirtilmemiş',
     "Bulunduğu Kat": details.floorNo || 'Belirtilmemiş',
     "Kat Sayısı": details.floorCount || 'Belirtilmemiş',
     "Isıtma Tipi": details.heatingType || 'Belirtilmemiş',
