@@ -215,16 +215,35 @@ export default function Address({ onLocationChange }: AddressProps) {
 
   // Arama için filtreleme fonksiyonları
   const filteredCities = useMemo(() => {
-    if (!searchTerm) return cities;
-    return cities.filter(city => 
-      city.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let citiesToFilter = cities;
+    
+    if (!searchTerm) {
+      // Arama yoksa özel sıralama yap: İstanbul, Ankara, İzmir önce, sonra alfabetik
+      const priorityCities = ['İstanbul', 'Ankara', 'İzmir'];
+      const priority = cities.filter(city => priorityCities.includes(city.name));
+      const others = cities.filter(city => !priorityCities.includes(city.name))
+                         .sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+      
+      // Öncelikli şehirleri doğru sırada yerleştir
+      const sortedPriority = priorityCities.map(name => 
+        priority.find(city => city.name === name)
+      ).filter((city): city is Province => city !== undefined);
+      
+      citiesToFilter = [...sortedPriority, ...others];
+    } else {
+      // Arama varsa sadece filtrele
+      citiesToFilter = cities.filter(city => 
+        city.name.toLocaleLowerCase('tr').includes(searchTerm.toLocaleLowerCase('tr'))
+      );
+    }
+    
+    return citiesToFilter;
   }, [cities, searchTerm]);
 
   const filteredDistricts = useMemo(() => {
     if (!searchTerm) return districts;
     return districts.filter(district => 
-      district.name.toLowerCase().includes(searchTerm.toLowerCase())
+      district.name.toLocaleLowerCase('tr').includes(searchTerm.toLocaleLowerCase('tr'))
     );
   }, [districts, searchTerm]);
 
@@ -233,8 +252,8 @@ export default function Address({ onLocationChange }: AddressProps) {
     return subdistrictGroups.map(group => ({
       ...group,
       neighborhoods: group.neighborhoods.filter(neighborhood =>
-        neighborhood.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.subdistrict.name.toLowerCase().includes(searchTerm.toLowerCase())
+        neighborhood.name.toLocaleLowerCase('tr').includes(searchTerm.toLocaleLowerCase('tr')) ||
+        group.subdistrict.name.toLocaleLowerCase('tr').includes(searchTerm.toLocaleLowerCase('tr'))
       )
     })).filter(group => group.neighborhoods.length > 0);
   }, [subdistrictGroups, searchTerm]);
