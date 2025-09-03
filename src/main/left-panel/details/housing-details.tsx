@@ -172,7 +172,14 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
     ];
 
     const facadeOptions = [
-        "Kuzey", "Güney", "Doğu", "Batı", "Kuzey-Doğu", "Kuzey-Batı", "Güney-Doğu", "Güney-Batı"
+        { value: "KUZEY", label: "Kuzey" },
+        { value: "GUNEY", label: "Güney" },
+        { value: "DOGU", label: "Doğu" },
+        { value: "BATI", label: "Batı" },
+        { value: "KUZEY_DOGU", label: "Kuzey-Doğu" },
+        { value: "KUZEY_BATI", label: "Kuzey-Batı" },
+        { value: "GUNEY_DOGU", label: "Güney-Doğu" },
+        { value: "GUNEY_BATI", label: "Güney-Batı" }
     ];
 
     const handleFeatureChange = (feature: string) => {
@@ -599,7 +606,7 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
                         </Typography>
                         {selectedFacadeTypes.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedFacadeTypes.join(', ')}
+                                {selectedFacadeTypes.map(type => facadeOptions.find(f => f.value === type)?.label).join(', ')}
                             </Typography>
                         )}
                     </Box>
@@ -879,9 +886,9 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
                         {popoverType === 'facade' && (
                             <List sx={{ padding: 0 }}>
                                 {facadeOptions.map((facade) => (
-                                    <ListItem disablePadding key={facade} sx={{ p: 0 }}>
+                                    <ListItem disablePadding key={facade.value} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => toggleFacadeType(facade)} 
+                                            onClick={() => toggleFacadeType(facade.value)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -893,10 +900,10 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
                                             }}
                                         >
                                             <Checkbox
-                                                checked={selectedFacadeTypes.includes(facade)}
+                                                checked={selectedFacadeTypes.includes(facade.value)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{facade}</Typography>
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{facade.label}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
