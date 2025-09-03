@@ -2,7 +2,6 @@ import { Checkbox, FormControlLabel, Radio, RadioGroup, FormGroup } from "@mui/m
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import React from "react";
 import { Home, Business, CorporateFare, Factory, Landscape, MiscellaneousServices } from "@mui/icons-material";
 
 interface StepOneProps {

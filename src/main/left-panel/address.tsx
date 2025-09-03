@@ -22,7 +22,11 @@ type SubdistrictGroup = {
   neighborhoods: Neighborhood[];
 };
 
-export default function Address() {
+interface AddressProps {
+  onLocationChange: (locationData: any) => void;
+}
+
+export default function Address({ onLocationChange }: AddressProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [popoverType, setPopoverType] = useState<'city' | 'district' | 'neighborhood' | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
@@ -37,6 +41,26 @@ export default function Address() {
   const [selectedCityIds, setSelectedCityIds] = useState<string[]>([]);
   const [selectedDistrictIds, setSelectedDistrictIds] = useState<string[]>([]);
   const [selectedNeighborhoodIds, setSelectedNeighborhoodIds] = useState<string[]>([]);
+
+  // Parent'a lokasyon değişikliklerini bildir
+  useEffect(() => {
+    if (onLocationChange) {
+      // Seçilen ID'lere karşılık gelen isimleri bul
+      const selectedCityNames = cities.filter(city => selectedCityIds.includes(city.id)).map(city => city.name);
+      const selectedDistrictNames = districts.filter(district => selectedDistrictIds.includes(district.id)).map(district => district.name);
+      const selectedNeighborhoodNames = neighborhoods.filter(neighborhood => selectedNeighborhoodIds.includes(neighborhood.id)).map(neighborhood => neighborhood.name);
+      
+      onLocationChange({
+        cityIds: selectedCityIds.map(id => parseInt(id)),
+        districtIds: selectedDistrictIds.map(id => parseInt(id)),
+        neighborhoodIds: selectedNeighborhoodIds.map(id => parseInt(id)),
+        // İsimleri de ekle
+        cityNames: selectedCityNames,
+        districtNames: selectedDistrictNames,
+        neighborhoodNames: selectedNeighborhoodNames
+      });
+    }
+  }, [selectedCityIds, selectedDistrictIds, selectedNeighborhoodIds, cities, districts, neighborhoods]);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'city' | 'district' | 'neighborhood') => {
     setAnchorEl(event.currentTarget);
@@ -357,6 +381,7 @@ export default function Address() {
             {/* Arama Kutusu */}
             <TextField
               size="small"
+              autoComplete="off"
               placeholder="Ara..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

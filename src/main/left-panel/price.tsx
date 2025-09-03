@@ -3,9 +3,10 @@ import { Card, CardContent, Typography, TextField, Slider, Box, Button } from '@
 
 interface PriceProps {
     selectedCategory: string;
+    onPriceChange: (priceData: any) => void;
 }
 
-export default function Price({ selectedCategory }: PriceProps) {
+export default function Price({ selectedCategory, onPriceChange }: PriceProps) {
     const [minPrice, setMinPrice] = useState<string>('');
     const [maxPrice, setMaxPrice] = useState<string>('');
     
@@ -32,6 +33,16 @@ export default function Price({ selectedCategory }: PriceProps) {
         setMinPrice('');
         setMaxPrice('');
     }, [config]);
+
+    // Parent'a fiyat değişikliklerini bildir
+    useEffect(() => {
+        if (onPriceChange) {
+            onPriceChange({
+                min: minPrice || '',
+                max: maxPrice || ''
+            });
+        }
+    }, [minPrice, maxPrice]);
 
     const formatPrice = (price: number): string => {
         if (price >= 1000000) {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, InputAdornment, TextField, Menu, MenuItem, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate, useLocation } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
@@ -18,6 +17,8 @@ export default function TopPanel() {
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
     const isHomePage = location.pathname === "/";
+    const isSearchPage = location.pathname.startsWith("/search");
+    const showSearchAndUser = isHomePage || isSearchPage;
 
     useEffect(() => {
         const loggedInUser = localStorage.getItem('user');
@@ -26,7 +27,7 @@ export default function TopPanel() {
             setIsLoggedIn(true);
             setUserName(user.name || 'Kullanıcı');
         }
-    }, [location]);
+    }, []); // location dependency'sini kaldırdık
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -105,7 +106,7 @@ export default function TopPanel() {
                 </Box>
 
                 {/* Arama Alanı */}
-                {isHomePage && (
+                {showSearchAndUser && (
                     <Box sx={{
                         flexGrow: 1,
                         maxWidth: '650px',
@@ -183,7 +184,7 @@ export default function TopPanel() {
                     alignItems: 'center',
                     marginRight: '20px'
                 }}>
-                    {isHomePage && (
+                    {showSearchAndUser && (
                         <>
                             {!isLoggedIn ? (
                                 <Box sx={{ 

@@ -19,6 +19,7 @@ function App() {
         </Box>
       <Routes>
         <Route path="/" element={<Main />} />
+        <Route path="/search/*" element={<Main />} />
         <Route path="/ilan-ver" element={<Advert />} />
         <Route path="/giris-yap" element={<Login />} />
         <Route path="/kayit-ol" element={<Register />} />

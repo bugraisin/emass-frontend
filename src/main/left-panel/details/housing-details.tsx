@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Card, CardContent, Typography, FormGroup, FormControlLabel, Checkbox, Box, TextField, MenuItem, Select, FormControl, List, ListItem, ListItemButton, Radio, Popover, Paper, IconButton } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface HousingDetailsProps {
     selectedCategory: string;
+    onDetailsChange?: (detailsData: any) => void;
 }
 
-export default function HousingDetails({ selectedCategory }: HousingDetailsProps) {
+export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ selectedCategory, onDetailsChange }, ref) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'facade' | 'floor' | 'totalFloor' | 'Temel Özellikler' | 'Otopark' | 'Bina & Güvenlik' | 'Konfor & Isıtma' | 'Mutfak & İç Mekan' | 'Site İmkanları' | null>(null);
     
@@ -59,6 +60,32 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
         childrenPlayground: false,
         sportsArea: false
     });
+
+    // Konut detaylarını döndüren fonksiyon
+    const getHousingDetails = () => {
+        const housingData = {
+            roomCount: selectedRooms,
+            floors: selectedFloors,
+            totalFloors: selectedTotalFloors,
+            buildingAges: selectedBuildingAges,
+            heatingTypes: selectedHeatingTypes,
+            facadeTypes: selectedFacadeTypes,
+            netAreaMin: netAreaMin,
+            netAreaMax: netAreaMax,
+            siteFeeMin: siteFeeMin,
+            siteFeeMax: siteFeeMax,
+            depositMin: depositMin,
+            depositMax: depositMax,
+            features: features
+        };
+        console.log('🏠 Housing Details verisi alınıyor:', housingData);
+        return housingData;
+    };
+
+    // Parent'a getDetails fonksiyonunu expose et
+    useImperativeHandle(ref, () => ({
+        getDetails: getHousingDetails
+    }));
 
     const featureCategories = [
         {
@@ -628,6 +655,12 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                         vertical: 'top',
                         horizontal: 'left',
                     }}
+                    disableAutoFocus={false}
+                    disableEnforceFocus={false}
+                    disableRestoreFocus={false}
+                    keepMounted={false}
+                    hideBackdrop={false}
+                    aria-hidden={false}
                     sx={{
                         '& .MuiPopover-paper': {
                             marginLeft: '8px',
@@ -636,12 +669,26 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
                             borderRadius: '8px',
                             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
                             border: '1px solid rgba(0, 0, 0, 0.12)'
+                        },
+                        '& .MuiModal-root': {
+                            '&[aria-hidden="true"]': {
+                                visibility: 'hidden'
+                            }
                         }
                     }}
                 >
-                    <Paper sx={{ padding: '12px' }}>
+                    <Paper 
+                        sx={{ padding: '12px' }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="popover-title"
+                    >
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-                            <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>
+                            <Typography 
+                                id="popover-title"
+                                variant="h6" 
+                                sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}
+                            >
                                 {popoverType === 'room' && 'Oda + Salon Seçin'}
                                 {popoverType === 'floor' && 'Bulunduğu Kat Seçin'}
                                 {popoverType === 'totalFloor' && 'Toplam Kat Seçin'}
@@ -861,4 +908,4 @@ export default function HousingDetails({ selectedCategory }: HousingDetailsProps
             </CardContent>
         </Card>
     );
-}
+});
