@@ -1,23 +1,9 @@
 import React, { useEffect } from 'react';
 import Box from '@mui/material/Box';
-import { useSearchParams } from 'react-router-dom';
 import LeftPanel from './left-panel.tsx';
 import MainPanel from './main-panel.tsx';
 
 export default function Main() {
-    const [searchParams] = useSearchParams();
-    
-    // URL parametreleri değiştiğinde LeftPanel'e bildir
-    useEffect(() => {
-        const params = Object.fromEntries(searchParams.entries());
-        console.log('📍 URL parametreleri değişti:', params);
-        
-        // Eğer parametreler varsa otomatik arama yap
-        if (Object.keys(params).length > 0) {
-            // LeftPanel'e URL'den arama yapmasını söyle
-            window.dispatchEvent(new CustomEvent('urlParamsChanged', { detail: params }));
-        }
-    }, [searchParams]);
 
     return (
         <Box

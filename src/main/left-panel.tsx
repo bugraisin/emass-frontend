@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Divider, Button } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import Categories from "./left-panel/categories.tsx";
 import Address from "./left-panel/address.tsx";
 import Price from "./left-panel/price.tsx";
@@ -45,23 +46,6 @@ export default function LeftPanel() {
         }
     });
 
-    // URL parametreleri değiştiğinde otomatik arama yap
-    useEffect(() => {
-        const handleUrlParamsChange = (event: any) => {
-            const params = event.detail;
-            console.log('🔄 URL parametrelerine göre otomatik arama yapılıyor:', params);
-            
-            // URL parametrelerine göre GET isteği at
-            performSearchFromUrl(params);
-        };
-
-        window.addEventListener('urlParamsChanged', handleUrlParamsChange);
-        
-        return () => {
-            window.removeEventListener('urlParamsChanged', handleUrlParamsChange);
-        };
-    }, []);
-
     // Query parameter builder fonksiyonları
     const buildCommonParams = (queryParams: URLSearchParams) => {
         // Genel listing bilgileri
@@ -69,10 +53,14 @@ export default function LeftPanel() {
             queryParams.append('city', searchFilters.location.cityNames[0]);
         }
         if (searchFilters.location.districtNames && searchFilters.location.districtNames.length > 0) {
-            queryParams.append('district', searchFilters.location.districtNames[0]);
+            searchFilters.location.districtNames.forEach(district => {
+                queryParams.append('district', district);
+            });
         }
         if (searchFilters.location.neighborhoodNames && searchFilters.location.neighborhoodNames.length > 0) {
-            queryParams.append('neighborhood', searchFilters.location.neighborhoodNames[0]);
+            searchFilters.location.neighborhoodNames.forEach(neighborhood => {
+                queryParams.append('neighborhood', neighborhood);
+            });
         }
         
         if (searchFilters.price.min) {
@@ -217,50 +205,19 @@ export default function LeftPanel() {
             return 'service';
         }
         
-        return 'house'; // default fallback
+        return 'house';
     };
 
-    // URL parametrelerinden GET isteği yapan fonksiyon
-    const performSearchFromUrl = async (urlParams: any) => {
-        try {
-            const queryParams = new URLSearchParams(urlParams);
-            console.log('🌐 URL\'den gelen parametrelerle GET isteği:', queryParams.toString());
-            
-            const response = await fetch(`http://localhost:8080/api/listings/search/house?${queryParams.toString()}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                }
-            });
-            
-            if (response.ok) {
-                const results = await response.json();
-                console.log('🎯 URL parametrelerine göre arama sonuçları:', results);
-                // MainPanel'e sonuçları gönder
-            } else {
-                console.error('URL arama hatası:', response.statusText);
-            }
-        } catch (error) {
-            console.error('URL arama API hatası:', error);
-        }
-    };
-
-    // Kategori değişikliklerini handle et
     const handleCategoryChange = (category: string) => {
         setSelectedCategory(category);
         
-        // Kategoriyi parse et ve filtre state'ine ekle
         const parts = category.split('_');
         console.log('🐛 Debug - category parts:', parts);
         
-        // Subtype sadece 3 parça varsa (SALE_KONUT_DAIRE gibi) set edilir
-        // 2 parça varsa (SALE_ARSA, SALE_OFIS) subtype boş kalır
         let subtype = '';
-        if (parts.length === 3) {
-            // SALE_KONUT_DAIRE, RENT_KONUT_VILLA gibi
-            subtype = parts[2];
+        if (parts.length > 2) {
+            subtype = parts.slice(2).join('_');
         }
-        // parts.length === 2 ise (SALE_ARSA, RENT_OFIS) subtype boş kalır
         
         console.log('🐛 Debug - determined subtype:', subtype);
         
@@ -299,48 +256,29 @@ const handleSearch = async () => {
     let categoryDetails: any = {};
     
     // Konut kategorileri
-    if (selectedCategory.includes("KONUT") || selectedCategory.includes("DAIRE") || 
-        selectedCategory.includes("VILLA") || selectedCategory.includes("MUSTAKIL_EV") ||
-        selectedCategory.includes("REZIDANS") || selectedCategory.includes("YAZLIK")) {
+    if (selectedCategory.includes("KONUT")) {
         if (housingDetailsRef.current && housingDetailsRef.current.getDetails) {
             categoryDetails = { housingDetails: housingDetailsRef.current.getDetails() };
         }
     }
     // Ofis kategorileri
-    else if (selectedCategory.includes("OFIS") || selectedCategory.includes("BÜRO") ||
-        selectedCategory.includes("COWORKING") || selectedCategory.includes("CALL_CENTER") ||
-        selectedCategory.includes("TOPLANTI_SALONU") || selectedCategory.includes("MUAYENEHANE") ||
-        selectedCategory.includes("AVUKATLIK_BÜROSU") || selectedCategory.includes("MUHASEBE_OFISI")) {
+    else if (selectedCategory.includes("OFIS")) {
         categoryDetails = { officeDetails: {} };
     }
     // Ticari kategoriler
-    else if (selectedCategory.includes("TICARI") || selectedCategory.includes("DUKKAN") ||
-        selectedCategory.includes("MAGAZA") || selectedCategory.includes("SHOWROOM") ||
-        selectedCategory.includes("MARKET") || selectedCategory.includes("RESTAURANT") ||
-        selectedCategory.includes("KAFE") || selectedCategory.includes("BAR") ||
-        selectedCategory.includes("PASTANE") || selectedCategory.includes("BERBER_KUAFOR") ||
-        selectedCategory.includes("GUZELLIK_SALONU") || selectedCategory.includes("ECZANE")) {
+    else if (selectedCategory.includes("TICARI")) {
         categoryDetails = { commercialDetails: {} };
     }
     // Arsa kategorileri
-    else if (selectedCategory.includes("ARSA") || selectedCategory.includes("KONUT_ARSASI") ||
-        selectedCategory.includes("TICARI_ARSA") || selectedCategory.includes("TARLA") ||
-        selectedCategory.includes("BAG_BAHCE")) {
+    else if (selectedCategory.includes("ARSA")) {
         categoryDetails = { landDetails: {} };
     }
     // Endüstriyel kategoriler
-    else if (selectedCategory.includes("ENDUSTRIYEL") || selectedCategory.includes("FABRIKA") ||
-        selectedCategory.includes("ATOLYE") || selectedCategory.includes("IMALATHANE") ||
-        selectedCategory.includes("DEPO") || selectedCategory.includes("SOGUK_HAVA_DEPOSU") ||
-        selectedCategory.includes("ANTREPO") || selectedCategory.includes("LABORATUVAR") ||
-        selectedCategory.includes("URETIM_TESISI")) {
+    else if (selectedCategory.includes("ENDUSTRIYEL")) {
         categoryDetails = { industrialDetails: {} };
     }
     // Hizmet kategorileri
-    else if (selectedCategory.includes("HIZMET") || selectedCategory.includes("OTOPARK") ||
-        selectedCategory.includes("SPOR_SALONU") || selectedCategory.includes("YIKAMA") ||
-        selectedCategory.includes("OTO_SERVIS") || selectedCategory.includes("BENZIN_ISTASYONU") ||
-        selectedCategory.includes("KARGO_MERKEZI") || selectedCategory.includes("TEMIZLIK_MERKEZI")) {
+    else if (selectedCategory.includes("HIZMET")) {
         categoryDetails = { serviceDetails: {} };
     }
     
@@ -403,19 +341,14 @@ const handleSearch = async () => {
     } catch (error) {
         console.error('API hatası:', error);
     }
-};
+    };
 
     // Kategori-spesifik detay panellerini gösterme fonksiyonu
     const renderCategorySpecificPanels = () => {
         if (!selectedCategory) return null;
 
         // Konut kategorileri
-        if (selectedCategory.includes("KONUT") || 
-            selectedCategory.includes("DAIRE") ||
-            selectedCategory.includes("VILLA") ||
-            selectedCategory.includes("MUSTAKIL_EV") ||
-            selectedCategory.includes("REZIDANS") ||
-            selectedCategory.includes("YAZLIK")) {
+        if (selectedCategory.includes("KONUT")) {
             return (
                 <>
                     <Divider sx={{ 
@@ -431,14 +364,7 @@ const handleSearch = async () => {
         }
 
         // Ofis kategorileri
-        if (selectedCategory.includes("OFIS") ||
-            selectedCategory.includes("BÜRO") ||
-            selectedCategory.includes("COWORKING") ||
-            selectedCategory.includes("CALL_CENTER") ||
-            selectedCategory.includes("TOPLANTI_SALONU") ||
-            selectedCategory.includes("MUAYENEHANE") ||
-            selectedCategory.includes("AVUKATLIK_BÜROSU") ||
-            selectedCategory.includes("MUHASEBE_OFISI")) {
+        if (selectedCategory.includes("OFIS")) {
             return (
                 <>
                     <Divider sx={{ 
@@ -453,18 +379,7 @@ const handleSearch = async () => {
         }
 
         // Ticari kategoriler
-        if (selectedCategory.includes("TICARI") ||
-            selectedCategory.includes("DUKKAN") ||
-            selectedCategory.includes("MAGAZA") ||
-            selectedCategory.includes("SHOWROOM") ||
-            selectedCategory.includes("MARKET") ||
-            selectedCategory.includes("RESTAURANT") ||
-            selectedCategory.includes("KAFE") ||
-            selectedCategory.includes("BAR") ||
-            selectedCategory.includes("PASTANE") ||
-            selectedCategory.includes("BERBER_KUAFOR") ||
-            selectedCategory.includes("GUZELLIK_SALONU") ||
-            selectedCategory.includes("ECZANE")) {
+        if (selectedCategory.includes("TICARI")) {
             return (
                 <>
                     <Divider sx={{ 
@@ -479,11 +394,7 @@ const handleSearch = async () => {
         }
 
         // Arsa kategorileri
-        if (selectedCategory.includes("ARSA") ||
-            selectedCategory.includes("KONUT_ARSASI") ||
-            selectedCategory.includes("TICARI_ARSA") ||
-            selectedCategory.includes("TARLA") ||
-            selectedCategory.includes("BAG_BAHCE")) {
+        if (selectedCategory.includes("ARSA")) {
             return (
                 <>
                     <Divider sx={{ 
@@ -498,15 +409,7 @@ const handleSearch = async () => {
         }
 
         // Endüstriyel kategoriler
-        if (selectedCategory.includes("ENDUSTRIYEL") ||
-            selectedCategory.includes("FABRIKA") ||
-            selectedCategory.includes("ATOLYE") ||
-            selectedCategory.includes("IMALATHANE") ||
-            selectedCategory.includes("DEPO") ||
-            selectedCategory.includes("SOGUK_HAVA_DEPOSU") ||
-            selectedCategory.includes("ANTREPO") ||
-            selectedCategory.includes("LABORATUVAR") ||
-            selectedCategory.includes("URETIM_TESISI")) {
+        if (selectedCategory.includes("ENDUSTRIYEL")) {
             return (
                 <>
                     <Divider sx={{ 
@@ -521,14 +424,7 @@ const handleSearch = async () => {
         }
 
         // Hizmet kategorileri
-        if (selectedCategory.includes("HIZMET") ||
-            selectedCategory.includes("OTOPARK") ||
-            selectedCategory.includes("SPOR_SALONU") ||
-            selectedCategory.includes("YIKAMA") ||
-            selectedCategory.includes("OTO_SERVIS") ||
-            selectedCategory.includes("BENZIN_ISTASYONU") ||
-            selectedCategory.includes("KARGO_MERKEZI") ||
-            selectedCategory.includes("TEMIZLIK_MERKEZI")) {
+        if (selectedCategory.includes("HIZMET")) {
             return (
                 <>
                     <Divider sx={{ 
