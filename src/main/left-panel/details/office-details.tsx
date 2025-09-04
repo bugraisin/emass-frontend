@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Radio, Popover, Paper, IconButton, TextField } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
@@ -7,16 +7,16 @@ interface OfficeDetailsProps {
     selectedCategory: string;
 }
 
-export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) {
+export default forwardRef<any, OfficeDetailsProps>(function OfficeDetails({ selectedCategory }, ref) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'area' | 'floor' | 'age' | 'room' | 'meetingRoom' | 'facade' | 'Temel Özellikler' | 'Ofis Konfor' | 'Çalışma Alanları' | 'Teknik Altyapı' | null>(null);
+    const [popoverType, setPopoverType] = useState<'area' | 'floor' | 'heating' | 'age' | 'room' | 'meetingRoom' | 'facade' | 'Temel Özellikler' | 'Ofis Konfor' | 'Çalışma Alanları' | 'Teknik Altyapı' | null>(null);
     
     // Form states
-    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
     const [selectedFloors, setSelectedFloors] = useState<string[]>([]);
     const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
     const [selectedRoomCounts, setSelectedRoomCounts] = useState<string[]>([]);
     const [selectedMeetingRoomCounts, setSelectedMeetingRoomCounts] = useState<string[]>([]);
+    const [selectedHeatingTypes, setSelectedHeatingTypes] = useState<string[]>([]);
     const [selectedFacadeTypes, setSelectedFacadeTypes] = useState<string[]>([]);
     
     // Min-Max states for areas and fees
@@ -52,6 +52,31 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         fiberInternet: false,
         soundproof: false
     });
+
+    const getOfficeDetails = () => {
+        const officeData = {
+            selectedFloors: selectedFloors,
+            selectedBuildingAges: selectedBuildingAges,
+            selectedRoomCounts: selectedRoomCounts,
+            selectedMeetingRoomCounts: selectedMeetingRoomCounts,
+            selectedFacadeTypes: selectedFacadeTypes,
+            heatingTypes: selectedHeatingTypes,
+            netAreaMin: netAreaMin,
+            netAreaMax: netAreaMax,
+            siteFeeMin: siteFeeMin,
+            siteFeeMax: siteFeeMax,
+            depositMin: depositMin,
+            depositMax: depositMax,
+            features: features
+        };
+        console.log('🏢 Office Details verisi alınıyor:', officeData);
+        return officeData;
+    };
+
+    // Parent'a getDetails fonksiyonunu expose et
+    useImperativeHandle(ref, () => ({
+        getDetails: getOfficeDetails
+    }));
 
     const featureCategories = [
         {
@@ -98,18 +123,8 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         "0 (Yeni)", "1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31+"
     ];
 
-    const netAreaRanges = [
-        "50 m² - 100 m²",
-        "100 m² - 200 m²", 
-        "200 m² - 300 m²",
-        "300 m² - 500 m²",
-        "500 m² - 750 m²",
-        "750 m² - 1000 m²",
-        "1000 m² +"
-    ];
-
     const floorOptions = [
-        "Bodrum", "Giriş", "1", "2", "3", "4", "5", 
+        "-1", "0", "1", "2", "3", "4", "5", 
         "6", "7", "8", "9", "10", "11-15", "16-20", "21+"
     ];
 
@@ -122,8 +137,25 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
     ];
 
     const facadeOptions = [
-        "Kuzey", "Güney", "Doğu", "Batı", "Kuzey-Doğu", "Kuzey-Batı", "Güney-Doğu", "Güney-Batı"
+        { value: "KUZEY", label: "Kuzey" },
+        { value: "GUNEY", label: "Güney" },
+        { value: "DOGU", label: "Doğu" },
+        { value: "BATI", label: "Batı" },
+        { value: "KUZEY_DOGU", label: "Kuzey-Doğu" },
+        { value: "KUZEY_BATI", label: "Kuzey-Batı" },
+        { value: "GUNEY_DOGU", label: "Güney-Doğu" },
+        { value: "GUNEY_BATI", label: "Güney-Batı" }
     ];
+
+    const heatingOptions = [
+    { value: "DOGALGAZ", label: "Doğalgaz" },
+    { value: "KOMBI", label: "Kombi" },
+    { value: "KALORIFER", label: "Kalorifer" },
+    { value: "KLIMA", label: "Klima" },
+    { value: "SOBALI", label: "Sobali" },
+    { value: "YOK", label: "Yok" }
+    ];
+
 
     const handleFeatureChange = (feature: string) => {
         setFeatures(prev => ({
@@ -132,7 +164,7 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
         }));
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'floor' | 'age' | 'room' | 'meetingRoom' | 'facade' | 'Temel Özellikler' | 'Ofis Konfor' | 'Çalışma Alanları' | 'Teknik Altyapı') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'floor' | 'age' | 'heating' | 'room' | 'meetingRoom' | 'facade' | 'Temel Özellikler' | 'Ofis Konfor' | 'Çalışma Alanları' | 'Teknik Altyapı') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -140,16 +172,6 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
     const handlePopoverClose = () => {
         setAnchorEl(null);
         setPopoverType(null);
-    };
-
-    const toggleAreaRange = (range: string) => {
-        setSelectedAreaRanges(prev => {
-            if (prev.includes(range)) {
-                return prev.filter(r => r !== range);
-            } else {
-                return [...prev, range];
-            }
-        });
     };
 
     const toggleFloor = (floor: string) => {
@@ -170,6 +192,16 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                 return [...prev, age];
             }
         });
+    };
+
+    const toggleHeatingType = (heating: string) => {
+    setSelectedHeatingTypes(prev => {
+        if (prev.includes(heating)) {
+            return prev.filter(h => h !== heating);
+        } else {
+            return [...prev, heating];
+        }
+    });
     };
 
     const toggleRoomCount = (count: string) => {
@@ -210,39 +242,6 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                 <Typography variant="h6" gutterBottom sx={{ fontSize: "16px", mb: 1.5, fontWeight: 600 }}>
                     Ofis Detayları
                 </Typography>
-
-                {/* Net Metrekare Aralığı */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'area')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'area' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Net Metrekare
-                        </Typography>
-                        {selectedAreaRanges.length > 0 && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedAreaRanges.join(', ')}
-                            </Typography>
-                        )}
-                    </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
-                </Box>
 
                 {/* Net Metrekare Min-Max */}
                 <Box sx={{ marginBottom: '12px' }}>
@@ -449,6 +448,39 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
+                {/* Isıtma Türü Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'heating')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'heating' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'heating' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'heating' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Isıtma Türü
+                        </Typography>
+                        {selectedHeatingTypes.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedHeatingTypes.map(type => heatingOptions.find(h => h.value === type)?.label).join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
+
                 {/* Aidat Min-Max */}
                 <Box sx={{ marginBottom: '12px' }}>
                     <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
@@ -598,40 +630,13 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                 {popoverType === 'room' && 'Oda Sayısı Seçin'}
                                 {popoverType === 'meetingRoom' && 'Toplantı Odası Seçin'}
                                 {popoverType === 'facade' && 'Cephe Yönü Seçin'}
+                                {popoverType === 'heating' && 'Isıtma Türü Seçin'}
                                 {featureCategories.map(cat => cat.title).includes(popoverType as string) && popoverType}
                             </Typography>
                             <IconButton onClick={handlePopoverClose} size="small" sx={{ ml: 1 }}>
                                 <CloseIcon sx={{ fontSize: '16px' }} />
                             </IconButton>
                         </Box>
-
-                        {/* Net Metrekare Aralığı Listesi */}
-                        {popoverType === 'area' && (
-                            <List sx={{ padding: 0 }}>
-                                {netAreaRanges.map((range) => (
-                                    <ListItem disablePadding key={range} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => toggleAreaRange(range)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={selectedAreaRanges.includes(range)}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{range}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
 
                         {/* Bulunduğu Kat Seçimi Listesi */}
                         {popoverType === 'floor' && (
@@ -746,12 +751,40 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                         )}
 
                         {/* Cephe Yönü Listesi */}
-                        {popoverType === 'facade' && (
+                         {popoverType === 'facade' && (
+                             <List sx={{ padding: 0 }}>
+                                 {facadeOptions.map((facade) => (
+                                     <ListItem disablePadding key={facade.value} sx={{ p: 0 }}>
+                                         <ListItemButton 
+                                             onClick={() => toggleFacadeType(facade.value)} 
+                                             sx={{
+                                                 p: '4px 8px',
+                                                 display: 'flex',
+                                                 alignItems: 'center',
+                                                 borderRadius: '4px',
+                                                 '&:hover': {
+                                                     backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                 }
+                                             }}
+                                         >
+                                             <Checkbox
+                                                 checked={selectedFacadeTypes.includes(facade.value)}
+                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                             />
+                                             <Typography sx={{ fontSize: '13px', m: 0 }}>{facade.label}</Typography>
+                                         </ListItemButton>
+                                     </ListItem>
+                                 ))}
+                             </List>
+                         )}
+
+                        {/* Isıtma Türü Listesi */}
+                        {popoverType === 'heating' && (
                             <List sx={{ padding: 0 }}>
-                                {facadeOptions.map((facade) => (
-                                    <ListItem disablePadding key={facade} sx={{ p: 0 }}>
+                                {heatingOptions.map((heating) => (
+                                    <ListItem disablePadding key={heating.value} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => toggleFacadeType(facade)} 
+                                            onClick={() => toggleHeatingType(heating.value)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -763,16 +796,15 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
                                             }}
                                         >
                                             <Checkbox
-                                                checked={selectedFacadeTypes.includes(facade)}
+                                                checked={selectedHeatingTypes.includes(heating.value)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{facade}</Typography>
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{heating.label}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
                             </List>
                         )}
-
                         {/* Individual Feature Category Lists */}
                         {featureCategories.map((category) => {
                             if (popoverType === category.title) {
@@ -811,4 +843,4 @@ export default function OfficeDetails({ selectedCategory }: OfficeDetailsProps) 
             </CardContent>
         </Card>
     );
-}
+});
