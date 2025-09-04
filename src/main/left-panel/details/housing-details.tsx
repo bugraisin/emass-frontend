@@ -189,14 +189,6 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
         }));
     };
 
-    const formatNumber = (value: string) => {
-        return value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
-
-    const cleanNumber = (value: string) => {
-        return value.replace(/[^0-9]/g, '');
-    };
-
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'room' | 'age' | 'heating' | 'facade' | 'floor' | 'totalFloor' | 'Temel Özellikler' | 'Otopark' | 'Bina & Güvenlik' | 'Konfor & Isıtma' | 'Mutfak & İç Mekan' | 'Site İmkanları') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
@@ -268,24 +260,6 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
     };
 
     const open = Boolean(anchorEl);
-
-    const getSelectedFeaturesCount = () => {
-        return Object.values(features).filter(f => f).length;
-    };
-
-    const getAreaDisplayText = (min: string, max: string) => {
-        if (min && max) return `${min} - ${max} m²`;
-        if (min) return `${min}+ m²`;
-        if (max) return `${max} m²'ye kadar`;
-        return '';
-    };
-
-    const getFeeDisplayText = (min: string, max: string) => {
-        if (min && max) return `${min} - ${max} ₺`;
-        if (min) return `${min}+ ₺`;
-        if (max) return `${max} ₺'ye kadar`;
-        return '';
-    };
 
     return (
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 2, maxWidth: 320 }}>

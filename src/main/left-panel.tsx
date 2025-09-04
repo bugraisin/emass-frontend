@@ -69,7 +69,11 @@ export default function LeftPanel() {
         if (searchFilters.price.max) {
             queryParams.append('maxPrice', searchFilters.price.max);
         }
-        
+
+        if (searchFilters.category.listingType) {
+            queryParams.append('listingType', searchFilters.category.listingType);
+        }
+
         // Subtype'ı sadece seçilmişse gönder
         if (searchFilters.category.subtype) {
             queryParams.append('subtype', searchFilters.category.subtype);
@@ -125,7 +129,56 @@ export default function LeftPanel() {
     const buildOfficeParams = (queryParams: URLSearchParams, details: any) => {
         if (!details) return;
         console.log('🏢 Office details detayları:', details);
-        // TODO: Office detayları için parametreler eklenecek
+        
+        // Alan bilgileri
+        if (details.netAreaMin) queryParams.set('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.set('maxNetArea', details.netAreaMax);
+        
+        // Kat bilgileri
+        if (details.selectedFloors?.length > 0) {
+            queryParams.set('floors', details.selectedFloors.join(','));
+        }
+        
+        // Yaş bilgileri
+        if (details.selectedBuildingAges?.length > 0) {
+            queryParams.set('buildingAges', details.selectedBuildingAges.join(','));
+        }
+        
+        // Oda sayısı
+        if (details.selectedRoomCounts?.length > 0) {
+            queryParams.set('roomCount', details.selectedRoomCounts.join(','));
+        }
+        
+        // Toplantı odası sayısı
+        if (details.selectedMeetingRoomCounts?.length > 0) {
+            queryParams.set('meetingRooms', details.selectedMeetingRoomCounts.join(','));
+        }
+        
+        // Cephe türü
+        if (details.selectedFacadeTypes?.length > 0) {
+            queryParams.set('facadeDirections', details.selectedFacadeTypes.join(','));
+        }
+
+        // Isıtma türü
+        if (details.heatingTypes && details.heatingTypes.length > 0) {
+            details.heatingTypes.forEach(heating => queryParams.append('heatingTypes', heating));
+        }
+        
+        // Site aidatı
+        if (details.siteFeeMin) queryParams.set('minSiteFee', details.siteFeeMin);
+        if (details.siteFeeMax) queryParams.set('maxSiteFee', details.siteFeeMax);
+        
+        // Depozito
+        if (details.depositMin) queryParams.set('minDeposit', details.depositMin);
+        if (details.depositMax) queryParams.set('maxDeposit', details.depositMax);
+        
+        // Özellikler (boolean features)
+        if (details.features) {
+            const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
+            if (trueFeatures.length > 0) {
+                queryParams.set('officeFeatures', trueFeatures.join(','));
+            }
+        }
     };
 
     const buildCommercialParams = (queryParams: URLSearchParams, details: any) => {
@@ -263,7 +316,9 @@ const handleSearch = async () => {
     }
     // Ofis kategorileri
     else if (selectedCategory.includes("OFIS")) {
-        categoryDetails = { officeDetails: {} };
+        if (officeDetailsRef.current && officeDetailsRef.current.getDetails) {
+            categoryDetails = { officeDetails: officeDetailsRef.current.getDetails() };
+        }
     }
     // Ticari kategoriler
     else if (selectedCategory.includes("TICARI")) {
@@ -373,6 +428,7 @@ const handleSearch = async () => {
                     }} />
                     <OfficeDetails 
                         selectedCategory={selectedCategory}
+                        ref={officeDetailsRef}
                     />
                 </>
             );

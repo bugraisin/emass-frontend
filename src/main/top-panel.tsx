@@ -56,11 +56,11 @@ export default function TopPanel() {
 
     return (
         <Box
-            height="8vh"
+            height="6vh"
             width="100vw"
             display="flex"
             sx={{
-                background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
+                background: '#334155',
                 padding: '0 32px',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -86,18 +86,18 @@ export default function TopPanel() {
                 justifyContent="space-between"
                 width="100%"
                 maxWidth="1220px"
-                sx={{ paddingLeft: '12px' }}
+                sx={{ paddingLeft: '36px' }}
             >
                 <Box>
                     <a href="/" style={{
                         display: 'block',
                         padding: 0,
-                        height: '40px',
+                        height: '30px',
                         borderRadius: '8px',
                         overflow: 'hidden',
                     }}>
                         <img src="/transparant_emass_logo.png" alt="Logo" style={{
-                            height: '40px',
+                            height: '30px',
                             borderRadius: '8px',
                             display: 'block',
                             filter: 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))'
@@ -109,12 +109,11 @@ export default function TopPanel() {
                 {showSearchAndUser && (
                     <Box sx={{
                         flexGrow: 1,
-                        maxWidth: '650px',
-                        mx: 6,
+                        maxWidth: '500px',
                         position: 'relative'
                     }}>
                         <TextField
-                            placeholder="Hangi emlakı arıyorsunuz? Örn: Satılık daire, Kiralık villa..."
+                            placeholder="Hangi emlakı arıyorsunuz?"
                             variant="outlined"
                             fullWidth
                             autoComplete="off"
@@ -122,11 +121,11 @@ export default function TopPanel() {
                             onBlur={() => setIsSearchFocused(false)}
                             sx={{
                                 '& .MuiInputBase-root': {
-                                    fontSize: '14px',
-                                    height: '42px',
+                                    fontSize: '13px',
+                                    height: '28px',
                                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                     borderRadius: '6px',
-                                    paddingLeft: '12px',
+                                    paddingLeft: '10px',
                                     border: '1px solid rgba(255, 255, 255, 0.2)',
                                     '&.Mui-focused': {
                                         backgroundColor: 'white',
@@ -137,7 +136,7 @@ export default function TopPanel() {
                                     border: 'none',
                                 },
                                 '& .MuiInputBase-input': {
-                                    padding: '10px 0',
+                                    padding: '8px 0',
                                     fontWeight: 500,
                                     color: 'rgba(255, 255, 255, 0.9)',
                                     '&:focus': {
@@ -157,9 +156,9 @@ export default function TopPanel() {
                                             sx={{
                                                 background: isSearchFocused ? '#1e293b' : 'transparent',
                                                 color: isSearchFocused ? 'white' : 'rgba(255, 255, 255, 0.8)',
-                                                minWidth: '42px',
-                                                height: '32px',
-                                                borderRadius: '6px',
+                                                minWidth: '24px',
+                                                height: '24px',
+                                                borderRadius: '4px',
                                                 '&:hover': {
                                                     background: isSearchFocused ? '#334155' : 'rgba(255, 255, 255, 0.1)',
                                                 },
