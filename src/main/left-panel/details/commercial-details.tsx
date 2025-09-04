@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Popover, Paper, IconButton, TextField } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
@@ -7,13 +7,14 @@ interface CommercialDetailsProps {
     selectedCategory: string;
 }
 
-export default function CommercialDetails({ selectedCategory }: CommercialDetailsProps) {
+export default forwardRef<any, CommercialDetailsProps>(function CommercialDetails({ selectedCategory }, ref) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'age' | 'floor' | 'Temel Özellikler' | 'Konfor & Sistem' | 'Ticari Özel Alanlar' | 'Müşteri Alanları' | null>(null);
+    const [popoverType, setPopoverType] = useState<'age' | 'floor' | 'heating' | 'Temel Özellikler' | 'Konfor & Sistem' | 'Ticari Özel Alanlar' | 'Müşteri Alanları' | null>(null);
     
     // Form states - multiple choice
     const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
     const [selectedFloors, setSelectedFloors] = useState<string[]>([]);
+    const [selectedHeatingTypes, setSelectedHeatingTypes] = useState<string[]>([]);
     
     // Min-max inputs
     const [netAreaMin, setNetAreaMin] = useState('');
@@ -44,6 +45,25 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
         waitingArea: false,
         changingRoom: false
     });
+
+    const getOfficeDetails = () => {
+        const officeData = {
+            selectedFloors: selectedFloors,
+            selectedBuildingAges: selectedBuildingAges,
+            heatingTypes: selectedHeatingTypes,
+            netAreaMin: netAreaMin,
+            netAreaMax: netAreaMax,
+            depositMin: depositMin,
+            depositMax: depositMax,
+            features: features
+        };
+        console.log('🏢 Office Details verisi alınıyor:', officeData);
+        return officeData;
+    };
+
+    useImperativeHandle(ref, () => ({
+        getDetails: getOfficeDetails
+    }));
 
     const featureCategories = [
         {
@@ -93,6 +113,16 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
         "6", "7", "8", "9", "10", "11+"
     ];
 
+    const heatingOptions = [
+        { value: "DOGALGAZ", label: "Doğalgaz" },
+        { value: "KOMBI", label: "Kombi" },
+        { value: "KALORIFER", label: "Kalorifer" },
+        { value: "KLIMA", label: "Klima" },
+        { value: "SOBALI", label: "Sobali" },
+        { value: "YOK", label: "Yok" }
+    ];
+
+
     const handleFeatureChange = (feature: string) => {
         setFeatures(prev => ({
             ...prev,
@@ -100,7 +130,7 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
         }));
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'age' | 'floor' | 'Temel Özellikler' | 'Konfor & Sistem' | 'Ticari Özel Alanlar' | 'Müşteri Alanları') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'age' | 'floor' | 'heating' | 'Temel Özellikler' | 'Konfor & Sistem' | 'Ticari Özel Alanlar' | 'Müşteri Alanları') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -126,6 +156,16 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
                 return prev.filter(f => f !== floor);
             } else {
                 return [...prev, floor];
+            }
+        });
+    };
+
+    const toggleHeatingType = (heating: string) => {
+        setSelectedHeatingTypes(prev => {
+            if (prev.includes(heating)) {
+                return prev.filter(h => h !== heating);
+            } else {
+                return [...prev, heating];
             }
         });
     };
@@ -244,6 +284,38 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
                     </Box>
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
+                                {/* Isıtma Türü Seçimi */}
+                <Box 
+                    onClick={(e) => handlePopoverOpen(e, 'heating')}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 10px',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginBottom: '6px',
+                        minHeight: '36px',
+                        backgroundColor: popoverType === 'heating' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
+                        borderColor: popoverType === 'heating' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
+                        '&:hover': {
+                            backgroundColor: popoverType === 'heating' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
+                        }
+                    }}
+                >
+                    <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontSize: "13px" }}>
+                            Isıtma Türü
+                        </Typography>
+                        {selectedHeatingTypes.length > 0 && (
+                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
+                                {selectedHeatingTypes.map(type => heatingOptions.find(h => h.value === type)?.label).join(', ')}
+                            </Typography>
+                        )}
+                    </Box>
+                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
+                </Box>
 
                 {/* Depozito */}
                 <Box sx={{ marginBottom: '10px' }}>
@@ -350,6 +422,7 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
                             <Typography variant="h6" sx={{ fontSize: '14px', fontWeight: 600, flex: 1 }}>
                                 {popoverType === 'floor' && 'Bulunduğu Kat Seçin'}
                                 {popoverType === 'age' && 'Bina Yaşı Seçin'}
+                                {popoverType === 'heating' && 'Isıtma Türü Seçin'}
                                 {popoverType === 'Temel Özellikler' && 'Temel Özellikler'}
                                 {popoverType === 'Konfor & Sistem' && 'Konfor & Sistem'}
                                 {popoverType === 'Ticari Özel Alanlar' && 'Ticari Özel Alanlar'}
@@ -415,6 +488,34 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
                                 ))}
                             </List>
                         )}
+                        
+                        {/* Isıtma Türü Listesi */}
+                        {popoverType === 'heating' && (
+                            <List sx={{ padding: 0 }}>
+                                {heatingOptions.map((heating) => (
+                                    <ListItem disablePadding key={heating.value} sx={{ p: 0 }}>
+                                        <ListItemButton 
+                                            onClick={() => toggleHeatingType(heating.value)} 
+                                            sx={{
+                                                p: '4px 8px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                borderRadius: '4px',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Checkbox
+                                                checked={selectedHeatingTypes.includes(heating.value)}
+                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
+                                            />
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{heating.label}</Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        )}
 
                         {/* Kategori tabanlı Özellikler Listesi */}
                         {(popoverType === 'Temel Özellikler' || popoverType === 'Konfor & Sistem' || 
@@ -451,4 +552,4 @@ export default function CommercialDetails({ selectedCategory }: CommercialDetail
             </CardContent>
         </Card>
     );
-}
+});

@@ -10,6 +10,7 @@ import CommercialDetails from "./left-panel/details/commercial-details.tsx";
 import ServiceDetails from "./left-panel/details/service-details.tsx";
 import LandDetails from "./left-panel/details/land-details.tsx";
 import IndustrialDetails from "./left-panel/details/industrial-details.tsx";
+import commercialDetails from "./left-panel/details/commercial-details.tsx";
 
 export default function LeftPanel() {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -184,7 +185,38 @@ export default function LeftPanel() {
     const buildCommercialParams = (queryParams: URLSearchParams, details: any) => {
         if (!details) return;
         console.log('🏪 Commercial details detayları:', details);
-        // TODO: Commercial detayları için parametreler eklenecek
+        
+        // Alan bilgileri
+        if (details.netAreaMin) queryParams.set('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.set('maxNetArea', details.netAreaMax);
+        
+        // Kat bilgileri
+        if (details.selectedFloors?.length > 0) {
+            queryParams.set('floors', details.selectedFloors.join(','));
+        }
+        
+        // Yaş bilgileri
+        if (details.selectedBuildingAges?.length > 0) {
+            queryParams.set('buildingAges', details.selectedBuildingAges.join(','));
+        }
+                
+        // Depozito
+        if (details.depositMin) queryParams.set('minDeposit', details.depositMin);
+        if (details.depositMax) queryParams.set('maxDeposit', details.depositMax);
+
+
+        // Isıtma türü
+        if (details.heatingTypes && details.heatingTypes.length > 0) {
+            details.heatingTypes.forEach(heating => queryParams.append('heatingTypes', heating));
+        }
+        
+        // Özellikler (boolean features)
+        if (details.features) {
+            const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
+            if (trueFeatures.length > 0) {
+                queryParams.set('commercialFeatures', trueFeatures.join(','));
+            }
+        }
     };
 
     const buildLandParams = (queryParams: URLSearchParams, details: any) => {
@@ -300,7 +332,6 @@ export default function LeftPanel() {
         }));
     };
 
-    // Backend'e arama isteği gönder
 // Backend'e arama isteği gönder
 const handleSearch = async () => {
     console.log('🔍 ARA BUTONU BASILDI!');
@@ -322,7 +353,9 @@ const handleSearch = async () => {
     }
     // Ticari kategoriler
     else if (selectedCategory.includes("TICARI")) {
-        categoryDetails = { commercialDetails: {} };
+        if (commercialDetailsRef.current && commercialDetailsRef.current.getDetails) {
+            categoryDetails = { commercialDetails: commercialDetailsRef.current.getDetails() };
+        }
     }
     // Arsa kategorileri
     else if (selectedCategory.includes("ARSA")) {
@@ -377,10 +410,10 @@ const handleSearch = async () => {
         console.log('🚀 Backend\'e gönderilen query params:', queryParams.toString());
 
         // URL'yi güncelle
-        const newUrl = `/search?${queryParams.toString()}`;
+        const newUrl = `/${queryParams.toString()}`;
         window.history.pushState(null, '', newUrl);
         
-        const response = await fetch(`http://localhost:8080/api/listings/search/${endpoint}?${queryParams.toString()}`, {
+        const response = await fetch(`http://localhost:8080/api/listings/${endpoint}?${queryParams.toString()}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -444,6 +477,7 @@ const handleSearch = async () => {
                     }} />
                     <CommercialDetails 
                         selectedCategory={selectedCategory}
+                        ref={commercialDetailsRef}
                     />
                 </>
             );
