@@ -3,37 +3,37 @@ import { Card, CardContent, Typography, Box, Grid, CardMedia, Dialog, DialogActi
 import CloseIcon from "@mui/icons-material/Close";
 
 const properties = [
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1" },
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1" },
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1" },
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1" },
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1" },
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1" },
+  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Merkezi konumda, modern yaşam alanı" },
+  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Geniş bahçeli, lüks villa tipi konut" },
+  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Yeni yapım, asansörlü binada daire" },
+  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Deniz manzaralı, ferah ve aydınlık" },
+  { id: 5, title: "Ev 5", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Metro yakını, ulaşım avantajlı" },
+  { id: 6, title: "Ev 6", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Kapalı otopark ve güvenlik sistemi" },
+  { id: 7, title: "Ev 7", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Şehir merkezinde, alışveriş merkezi yakını" },
+  { id: 8, title: "Ev 8", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Sosyal tesisli kompleks içinde" },
+  { id: 9, title: "Ev 9", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Yenilenen mutfak ve banyo" },
+  { id: 10, title: "Ev 10", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Geniş balkonlu, park manzaralı" },
+  { id: 11, title: "Ev 11", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Işıklı ve temiz, hazır yaşanacak" },
+  { id: 12, title: "Ev 12", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Prestijli semtte, güvenlikli site" },
+  { id: 13, title: "Ev 13", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Okul ve hastane yakını konumda" },
+  { id: 14, title: "Ev 14", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Çocuk parkı ve oyun alanı bulunan" },
+  { id: 15, title: "Ev 15", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Yatırım için ideal konum" },
+  { id: 16, title: "Ev 16", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Panoramik şehir manzarası" },
+  { id: 17, title: "Ev 17", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Sessiz sokakta huzurlu yaşam" },
+  { id: 18, title: "Ev 18", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Geniş teras ve barbekü alanı" },
+  { id: 19, title: "Ev 19", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Genç çiftler için ideal" },
+  { id: 20, title: "Ev 20", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Lüks yapı malzemeleri kullanılmış" },
+  { id: 21, title: "Ev 21", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Ailelere uygun güvenli mahalle" },
+  { id: 22, title: "Ev 22", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Spor salonu ve yüzme havuzu" },
+  { id: 23, title: "Ev 23", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Cafe ve restoranlar çevresinde" },
+  { id: 24, title: "Ev 24", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Özel tasarım mimarisi ile" },
 ];
 
 export default function MainPanel() {
   const [open, setOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage =162 // Sayfa başına 12 ilan
+  const itemsPerPage = 24; // Sayfa başına 12 ilan
 
   // Pagination hesaplaması
   const totalPages = Math.ceil(properties.length / itemsPerPage);
@@ -60,49 +60,26 @@ export default function MainPanel() {
       flexDirection="column" 
       height="100%" 
       sx={{
-        padding: '12px',
+        padding: '8px',
       }}
     >
-      {/* Kategori başlığı barı */}
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        background: '#f8fafc',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '8px 32px',
-        fontWeight: 700,
-        color: '#1e293b',
-        fontSize: '15px',
-        letterSpacing: '-0.1px',
-        marginBottom: '8px',
-      }}>
-        <Box sx={{ width: 140 }} />
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0, flex: 1, paddingLeft: '32px' }}>
-          <Box sx={{ flex: 1, textAlign: 'left' }}>İlan Başlığı</Box>
-          <Box sx={{ flex: 1, textAlign: 'left' }}>Oda Sayısı</Box>
-          <Box sx={{ flex: 1, textAlign: 'left' }}>Metrekare</Box>
-          <Box sx={{ flex: 1, textAlign: 'left' }}>Fiyat</Box>
-        </Box>
-      </Box>
-      <Grid container spacing={1} sx={{ flex: 1, alignItems: 'flex-start' }}>
+      <Grid container spacing={1} sx={{ flex: 1 }}>
         {currentProperties.map((property, index) => (
-          <Grid item xs={12} key={`${property.id}-${index}`}>
+          <Grid item xs={12} sm={6} key={`${property.id}-${index}`}>
             <Card
               sx={{
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
-                padding: '8px',
                 cursor: "pointer",
                 background: '#fff',
                 borderRadius: '4px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                position: 'relative',
+                border: '1px solid #d1d5db',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                 overflow: 'hidden',
+                height: '120px',
                 "&:hover": {
-                  boxShadow: '0 4px 16px rgba(30,41,59,0.08)',
+                  boxShadow: '0 2px 8px rgba(30,41,59,0.15)',
                   borderColor: '#1e293b',
                 },
               }}
@@ -111,78 +88,66 @@ export default function MainPanel() {
               <CardMedia
                 component="img"
                 sx={{ 
-                  width: 140, 
-                  height: 100, 
-                  borderRadius: '4px',
+                  width: 130, 
+                  height: '100%', 
                   objectFit: 'cover',
-                  boxShadow: 'none'
+                  flexShrink: 0
                 }}
                 image={property.image}
                 alt={property.title}
               />
-              <Box sx={{ flex: 1, paddingLeft: '32px', display: 'flex', flexDirection: 'column', gap: 0 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0 }}>
-                  <Typography 
-                    variant="h6" 
-                    sx={{
-                      fontWeight: 600,
-                      color: '#1e293b',
-                      fontSize: '16px',
-                      flex: 1,
-                      letterSpacing: '-0.2px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {property.title}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{
-                      color: '#64748b',
-                      fontWeight: 500,
-                      fontSize: '14px',
-                      flex: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {property.rooms}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{
-                      color: '#334155',
-                      fontWeight: 500,
-                      fontSize: '14px',
-                      flex: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {property.area}
-                  </Typography>
-                  <Typography 
-                    variant="h6" 
-                    sx={{
-                      color: '#ed9517',
-                      fontWeight: 700,
-                      fontSize: '15px',
-                      flex: 1,
-                      letterSpacing: '-0.1px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      textAlign: 'right',
-                    }}
-                  >
-                    {property.price}
-                  </Typography>
-                </Box>
-              </Box>
+              <CardContent sx={{ 
+                padding: '8px 12px', 
+                flex: 1, 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'space-between',
+                height: '100%',
+                '&:last-child': { paddingBottom: '8px' }
+              }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    fontSize: '14px',
+                    letterSpacing: '-0.1px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    marginBottom: '2px'
+                  }}
+                >
+                  {property.title}
+                </Typography>
+                
+                <Typography 
+                  variant="body2" 
+                  sx={{
+                    color: '#64748b',
+                    fontSize: '12px',
+                    lineHeight: 1.3,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    marginBottom: '4px'
+                  }}
+                >
+                  {property.description}
+                </Typography>
+
+                <Typography 
+                  variant="h6" 
+                  sx={{
+                    color: '#ed9517',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    letterSpacing: '-0.1px',
+                  }}
+                >
+                  {property.price}
+                </Typography>
+              </CardContent>
             </Card>
           </Grid>
         ))}

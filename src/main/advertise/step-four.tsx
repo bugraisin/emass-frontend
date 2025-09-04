@@ -45,26 +45,49 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
     };
 
     // Fotoğraf yükleme
-    const handleFileSelect = (files: FileList | null) => {
+    const handleFileSelect = async (files: FileList | null) => {
         if (!files) return;
 
-        const maxFileSize = 10 * 1024 * 1024; // 10MB
+        const maxFileSize = 5 * 1024 * 1024; // 5MB (backend ile uyumlu)
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
         const filesToProcess = Array.from(files);
         const newPhotos: Photo[] = [];
 
-        filesToProcess.forEach((file) => {
+        for (const file of filesToProcess) {
             // Dosya türü kontrolü
             if (!allowedTypes.includes(file.type)) {
                 alert(`${file.name}: Desteklenmeyen dosya türü. Sadece JPG, PNG ve WebP dosyaları yükleyebilirsiniz.`);
-                return;
+                continue;
             }
 
             // Dosya boyutu kontrolü
             if (file.size > maxFileSize) {
-                alert(`${file.name}: Dosya boyutu çok büyük. En fazla 10MB olmalı.`);
-                return;
+                alert(`${file.name}: Dosya boyutu çok büyük. En fazla 5MB olmalı.`);
+                continue;
+            }
+
+            // Dosyanın gerçekten geçerli bir resim olduğunu kontrol et
+            const isValidImage = await new Promise<boolean>((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Minimum boyut kontrolü (çok küçük resimler geçersiz olabilir)
+                    if (img.width < 50 || img.height < 50) {
+                        alert(`${file.name}: Resim çok küçük. En az 50x50 piksel olmalı.`);
+                        resolve(false);
+                    } else {
+                        resolve(true);
+                    }
+                };
+                img.onerror = () => {
+                    alert(`${file.name}: Geçersiz resim dosyası.`);
+                    resolve(false);
+                };
+                img.src = URL.createObjectURL(file);
+            });
+
+            if (!isValidImage) {
+                continue;
             }
 
             const photoId = Date.now().toString() + Math.random().toString();
@@ -76,9 +99,11 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
                 url: photoUrl,
                 isMain: false // updateMainPhoto fonksiyonu bunu ayarlayacak
             });
-        });
+        }
 
-        setPhotos(updateMainPhoto([...photos, ...newPhotos]));
+        if (newPhotos.length > 0) {
+            setPhotos(updateMainPhoto([...photos, ...newPhotos]));
+        }
     };
 
     // Drag & Drop event handlers for file upload
@@ -102,13 +127,13 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
         setIsDragOver(true);
     };
 
-    const handleFileDrop = (e: React.DragEvent) => {
+    const handleFileDrop = async (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
         setIsDragOver(false);
         
         const files = e.dataTransfer.files;
-        handleFileSelect(files);
+        await handleFileSelect(files);
     };
 
     // Photo drag & drop sorting handlers
@@ -246,7 +271,7 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
                         type="file"
                         multiple
                         accept="image/jpeg,image/jpg,image/png,image/webp"
-                        onChange={(e) => handleFileSelect(e.target.files)}
+                        onChange={async (e) => await handleFileSelect(e.target.files)}
                         style={{ display: 'none' }}
                     />
 

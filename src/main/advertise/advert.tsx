@@ -72,6 +72,45 @@ export default function Advert() {
     // Fotoğraflar state'i
     const [photos, setPhotos] = useState<Photo[]>([]);
 
+    // Fotoğraf validasyon fonksiyonu
+    const validatePhotos = async (photosToValidate: Photo[]): Promise<Photo[]> => {
+        const validPhotos: Photo[] = [];
+        
+        for (const photo of photosToValidate) {
+            try {
+                // Dosya tipini kontrol et
+                if (!photo.file.type.startsWith('image/')) {
+                    console.warn(`Geçersiz dosya tipi: ${photo.file.type}`);
+                    continue;
+                }
+                
+                // Dosya boyutunu kontrol et (5MB limit)
+                if (photo.file.size > 5 * 1024 * 1024) {
+                    console.warn(`Dosya çok büyük: ${photo.file.size} bytes`);
+                    continue;
+                }
+                
+                // Dosyanın gerçekten bir resim olduğunu kontrol et
+                const isValidImage = await new Promise<boolean>((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve(true);
+                    img.onerror = () => resolve(false);
+                    img.src = photo.url;
+                });
+                
+                if (isValidImage) {
+                    validPhotos.push(photo);
+                } else {
+                    console.warn(`Geçersiz resim dosyası: ${photo.file.name}`);
+                }
+            } catch (error) {
+                console.error(`Fotoğraf validasyon hatası: ${photo.file.name}`, error);
+            }
+        }
+        
+        return validPhotos;
+    };
+
     // Aktif property type'a göre doğru detay state'ini döndüren helper fonksiyon
     const getCurrentDetails = () => {
         switch (propertyType) {
@@ -110,29 +149,6 @@ export default function Advert() {
             default:
                 return () => {};
         }
-    };
-
-    // Formu resetlemek için yardımcı fonksiyon
-    const resetForm = () => {
-        setActiveStep(0);
-        setListingType("");
-        setPropertyType("");
-        setSubtype("");
-        setTitle("");
-        setDescription("");
-        setPrice("");
-        setCity("");
-        setDistrict("");
-        setNeighborhood("");
-        setLatitude(null);
-        setLongitude(null);
-        setHousingDetails({});
-        setCommercialDetails({});
-        setOfficeDetails({});
-        setIndustrialDetails({});
-        setLandDetails({});
-        setServiceDetails({});
-        setPhotos([]);
     };
 
     const handleNextStep = async () => {
@@ -224,10 +240,10 @@ export default function Advert() {
             
             try {
                 console.log("API'ye gönderilen veri:", listingData);
-                
                 setIsLoading(true);
                 
-                const response = await fetch('http://localhost:8080/api/listings/create', {
+                // 1. İlanı oluştur
+                const listingResponse = await fetch('http://localhost:8080/api/listings/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -235,18 +251,60 @@ export default function Advert() {
                     body: JSON.stringify(listingData)
                 });
                 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log("İlan başarıyla oluşturuldu:", result);
-                    
-                    setShowSuccess(true);
-                    
-                } else {
-                    const errorData = await response.json().catch(() => ({ message: 'Bilinmeyen hata' }));
-                    console.error("API Hatası:", errorData);
+                if (!listingResponse.ok) {
+                    const errorData = await listingResponse.json().catch(() => ({ message: 'Bilinmeyen hata' }));
+                    console.error("İlan oluşturma hatası:", errorData);
                     setErrorMessage("İlan oluşturulurken hata oluştu: " + (errorData.message || 'Bilinmeyen hata'));
                     setShowError(true);
+                    return;
                 }
+                
+                const listingResult = await listingResponse.json();
+                console.log("İlan başarıyla oluşturuldu:", listingResult);
+                
+                // 2. Fotoğrafları gönder (eğer varsa)
+                if (photos.length > 0) {
+                    try {
+                        // Fotoğrafları validate et
+                        const validPhotos = await validatePhotos(photos);
+                        
+                        if (validPhotos.length === 0) {
+                            setErrorMessage("İlan oluşturuldu ancak yüklenen fotoğraflar geçersiz. Lütfen JPG, PNG veya WebP formatında, 5MB'dan küçük geçerli resim dosyaları seçin.");
+                            setShowError(true);
+                            return;
+                        }
+                        
+                        if (validPhotos.length < photos.length) {
+                            console.warn(`${photos.length - validPhotos.length} fotoğraf geçersiz olduğu için atlandı.`);
+                        }
+                        
+                        const formData = new FormData();
+                        validPhotos.forEach(photo => {
+                            formData.append('photos', photo.file);
+                        });
+                        
+                        const photoResponse = await fetch(`http://localhost:8080/api/listings/${listingResult.id}/photos`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (!photoResponse.ok) {
+                            const photoErrorData = await photoResponse.text().catch(() => 'Bilinmeyen hata');
+                            console.warn("Fotoğraf yükleme hatası:", photoErrorData);
+                            setErrorMessage("İlan oluşturuldu ancak fotoğraflar yüklenirken hata oluştu. Lütfen fotoğraflarınızı kontrol edin.");
+                            setShowError(true);
+                        } else {
+                            console.log("Fotoğraflar başarıyla yüklendi");
+                        }
+                    } catch (photoError) {
+                        console.error("Fotoğraf işleme hatası:", photoError);
+                        setErrorMessage("İlan oluşturuldu ancak fotoğraf işlenirken hata oluştu.");
+                        setShowError(true);
+                    }
+                }
+                
+                setShowSuccess(true);
+                
             } catch (error) {
                 console.error("Network Hatası:", error);
                 setErrorMessage("Bağlantı hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.");
