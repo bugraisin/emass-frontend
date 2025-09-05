@@ -85,8 +85,8 @@ export default function ServiceDetails({ details, setDetails }: ServiceDetailsPr
                             fullWidth
                             type="number"
                             label="Alan (m²)"
-                            value={details.area || ''}
-                            onChange={(e) => handleDetailChange('area', parseInt(e.target.value))}
+                            value={details.netArea || ''}
+                            onChange={(e) => handleDetailChange('netArea', parseInt(e.target.value))}
                             InputProps={{
                                 autoComplete: 'off',
                                 startAdornment: <SquareFoot sx={{ color: '#64748b', mr: 1, fontSize: 18 }} />,

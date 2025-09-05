@@ -33,12 +33,11 @@ const formatPrice = (priceString: string): string => {
 
 const getImportantDetailsForService = (details: any) => {
   return {
-    "Alan (m²)": details.area || 'Belirtilmemiş',
+    "Alan (m²)": details.netArea || 'Belirtilmemiş',
     "Brüt Alan (m²)": details.grossArea || 'Belirtilmemiş',
     "Kapasite/Araç Sayısı": details.capacity || 'Belirtilmemiş',
     "Mekan Tipi": details.spaceType || 'Belirtilmemiş',
     "Depozito (₺)": details.deposit || 'Belirtilmemiş',
-    "İşletme Gideri (₺)": details.operatingCost || 'Belirtilmemiş',
   };
 };
 
