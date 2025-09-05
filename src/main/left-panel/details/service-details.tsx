@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Popover, Paper, IconButton, TextField } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
@@ -7,15 +7,12 @@ interface ServiceDetailsProps {
     selectedCategory: string;
 }
 
-export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps) {
+export default forwardRef<any, ServiceDetailsProps>(function ServiceDetails({ selectedCategory }, ref) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [popoverType, setPopoverType] = useState<'age' | 'coverType' | 'Temel Altyapı' | 'Hizmet Alanları' | 'Teknik Donanım' | 'Ek Hizmetler' | null>(null);
     
     // Form states - multiple choice
-    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
-    const [selectedBuildingAges, setSelectedBuildingAges] = useState<string[]>([]);
     const [selectedCoverTypes, setSelectedCoverTypes] = useState<string[]>([]);
-    const [selectedCapacities, setSelectedCapacities] = useState<string[]>([]);
     
     // Min-max inputs
     const [netAreaMin, setNetAreaMin] = useState('');
@@ -47,32 +44,31 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
         customerParking: false
     });
 
-    const areaRanges = [
-        "100 m² - 250 m²",
-        "250 m² - 500 m²", 
-        "500 m² - 1.000 m²",
-        "1.000 m² - 2.500 m²",
-        "2.500 m² - 5.000 m²",
-        "5.000 m² - 10.000 m²",
-        "10.000 m² +"
-    ];
+        // Service detaylarını döndüren fonksiyon
+    const getServiceDetails = () => {
+        const serviceData = {
+            spaceTypes: selectedCoverTypes,
+            netAreaMin: netAreaMin,
+            netAreaMax: netAreaMax,
+            minCapacity: capacityMin,
+            maxCapacity: capacityMax, 
+            minDeposit: depositMin,
+            maxDeposit: depositMax,
+            features: features
+        };
+        console.log('Service Details verisi alınıyor:', serviceData);
+        return serviceData;
+    };
 
-    const ageRanges = [
-        "0 (Yeni)", "1-5", "6-10", "11-15", "16-20", "21-25", "26-30", "31+"
-    ];
+    useImperativeHandle(ref, () => ({
+        getDetails: getServiceDetails
+    }));
 
     const coverTypeOptions = [
         "Kapalı",
         "Açık", 
-        "Yarı Kapalı"
-    ];
-
-    const capacityOptions = [
-        "10-50",
-        "50-100", 
-        "100-200",
-        "200-500",
-        "500+"
+        "Yarı Kapalı",
+        "Karışık"
     ];
 
     const featureCategories = [
@@ -129,42 +125,12 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
         setPopoverType(null);
     };
 
-    const toggleAreaRange = (range: string) => {
-        setSelectedAreaRanges(prev => {
-            if (prev.includes(range)) {
-                return prev.filter(r => r !== range);
-            } else {
-                return [...prev, range];
-            }
-        });
-    };
-
-    const toggleBuildingAge = (age: string) => {
-        setSelectedBuildingAges(prev => {
-            if (prev.includes(age)) {
-                return prev.filter(a => a !== age);
-            } else {
-                return [...prev, age];
-            }
-        });
-    };
-
     const toggleCoverType = (type: string) => {
         setSelectedCoverTypes(prev => {
             if (prev.includes(type)) {
                 return prev.filter(t => t !== type);
             } else {
                 return [...prev, type];
-            }
-        });
-    };
-
-    const toggleCapacity = (capacity: string) => {
-        setSelectedCapacities(prev => {
-            if (prev.includes(capacity)) {
-                return prev.filter(c => c !== capacity);
-            } else {
-                return [...prev, capacity];
             }
         });
     };
@@ -210,39 +176,6 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                             }}
                         />
                     </Box>
-                </Box>
-
-                {/* Bina Yaşı Seçimi */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'age')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'age' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'age' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'age' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Bina Yaşı
-                        </Typography>
-                        {selectedBuildingAges.length > 0 && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedBuildingAges.join(', ')}
-                            </Typography>
-                        )}
-                    </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
                 {/* Kapasite */}
@@ -421,34 +354,6 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
                             </IconButton>
                         </Box>
 
-                        {/* Bina Yaşı Listesi */}
-                        {popoverType === 'age' && (
-                            <List sx={{ padding: 0 }}>
-                                {ageRanges.map((age) => (
-                                    <ListItem disablePadding key={age} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => toggleBuildingAge(age)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={selectedBuildingAges.includes(age)}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{age}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
-
                         {/* Kapalılık Durumu Listesi */}
                         {popoverType === 'coverType' && (
                             <List sx={{ padding: 0 }}>
@@ -511,4 +416,4 @@ export default function ServiceDetails({ selectedCategory }: ServiceDetailsProps
             </CardContent>
         </Card>
     );
-}
+});

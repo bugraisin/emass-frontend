@@ -5,10 +5,9 @@ import CloseIcon from "@mui/icons-material/Close";
 
 interface HousingDetailsProps {
     selectedCategory: string;
-    onDetailsChange?: (detailsData: any) => void;
 }
 
-export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ selectedCategory, onDetailsChange }, ref) {
+export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ selectedCategory }, ref) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [popoverType, setPopoverType] = useState<'room' | 'age' | 'heating' | 'facade' | 'floor' | 'totalFloor' | 'Temel Özellikler' | 'Otopark' | 'Bina & Güvenlik' | 'Konfor & Isıtma' | 'Mutfak & İç Mekan' | 'Site İmkanları' | null>(null);
     

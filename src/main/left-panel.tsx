@@ -10,7 +10,6 @@ import CommercialDetails from "./left-panel/details/commercial-details.tsx";
 import ServiceDetails from "./left-panel/details/service-details.tsx";
 import LandDetails from "./left-panel/details/land-details.tsx";
 import IndustrialDetails from "./left-panel/details/industrial-details.tsx";
-import commercialDetails from "./left-panel/details/commercial-details.tsx";
 
 export default function LeftPanel() {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -166,18 +165,18 @@ export default function LeftPanel() {
         }
         
         // Site aidatı
-        if (details.siteFeeMin) queryParams.set('minSiteFee', details.siteFeeMin);
-        if (details.siteFeeMax) queryParams.set('maxSiteFee', details.siteFeeMax);
+        if (details.siteFeeMin) queryParams.append('minSiteFee', details.siteFeeMin);
+        if (details.siteFeeMax) queryParams.append('maxSiteFee', details.siteFeeMax);
         
         // Depozito
-        if (details.depositMin) queryParams.set('minDeposit', details.depositMin);
-        if (details.depositMax) queryParams.set('maxDeposit', details.depositMax);
+        if (details.depositMin) queryParams.append('minDeposit', details.depositMin);
+        if (details.depositMax) queryParams.append('maxDeposit', details.depositMax);
         
         // Özellikler (boolean features)
         if (details.features) {
             const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
             if (trueFeatures.length > 0) {
-                queryParams.set('officeFeatures', trueFeatures.join(','));
+                queryParams.append('officeFeatures', trueFeatures.join(','));
             }
         }
     };
@@ -187,22 +186,22 @@ export default function LeftPanel() {
         console.log('🏪 Commercial details detayları:', details);
         
         // Alan bilgileri
-        if (details.netAreaMin) queryParams.set('minNetArea', details.netAreaMin);
-        if (details.netAreaMax) queryParams.set('maxNetArea', details.netAreaMax);
+        if (details.netAreaMin) queryParams.append('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.append('maxNetArea', details.netAreaMax);
         
         // Kat bilgileri
         if (details.selectedFloors?.length > 0) {
-            queryParams.set('floors', details.selectedFloors.join(','));
+            queryParams.append('floors', details.selectedFloors.join(','));
         }
         
         // Yaş bilgileri
         if (details.selectedBuildingAges?.length > 0) {
-            queryParams.set('buildingAges', details.selectedBuildingAges.join(','));
+            queryParams.append('buildingAges', details.selectedBuildingAges.join(','));
         }
                 
         // Depozito
-        if (details.depositMin) queryParams.set('minDeposit', details.depositMin);
-        if (details.depositMax) queryParams.set('maxDeposit', details.depositMax);
+        if (details.depositMin) queryParams.append('minDeposit', details.depositMin);
+        if (details.depositMax) queryParams.append('maxDeposit', details.depositMax);
 
 
         // Isıtma türü
@@ -214,7 +213,7 @@ export default function LeftPanel() {
         if (details.features) {
             const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
             if (trueFeatures.length > 0) {
-                queryParams.set('commercialFeatures', trueFeatures.join(','));
+                queryParams.append('commercialFeatures', trueFeatures.join(','));
             }
         }
     };
@@ -234,7 +233,29 @@ export default function LeftPanel() {
     const buildServiceParams = (queryParams: URLSearchParams, details: any) => {
         if (!details) return;
         console.log('🔧 Service details detayları:', details);
-        // TODO: Service detayları için parametreler eklenecek
+        if (details.netAreaMin) queryParams.append('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.append('maxNetArea', details.netAreaMax);
+        
+        // Kapasite
+        if (details.minCapacity) queryParams.append('minCapacity', details.minCapacity);
+        if (details.maxCapacity) queryParams.append('maxCapacity', details.maxCapacity);
+
+        // Depozito
+        if (details.minDeposit) queryParams.append('minDeposit', details.minDeposit);
+        if (details.maxDeposit) queryParams.append('maxDeposit', details.maxDeposit);
+
+        // Kapalılık Durumu
+        if (details.selectedCoverTypes?.length > 0) {
+            queryParams.append('spaceTypes', details.selectedCoverTypes.join(','));
+        }
+        
+        // Özellikler (boolean features)
+        if (details.features) {
+            const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
+            if (trueFeatures.length > 0) {
+                queryParams.append('serviceFeatures', trueFeatures.join(','));
+            }
+        }
     };
 
     // Emlak türüne göre API endpoint'ini belirle
@@ -367,7 +388,9 @@ const handleSearch = async () => {
     }
     // Hizmet kategorileri
     else if (selectedCategory.includes("HIZMET")) {
-        categoryDetails = { serviceDetails: {} };
+        if (serviceDetailsRef.current && serviceDetailsRef.current.getDetails) {
+            categoryDetails = { serviceDetails: serviceDetailsRef.current.getDetails() };
+        }
     }
     
     console.log('📊 Seçilen kategori:', selectedCategory);
@@ -523,6 +546,7 @@ const handleSearch = async () => {
                     }} />
                     <ServiceDetails 
                         selectedCategory={selectedCategory}
+                        ref={serviceDetailsRef}
                     />
                 </>
             );

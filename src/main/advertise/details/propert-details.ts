@@ -228,18 +228,13 @@ export interface LandDetails extends BasePropertyDetails {
 }
 
 export interface ServiceDetails extends BasePropertyDetails {
-  netArea?: number;
-  roomCount?: number;
-  buildingAge?: string;
-  floorNo?: number;
-  capacity?: number;
-  
+
   // ServiceDetails'den eklenen yeni özellikler
-  area?: number;
+  netArea?: number;
   grossArea?: number;
+  capacity?: number;
   spaceType?: string;
   deposit?: number;
-  operatingCost?: number;
   
   // Boolean özellikler - mevcut
   furnished?: boolean;
