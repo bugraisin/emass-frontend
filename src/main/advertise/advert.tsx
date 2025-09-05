@@ -243,7 +243,7 @@ export default function Advert() {
                 setIsLoading(true);
                 
                 // 1. İlanı oluştur
-                const listingResponse = await fetch('http://localhost:8080/api/listings/create', {
+                const listingResponse = await fetch('http://localhost:8080/api/listings', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

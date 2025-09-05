@@ -189,32 +189,49 @@ export default function TopPanel() {
                                 <Box sx={{ 
                                     display: 'flex', 
                                     alignItems: 'center', 
-                                    gap: '10px',
-                                    color: 'rgba(255, 255, 255, 0.8)',
-                                    fontSize: '14px'
+                                    gap: '8px'
                                 }}>
                                     <Typography
                                         onClick={() => navigate("/giris-yap")}
                                         sx={{
                                             cursor: "pointer",
-                                            color: "inherit",
-                                            fontSize: "inherit",
+                                            color: "rgba(255, 255, 255, 0.9)",
+                                            fontSize: "13px",
+                                            padding: "8px 12px",
+                                            borderRadius: "6px",
+                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                                            height: "28px",
+                                            fontWeight: 500,
+                                            display: "flex",
+                                            alignItems: "center",
                                             "&:hover": {
-                                                textDecoration: "underline",
+                                                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                                                border: "1px solid rgba(255, 255, 255, 0.3)",
+                                                color: "white",
                                             },
                                         }}
                                     >
                                         Giriş Yap
                                     </Typography>
-                                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '12px' }}>|</Typography>
                                     <Typography
                                         onClick={() => navigate("/kayit-ol")}
                                         sx={{
                                             cursor: "pointer",
-                                            color: "inherit",
-                                            fontSize: "inherit",
+                                            color: "rgba(255, 255, 255, 0.9)",
+                                            fontSize: "13px",
+                                            padding: "8px 12px",
+                                            borderRadius: "6px",
+                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                                            height: "28px",
+                                            fontWeight: 500,
+                                            display: "flex",
+                                            alignItems: "center",
                                             "&:hover": {
-                                                textDecoration: "underline",
+                                                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                                                border: "1px solid rgba(255, 255, 255, 0.3)",
+                                                color: "white",
                                             },
                                         }}
                                     >
@@ -227,20 +244,27 @@ export default function TopPanel() {
                                     sx={{
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: "6px",
+                                        gap: "8px",
                                         cursor: "pointer",
                                         color: "rgba(255, 255, 255, 0.9)",
-                                        fontSize: "14px",
+                                        fontSize: "13px",
+                                        padding: "8px 12px",
+                                        borderRadius: "6px",
+                                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                                        height: "28px",
+                                        fontWeight: 500,
                                         "&:hover": {
-                                            textDecoration: "underline",
+                                            backgroundColor: "rgba(255, 255, 255, 0.15)",
+                                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                                            color: "white",
                                         },
                                     }}
                                 >
-                                    <PersonIcon sx={{ fontSize: "18px" }} />
+                                    <PersonIcon sx={{ fontSize: "16px" }} />
                                     {userName}
                                 </Typography>
                             )}
-
                             <Menu
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
