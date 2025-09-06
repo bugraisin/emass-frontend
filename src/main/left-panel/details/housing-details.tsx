@@ -440,7 +440,7 @@ export default forwardRef<any, HousingDetailsProps>(function HousingDetails({ se
                     <ChevronRightIcon sx={{ fontSize: "16px" }} />
                 </Box>
 
-                                {/* Aidat Min-Max */}
+                {/* Aidat Min-Max */}
                 <Box sx={{ marginBottom: '12px' }}>
                     <Typography sx={{ fontSize: "12px", mb: 0.5, fontWeight: 500, color: 'text.secondary' }}>
                         Aidat
