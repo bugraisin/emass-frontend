@@ -1,19 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import LeftPanel from './left-panel.tsx';
 import MainPanel from './main-panel.tsx';
+import PinnedPanel from './pinned-panel.tsx';
 
 export default function Main() {
     const [searchResults, setSearchResults] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Başlangıçta loading true
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [pinnedListings, setPinnedListings] = useState<any[]>([]);
+
+    // Sayfa ilk açıldığında tüm ilanları yükle
+    useEffect(() => {
+        const fetchAllListings = async () => {
+            try {
+                // Test için 3 saniye bekleme ekle
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Tüm ilanları tek seferde çek
+                const response = await fetch('http://localhost:8080/api/listings/get-all');
+                
+                if (response.ok) {
+                    const allListings = await response.json();
+                    setSearchResults(allListings);
+                } else {
+                    console.error('İlanlar yüklenirken hata oluştu:', response.statusText);
+                    setSearchResults([]);
+                }
+                
+                setIsLoading(false);
+                setIsInitialLoad(false);
+            } catch (error) {
+                console.error('Tüm ilanlar yüklenirken hata oluştu:', error);
+                setSearchResults([]);
+                setIsLoading(false);
+                setIsInitialLoad(false);
+            }
+        };
+
+        fetchAllListings();
+    }, []);
 
     const handleSearchResults = (results: any[]) => {
         setSearchResults(results);
         setIsLoading(false);
+        setIsInitialLoad(false);
     };
 
     const handleSearchStart = () => {
         setIsLoading(true);
+        setIsInitialLoad(false);
+    };
+
+    const handlePinListing = (listing: any) => {
+        if (!pinnedListings.find(p => p.id === listing.id)) {
+            setPinnedListings(prev => [...prev, listing]);
+        }
+    };
+
+    const handleUnpinListing = (listingId: string) => {
+        setPinnedListings(prev => prev.filter(p => p.id !== listingId));
     };
 
     return (
@@ -55,10 +101,18 @@ export default function Main() {
                         <MainPanel 
                             searchResults={searchResults}
                             isLoading={isLoading}
+                            onPinListing={handlePinListing}
+                            pinnedListings={pinnedListings}
                         />
                     </Box>
                 </Box>
             </Box>
+            
+            {/* Sağ Panel - Pinned Listings */}
+            <PinnedPanel 
+                pinnedListings={pinnedListings}
+                onUnpinListing={handleUnpinListing}
+            />
         </Box>
     );
 }
