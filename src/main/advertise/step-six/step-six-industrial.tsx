@@ -39,7 +39,6 @@ const getImportantDetailsForIndustrial = (details: any) => {
     "Bölüm Sayısı": details.roomCount || 'Belirtilmemiş',
     "Kat Sayısı": details.floorCount || 'Belirtilmemiş',
     "Tavan Yüksekliği (m)": details.ceilingHeight || 'Belirtilmemiş',
-    "Aidat (₺)": details.siteFee || 'Belirtilmemiş',
     "Depozito (₺)": details.deposit || 'Belirtilmemiş',
   };
 };
