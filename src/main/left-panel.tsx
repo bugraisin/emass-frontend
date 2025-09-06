@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Box, Divider, Button } from "@mui/material";
-import { useSearchParams } from "react-router-dom";
 import Categories from "./left-panel/categories.tsx";
 import Address from "./left-panel/address.tsx";
 import Price from "./left-panel/price.tsx";
@@ -244,7 +243,25 @@ export default function LeftPanel() {
     const buildIndustrialParams = (queryParams: URLSearchParams, details: any) => {
         if (!details) return;
         console.log('🏭 Industrial details detayları:', details);
-        // TODO: Industrial detayları için parametreler eklenecek
+        
+        if (details.netAreaMin) queryParams.append('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.append('maxNetArea', details.netAreaMax);
+    
+        if (details.selectedBuildingAges?.length > 0) {
+            queryParams.append('buildingAges', details.selectedBuildingAges.join(','));
+        }
+
+        if(details.ceilingHeightMin) queryParams.append('minCeilingHeight', details.ceilingHeightMin);
+        if(details.ceilingHeightMax) queryParams.append('maxCeilingHeight', details.ceilingHeightMax);
+
+        // Özellikler (boolean features)
+        if (details.features) {
+            const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
+            if (trueFeatures.length > 0) {
+                queryParams.append('industrialFeatures', trueFeatures.join(','));
+            }
+        }
+
     };
 
     const buildServiceParams = (queryParams: URLSearchParams, details: any) => {
@@ -403,7 +420,9 @@ const handleSearch = async () => {
     }
     // Endüstriyel kategoriler
     else if (selectedCategory.includes("ENDUSTRIYEL")) {
-        categoryDetails = { industrialDetails: {} };
+        if (industrialDetailsRef.current && industrialDetailsRef.current.getDetails) {
+            categoryDetails = { industrialDetails: industrialDetailsRef.current.getDetails() };
+        }
     }
     // Hizmet kategorileri
     else if (selectedCategory.includes("HIZMET")) {
@@ -551,6 +570,7 @@ const handleSearch = async () => {
                     }} />
                     <IndustrialDetails 
                         selectedCategory={selectedCategory}
+                        ref={industrialDetailsRef}
                     />
                 </>
             );

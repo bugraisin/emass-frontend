@@ -225,27 +225,6 @@ export default function IndustrialDetails({ details, setDetails }: IndustrialDet
                         <TextField
                             fullWidth
                             type="number"
-                            label="Aidat (₺)"
-                            value={details.siteFee || ''}
-                            onChange={(e) => handleDetailChange('siteFee', parseInt(e.target.value))}
-                            variant="outlined"
-                            size="small"
-                            autoComplete='off'
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    borderRadius: 1,
-                                    '&:hover fieldset': { borderColor: '#1e293b' },
-                                    '&.Mui-focused fieldset': { borderColor: '#1e293b' },
-                                },
-                                '& .MuiInputLabel-root.Mui-focused': { color: '#1e293b' },
-                            }}
-                        />
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                        <TextField
-                            fullWidth
-                            type="number"
                             label="Depozito (₺)"
                             value={details.deposit || ''}
                             onChange={(e) => handleDetailChange('deposit', parseInt(e.target.value))}
@@ -264,7 +243,7 @@ export default function IndustrialDetails({ details, setDetails }: IndustrialDet
                     </Grid>
 
                     {/* Ek Özellikler */}
-<Grid item xs={12}>
+                    <Grid item xs={12}>
                         <Typography variant="subtitle1" sx={{
                             mt: 2,
                             fontWeight: 600,
