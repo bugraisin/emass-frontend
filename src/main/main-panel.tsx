@@ -1,58 +1,319 @@
 import React, { useState } from "react";
-import { Card, CardContent, Typography, Box, Grid, CardMedia, Dialog, DialogActions, DialogContent, Button, IconButton, Pagination } from "@mui/material";
+import { Card, CardContent, Typography, Box, Grid, CardMedia, Dialog, DialogActions, DialogContent, Button, IconButton, Pagination, Skeleton, CircularProgress } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ImageIcon from '@mui/icons-material/Image';
+import SearchIcon from '@mui/icons-material/Search';
 
-const properties = [
-  { id: 1, title: "Ev 1", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Merkezi konumda, modern yaşam alanı" },
-  { id: 2, title: "Ev 2", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Geniş bahçeli, lüks villa tipi konut" },
-  { id: 3, title: "Ev 3", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Yeni yapım, asansörlü binada daire" },
-  { id: 4, title: "Ev 4", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Deniz manzaralı, ferah ve aydınlık" },
-  { id: 5, title: "Ev 5", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Metro yakını, ulaşım avantajlı" },
-  { id: 6, title: "Ev 6", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Kapalı otopark ve güvenlik sistemi" },
-  { id: 7, title: "Ev 7", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Şehir merkezinde, alışveriş merkezi yakını" },
-  { id: 8, title: "Ev 8", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Sosyal tesisli kompleks içinde" },
-  { id: 9, title: "Ev 9", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Yenilenen mutfak ve banyo" },
-  { id: 10, title: "Ev 10", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Geniş balkonlu, park manzaralı" },
-  { id: 11, title: "Ev 11", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Işıklı ve temiz, hazır yaşanacak" },
-  { id: 12, title: "Ev 12", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Prestijli semtte, güvenlikli site" },
-  { id: 13, title: "Ev 13", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Okul ve hastane yakını konumda" },
-  { id: 14, title: "Ev 14", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Çocuk parkı ve oyun alanı bulunan" },
-  { id: 15, title: "Ev 15", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Yatırım için ideal konum" },
-  { id: 16, title: "Ev 16", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Panoramik şehir manzarası" },
-  { id: 17, title: "Ev 17", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Sessiz sokakta huzurlu yaşam" },
-  { id: 18, title: "Ev 18", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Geniş teras ve barbekü alanı" },
-  { id: 19, title: "Ev 19", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Genç çiftler için ideal" },
-  { id: 20, title: "Ev 20", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Lüks yapı malzemeleri kullanılmış" },
-  { id: 21, title: "Ev 21", price: "2.500.000 TL", image: "ev.jpeg", area: "120 m²", rooms: "3+1", description: "Ailelere uygun güvenli mahalle" },
-  { id: 22, title: "Ev 22", price: "5.000.000 TL", image: "ev.jpeg", area: "350 m²", rooms: "6+2", description: "Spor salonu ve yüzme havuzu" },
-  { id: 23, title: "Ev 23", price: "3.750.000 TL", image: "ev.jpeg", area: "90 m²", rooms: "2+1", description: "Cafe ve restoranlar çevresinde" },
-  { id: 24, title: "Ev 24", price: "7.200.000 TL", image: "ev.jpeg", area: "180 m²", rooms: "4+1", description: "Özel tasarım mimarisi ile" },
-];
+interface MainPanelProps {
+    searchResults?: any[];
+    isLoading?: boolean;
+}
 
-export default function MainPanel() {
-  const [open, setOpen] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<any>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 24; // Sayfa başına 12 ilan
+export default function MainPanel({ searchResults = [], isLoading = false }: MainPanelProps) {
 
-  // Pagination hesaplaması
-  const totalPages = Math.ceil(properties.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentProperties = properties.slice(startIndex, endIndex);
+    const [open, setOpen] = useState(false);
+    const [selectedProperty, setSelectedProperty] = useState<any>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 24;
 
-  const handleCardClick = (property: any) => {
-    setSelectedProperty(property);
-    setOpen(true);
-  };
+    // Arama loading animasyonu
+    const SearchLoadingAnimation = () => (
+        <Box 
+            display="flex" 
+            justifyContent="center" 
+            alignItems="center" 
+            height="100%" 
+            flexDirection="column"
+            sx={{
+                background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '-100%',
+                    width: '100%',
+                    height: '100%',
+                    background: 'linear-gradient(90deg, transparent, rgba(237, 149, 23, 0.1), transparent)',
+                    animation: 'shimmer 2s infinite'
+                }
+            }}
+        >
+            <style>
+                {`
+                    @keyframes shimmer {
+                        0% { left: -100%; }
+                        100% { left: 100%; }
+                    }
+                    @keyframes searchPulse {
+                        0%, 100% { 
+                            transform: scale(1) rotate(0deg);
+                            opacity: 0.8;
+                        }
+                        50% { 
+                            transform: scale(1.1) rotate(180deg);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+                    @keyframes dots {
+                        0%, 20% { opacity: 0; }
+                        50% { opacity: 1; }
+                        100% { opacity: 0; }
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    @keyframes ripple {
+                        0% {
+                            transform: scale(0);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: scale(4);
+                            opacity: 0;
+                        }
+                    }
+                `}
+            </style>
+            
+            {/* Ana loading container */}
+            <Box sx={{
+                position: 'relative',
+                marginBottom: '32px',
+                animation: 'float 3s ease-in-out infinite'
+            }}>
+                {/* Ripple efektleri */}
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '120px',
+                    height: '120px',
+                    '&::before, &::after': {
+                        content: '""',
+                        position: 'absolute',
+                        border: '2px solid rgba(237, 149, 23, 0.3)',
+                        borderRadius: '50%',
+                        width: '100%',
+                        height: '100%',
+                        animation: 'ripple 2s linear infinite'
+                    },
+                    '&::after': {
+                        animationDelay: '1s'
+                    }
+                }} />
+                
+                {/* Dış halka */}
+                <Box sx={{
+                    width: '120px',
+                    height: '120px',
+                    border: '3px solid rgba(237, 149, 23, 0.2)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    animation: 'spin 3s linear infinite',
+                    background: 'linear-gradient(45deg, rgba(237, 149, 23, 0.1), rgba(237, 149, 23, 0.05))'
+                }}>
+                    {/* İç loading spinner */}
+                    <CircularProgress 
+                        size={80} 
+                        thickness={3}
+                        sx={{
+                            color: '#ed9517',
+                            '& .MuiCircularProgress-circle': {
+                                strokeLinecap: 'round',
+                            }
+                        }}
+                    />
+                    
+                    {/* Merkez ikon */}
+                    <Box sx={{
+                        position: 'absolute',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <SearchIcon sx={{ 
+                            fontSize: 32, 
+                            color: '#ed9517',
+                            animation: 'searchPulse 2s ease-in-out infinite'
+                        }} />
+                    </Box>
+                </Box>
+            </Box>
+            
+            {/* Ana metin */}
+            <Typography 
+                variant="h5" 
+                sx={{
+                    color: '#1e293b',
+                    fontWeight: 700,
+                    marginBottom: '8px',
+                    animation: 'float 3s ease-in-out infinite 0.5s',
+                    textAlign: 'center'
+                }}
+            >
+                İlanlar Aranıyor
+            </Typography>
+            
+            {/* Alt metin animasyonlu noktalarla */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Typography 
+                    variant="body1" 
+                    sx={{
+                        color: '#64748b',
+                        fontSize: '16px'
+                    }}
+                >
+                    Lütfen bekleyin
+                </Typography>
+                <Box sx={{ display: 'flex', gap: '2px' }}>
+                    {[0, 1, 2].map((index) => (
+                        <Box
+                            key={index}
+                            sx={{
+                                width: '6px',
+                                height: '6px',
+                                backgroundColor: '#ed9517',
+                                borderRadius: '50%',
+                                animation: `dots 1.5s infinite ${index * 0.5}s`
+                            }}
+                        />
+                    ))}
+                </Box>
+            </Box>
+            
+            {/* Skeleton preview kartları */}
+            <Box sx={{ 
+                marginTop: '48px',
+                width: '100%',
+                maxWidth: '800px',
+                padding: '0 20px'
+            }}>
+                <Grid container spacing={2}>
+                    {Array.from({ length: 4 }).map((_, index) => (
+                        <Grid item xs={12} sm={6} key={index}>
+                            <Card
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    background: '#fff',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e2e8f0',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                                    overflow: 'hidden',
+                                    height: '100px',
+                                    opacity: 0.7,
+                                    animation: `float 3s ease-in-out infinite ${index * 0.2}s`
+                                }}
+                            >
+                                <Skeleton 
+                                    variant="rectangular" 
+                                    width={100} 
+                                    height="100%" 
+                                    animation="wave"
+                                    sx={{ 
+                                        flexShrink: 0,
+                                        backgroundColor: 'rgba(237, 149, 23, 0.1)'
+                                    }}
+                                />
+                                <CardContent sx={{ 
+                                    padding: '12px', 
+                                    flex: 1, 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    justifyContent: 'space-between',
+                                    height: '100%',
+                                    '&:last-child': { paddingBottom: '12px' }
+                                }}>
+                                    <Skeleton 
+                                        variant="text" 
+                                        width="70%" 
+                                        height={16} 
+                                        animation="wave"
+                                        sx={{ backgroundColor: 'rgba(237, 149, 23, 0.1)' }}
+                                    />
+                                    <Skeleton 
+                                        variant="text" 
+                                        width="50%" 
+                                        height={14} 
+                                        animation="wave" 
+                                        sx={{ 
+                                            marginTop: '4px',
+                                            backgroundColor: 'rgba(237, 149, 23, 0.08)'
+                                        }} 
+                                    />
+                                    <Skeleton 
+                                        variant="text" 
+                                        width="40%" 
+                                        height={16} 
+                                        animation="wave" 
+                                        sx={{ 
+                                            marginTop: '8px',
+                                            backgroundColor: 'rgba(237, 149, 23, 0.15)'
+                                        }} 
+                                    />
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        </Box>
+    );
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    if (isLoading) {
+        return (
+            <Box 
+                display="flex" 
+                flexDirection="column" 
+                height="100%" 
+                sx={{ padding: '8px' }}
+            >
+                <SearchLoadingAnimation />
+            </Box>
+        );
+    }
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setCurrentPage(value);
-  };
+    if (searchResults.length === 0) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100%" flexDirection="column">
+                <Typography variant="h6" color="textSecondary">
+                    Henüz arama yapılmadı
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                    Sol panelden kriterleri seçip "Ara" butonuna basın
+                </Typography>
+            </Box>
+        );
+    }
+
+    const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentProperties = searchResults.slice(startIndex, endIndex);
+
+    const handleCardClick = (property: any) => {
+        setSelectedProperty(property);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setCurrentPage(value);
+    };
 
   return (
     <Box 
@@ -63,7 +324,7 @@ export default function MainPanel() {
         padding: '8px',
       }}
     >
-      <Grid container spacing={1} sx={{ flex: 1 }}>
+      <Grid container spacing={1} sx={{ alignContent: 'flex-start' }}>
         {currentProperties.map((property, index) => (
           <Grid item xs={12} sm={6} key={`${property.id}-${index}`}>
             <Card
@@ -78,24 +339,40 @@ export default function MainPanel() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                 overflow: 'hidden',
                 height: '120px',
+                transition: 'all 0.3s ease',
                 "&:hover": {
                   boxShadow: '0 2px 8px rgba(30,41,59,0.15)',
                   borderColor: '#1e293b',
+                  transform: 'translateY(-2px)'
                 },
               }}
               onClick={() => handleCardClick(property)}
             >
-              <CardMedia
-                component="img"
-                sx={{ 
-                  width: 130, 
-                  height: '100%', 
-                  objectFit: 'cover',
-                  flexShrink: 0
-                }}
-                image={property.image}
-                alt={property.title}
-              />
+            {property.thumbnailUrl || property.imageUrl || property.image ? (
+                <CardMedia
+                    component="img"
+                    sx={{ 
+                      width: 130, 
+                      height: '100%', 
+                      objectFit: 'cover',
+                      flexShrink: 0
+                    }}
+                    image={property.thumbnailUrl || property.imageUrl || property.image}
+                    alt={property.title}
+                />
+            ) : (
+                <Box sx={{
+                    width: 130,
+                    height: '100%',
+                    backgroundColor: '#f3f4f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                }}>
+                    <ImageIcon sx={{ fontSize: 40, color: '#9ca3af' }} />
+                </Box>
+            )}
               <CardContent sx={{ 
                 padding: '8px 12px', 
                 flex: 1, 
@@ -171,9 +448,11 @@ export default function MainPanel() {
               fontWeight: 600,
               fontSize: '14px',
               color: '#64748b',
+              transition: 'all 0.3s ease',
               '&:hover': {
                 backgroundColor: 'rgba(237, 149, 23, 0.1)',
-                color: '#ed9517'
+                color: '#ed9517',
+                transform: 'scale(1.05)'
               },
               '&.Mui-selected': {
                 backgroundColor: '#ed9517',
@@ -225,16 +504,16 @@ export default function MainPanel() {
         </IconButton>
         <Box display="flex" flexDirection="row" justifyContent="center" alignItems="flex-start" gap={4}>
           <Box sx={{ flex: 1 }}>
-            <img 
-              src={selectedProperty?.image} 
-              alt="Property" 
-              style={{ 
-                width: "100%", 
-                height: "auto", 
-                borderRadius: '8px',
-                boxShadow: '0 16px 48px rgba(0, 0, 0, 0.1)'
-              }} 
-            />
+        <img 
+          src={selectedProperty?.thumbnailUrl || selectedProperty?.imageUrl || selectedProperty?.image} 
+          alt="Property" 
+          style={{ 
+            width: "100%", 
+            height: "auto", 
+            borderRadius: '8px',
+            boxShadow: '0 16px 48px rgba(0, 0, 0, 0.1)'
+          }} 
+        />
           </Box>
           <Box sx={{ flex: 1, paddingLeft: '24px' }}>
             <Typography 

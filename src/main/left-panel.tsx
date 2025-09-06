@@ -10,10 +10,14 @@ import ServiceDetails from "./left-panel/details/service-details.tsx";
 import LandDetails from "./left-panel/details/land-details.tsx";
 import IndustrialDetails from "./left-panel/details/industrial-details.tsx";
 
-export default function LeftPanel() {
+interface LeftPanelProps {
+    onSearchResults?: (results: any[]) => void;
+    onSearchStart?: () => void;
+}
+
+export default function LeftPanel({ onSearchResults, onSearchStart }: LeftPanelProps) {
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     
-    // Component ref'leri
     const housingDetailsRef = useRef<any>(null);
     const officeDetailsRef = useRef<any>(null);
     const commercialDetailsRef = useRef<any>(null);
@@ -21,15 +25,12 @@ export default function LeftPanel() {
     const industrialDetailsRef = useRef<any>(null);
     const serviceDetailsRef = useRef<any>(null);
     
-    // Tüm arama filtrelerini toplayan ana state
     const [searchFilters, setSearchFilters] = useState({
-        // Kategori bilgileri
         category: {
-            listingType: '', // SALE, RENT
-            propertyType: '', // KONUT, OFIS, TICARI vb.
-            subtype: '' // DAIRE, VILLA vb.
+            listingType: '',
+            propertyType: '',
+            subtype: ''
         },
-        // Lokasyon bilgileri
         location: {
             cityIds: [] as number[],
             districtIds: [] as number[],
@@ -38,16 +39,13 @@ export default function LeftPanel() {
             districtNames: [] as string[],
             neighborhoodNames: [] as string[]
         },
-        // Fiyat bilgileri
         price: {
             min: '',
             max: ''
         }
     });
 
-    // Query parameter builder fonksiyonları
     const buildCommonParams = (queryParams: URLSearchParams) => {
-        // Genel listing bilgileri
         if (searchFilters.location.cityNames && searchFilters.location.cityNames.length > 0) {
             queryParams.append('city', searchFilters.location.cityNames[0]);
         }
@@ -371,7 +369,6 @@ export default function LeftPanel() {
         }));
     };
 
-    // Lokasyon değişikliklerini handle et
     const handleLocationChange = (locationData: any) => {
         setSearchFilters(prev => ({
             ...prev,
@@ -379,7 +376,6 @@ export default function LeftPanel() {
         }));
     };
 
-    // Fiyat değişikliklerini handle et
     const handlePriceChange = (priceData: any) => {
         setSearchFilters(prev => ({
             ...prev,
@@ -387,44 +383,38 @@ export default function LeftPanel() {
         }));
     };
 
-// Backend'e arama isteği gönder
 const handleSearch = async () => {
     console.log('🔍 ARA BUTONU BASILDI!');
-    
-    // Aktif kategori detaylarını topla
+
+    onSearchStart?.();
+
     let categoryDetails: any = {};
     
-    // Konut kategorileri
     if (selectedCategory.includes("KONUT")) {
         if (housingDetailsRef.current && housingDetailsRef.current.getDetails) {
             categoryDetails = { housingDetails: housingDetailsRef.current.getDetails() };
         }
     }
-    // Ofis kategorileri
     else if (selectedCategory.includes("OFIS")) {
         if (officeDetailsRef.current && officeDetailsRef.current.getDetails) {
             categoryDetails = { officeDetails: officeDetailsRef.current.getDetails() };
         }
     }
-    // Ticari kategoriler
     else if (selectedCategory.includes("TICARI")) {
         if (commercialDetailsRef.current && commercialDetailsRef.current.getDetails) {
             categoryDetails = { commercialDetails: commercialDetailsRef.current.getDetails() };
         }
     }
-    // Arsa kategorileri
     else if (selectedCategory.includes("ARSA")) {
         if (landDetailsRef.current && landDetailsRef.current.getDetails) {
             categoryDetails = { landDetails: landDetailsRef.current.getDetails() };
         }
     }
-    // Endüstriyel kategoriler
     else if (selectedCategory.includes("ENDUSTRIYEL")) {
         if (industrialDetailsRef.current && industrialDetailsRef.current.getDetails) {
             categoryDetails = { industrialDetails: industrialDetailsRef.current.getDetails() };
         }
     }
-    // Hizmet kategorileri
     else if (selectedCategory.includes("HIZMET")) {
         if (serviceDetailsRef.current && serviceDetailsRef.current.getDetails) {
             categoryDetails = { serviceDetails: serviceDetailsRef.current.getDetails() };
@@ -435,13 +425,9 @@ const handleSearch = async () => {
     console.log('🏠 Kategori detayları:', categoryDetails);
     
     try {
-        // Query parameters oluştur
         const queryParams = new URLSearchParams();
-        
-        // Ortak parametreleri ekle
         buildCommonParams(queryParams);
         
-        // Kategori-spesifik parametreleri ekle
         console.log('🐛 Debug - searchFilters.category.subtype:', searchFilters.category.subtype);
         console.log('🐛 Debug - selectedCategory:', selectedCategory);
         const endpoint = getEndpointByPropertyType(selectedCategory);
@@ -470,7 +456,6 @@ const handleSearch = async () => {
         
         console.log('🚀 Backend\'e gönderilen query params:', queryParams.toString());
 
-        // URL'yi güncelle
         const newUrl = `/${queryParams.toString()}`;
         window.history.pushState(null, '', newUrl);
         
@@ -484,11 +469,14 @@ const handleSearch = async () => {
         if (response.ok) {
             const results = await response.json();
             console.log('Arama sonuçları:', results);
+            onSearchResults?.(results);
         } else {
             console.error('Arama hatası:', response.statusText);
+            onSearchResults?.([]);
         }
     } catch (error) {
         console.error('API hatası:', error);
+        onSearchResults?.([]);
     }
     };
 
