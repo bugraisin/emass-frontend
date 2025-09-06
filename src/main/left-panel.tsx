@@ -131,32 +131,32 @@ export default function LeftPanel() {
         console.log('🏢 Office details detayları:', details);
         
         // Alan bilgileri
-        if (details.netAreaMin) queryParams.set('minNetArea', details.netAreaMin);
-        if (details.netAreaMax) queryParams.set('maxNetArea', details.netAreaMax);
+        if (details.netAreaMin) queryParams.append('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.append('maxNetArea', details.netAreaMax);
         
         // Kat bilgileri
         if (details.selectedFloors?.length > 0) {
-            queryParams.set('floors', details.selectedFloors.join(','));
+            queryParams.append('floors', details.selectedFloors.join(','));
         }
         
         // Yaş bilgileri
         if (details.selectedBuildingAges?.length > 0) {
-            queryParams.set('buildingAges', details.selectedBuildingAges.join(','));
+            queryParams.append('buildingAges', details.selectedBuildingAges.join(','));
         }
         
         // Oda sayısı
         if (details.selectedRoomCounts?.length > 0) {
-            queryParams.set('roomCount', details.selectedRoomCounts.join(','));
+            queryParams.append('roomCount', details.selectedRoomCounts.join(','));
         }
         
         // Toplantı odası sayısı
         if (details.selectedMeetingRoomCounts?.length > 0) {
-            queryParams.set('meetingRooms', details.selectedMeetingRoomCounts.join(','));
+            queryParams.append('meetingRooms', details.selectedMeetingRoomCounts.join(','));
         }
         
         // Cephe türü
         if (details.selectedFacadeTypes?.length > 0) {
-            queryParams.set('facadeDirections', details.selectedFacadeTypes.join(','));
+            queryParams.append('facadeDirections', details.selectedFacadeTypes.join(','));
         }
 
         // Isıtma türü
@@ -221,7 +221,24 @@ export default function LeftPanel() {
     const buildLandParams = (queryParams: URLSearchParams, details: any) => {
         if (!details) return;
         console.log('🌍 Land details detayları:', details);
-        // TODO: Land detayları için parametreler eklenecek
+        if (details.netAreaMin) queryParams.append('minNetArea', details.netAreaMin);
+        if (details.netAreaMax) queryParams.append('maxNetArea', details.netAreaMax);
+
+        if(details.zoningTypes && details.zoningTypes.length > 0) {
+            details.zoningTypes.forEach(zoningStatus => queryParams.append('zoningStatus', zoningStatus))
+        }
+
+        if(details.titleLandDeedStatus && details.titleLandDeedStatus.length > 0) {
+            details.titleLandDeedStatus.forEach(titleLandDeedStatus => queryParams.append('titleLandDeedStatus', titleLandDeedStatus))
+        }
+        
+        // Özellikler (boolean features)
+        if (details.features) {
+            const trueFeatures = Object.keys(details.features).filter(key => details.features[key]);
+            if (trueFeatures.length > 0) {
+                queryParams.append('serviceFeatures', trueFeatures.join(','));
+            }
+        }
     };
 
     const buildIndustrialParams = (queryParams: URLSearchParams, details: any) => {
@@ -380,7 +397,9 @@ const handleSearch = async () => {
     }
     // Arsa kategorileri
     else if (selectedCategory.includes("ARSA")) {
-        categoryDetails = { landDetails: {} };
+        if (landDetailsRef.current && landDetailsRef.current.getDetails) {
+            categoryDetails = { landDetails: landDetailsRef.current.getDetails() };
+        }
     }
     // Endüstriyel kategoriler
     else if (selectedCategory.includes("ENDUSTRIYEL")) {
@@ -516,6 +535,7 @@ const handleSearch = async () => {
                     }} />
                     <LandDetails 
                         selectedCategory={selectedCategory}
+                        ref={landDetailsRef}
                     />
                 </>
             );

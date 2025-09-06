@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { Card, CardContent, Typography, Box, List, ListItem, ListItemButton, Checkbox, Popover, Paper, IconButton, TextField } from '@mui/material';
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
@@ -7,28 +7,17 @@ interface LandDetailsProps {
     selectedCategory: string;
 }
 
-export default function LandDetails({ selectedCategory }: LandDetailsProps) {
+export default forwardRef<any, LandDetailsProps>(function LandDetails({ selectedCategory }, ref) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [popoverType, setPopoverType] = useState<'area' | 'zoning' | 'title' | 'infrastructure' | 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe' | null>(null);
+    const [popoverType, setPopoverType] = useState<'area' | 'zoning' | 'title' | 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe' | null>(null);
     
     // Form states - multiple choice yapıldı
-    const [selectedAreaRanges, setSelectedAreaRanges] = useState<string[]>([]);
     const [selectedZoningTypes, setSelectedZoningTypes] = useState<string[]>([]);
-    const [selectedTitleTypes, setSelectedTitleTypes] = useState<string[]>([]);
+    const [selectedTitleLandDeedStatus, setSelectedTitleDeedStatus] = useState<string[]>([]);
     
     // Min-Max states for area
-    const [areaMin, setAreaMin] = useState<string>('');
-    const [areaMax, setAreaMax] = useState<string>('');
-    
-    // Boolean features
-    const [infrastructure, setInfrastructure] = useState<Record<string, boolean>>({
-        electricity: false,
-        water: false,
-        roadAccess: false,
-        naturalGas: false,
-        sewerage: false,
-        internet: false
-    });
+    const [netAreaMin, setNetAreaMin] = useState<string>('');
+    const [netAreaMax, setNetAreaMax] = useState<string>('');
 
     // Features organized by categories
     const [features, setFeatures] = useState<Record<string, boolean>>({
@@ -101,42 +90,23 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
         }
     ];
 
-    const areaRanges = [
-        "0-500 m²",
-        "500 m² - 1000 m²",
-        "1000 m² - 2000 m²", 
-        "2000 m² - 5000 m²",
-        "5000 m² - 10.000 m²",
-        "10.000 m² - 20.000 m²",
-        "20.000 m² - 50.000 m²",
-        "50.000 m² +"
-    ];
-
     const zoningOptions = [
-        "İmarlı",
-        "Tarla",
-        "Bahçe",
-        "Konut İmarlı",
-        "Ticari İmarlı",
-        "Sanayi İmarlı",
-        "Diğer"
+        {value: "IMARLI", label: "İmarlı"},
+        { value: "IMARSIZ", label: "İmarsız" },
+        { value: "TARLA", label: "Tarla" },
+        { value: "BAHCE", label: "Bahçe" },
+        { value: "KONUT_IMARLI", label: "Konut İmarlı" },
+        { value: "TICARI_IMARLI", label: "Ticari İmarlı" },
+        { value: "SANAYI_IMARLI", label: "Sanayi İmarlı" },
+        { value: "DIGER", label: "Diğer" }
     ];
 
-    const titleDeedOptions = [
-        "Kat Mülkiyeti",
-        "Kat İrtifakı",
-        "Arsa Payı",
-        "Müstakil Tapulu",
-        "Hisseli Tapulu",
-        "Tarla Tapulu"
+    const titleLandDeedOptions = [
+        { value: "ARSA_PAYI", label: "Arsa Payı"},
+        { value: "MUSTAKIL_TAPULU", label: "Müstakil Tapulu" },
+        { value: "HISSELI_TAPULU", label: "Hisseli Tapulu" },
+        { value: "TARLA_TAPULU", label: "Tarla Tapulu" }
     ];
-
-    const handleInfrastructureChange = (feature: string) => {
-        setInfrastructure(prev => ({
-            ...prev,
-            [feature]: !prev[feature]
-        }));
-    };
 
     const handleFeatureChange = (feature: string) => {
         setFeatures(prev => ({
@@ -145,7 +115,7 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
         }));
     };
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'zoning' | 'title' | 'infrastructure' | 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe') => {
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, type: 'area' | 'zoning' | 'title' | 'Altyapı' | 'Konum & Manzara' | 'Arazi Özellikler' | 'Tarım & Bahçe') => {
         setAnchorEl(event.currentTarget);
         setPopoverType(type);
     };
@@ -153,16 +123,6 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
     const handlePopoverClose = () => {
         setAnchorEl(null);
         setPopoverType(null);
-    };
-
-    const toggleAreaRange = (range: string) => {
-        setSelectedAreaRanges(prev => {
-            if (prev.includes(range)) {
-                return prev.filter(r => r !== range);
-            } else {
-                return [...prev, range];
-            }
-        });
     };
 
     const toggleZoningType = (zoning: string) => {
@@ -175,15 +135,33 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
         });
     };
 
-    const toggleTitleType = (title: string) => {
-        setSelectedTitleTypes(prev => {
-            if (prev.includes(title)) {
-                return prev.filter(t => t !== title);
+    const toggleTitleLandDeedType = (title: string) => {
+        setSelectedTitleDeedStatus(prev => {
+            if(prev.includes(title)) {
+                return prev.filter(z => z !== title);
             } else {
                 return [...prev, title];
             }
         });
     };
+
+
+    const getLandDetails = () => {
+        const landData = {
+            netAreaMin: netAreaMin,
+            netAreaMax: netAreaMax,
+            zoningTypes: selectedZoningTypes,
+            titleLandDeedStatus: selectedTitleLandDeedStatus,
+            features: features
+        };
+        console.log('🏢 Office Details verisi alınıyor:', landData);
+        return landData;
+    };
+
+    // Parent'a getDetails fonksiyonunu expose et
+    useImperativeHandle(ref, () => ({
+        getDetails: getLandDetails
+    }));
 
     const open = Boolean(anchorEl);
 
@@ -202,8 +180,8 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                         <TextField
                             placeholder="Min"
-                            value={areaMin}
-                            onChange={(e) => setAreaMin(e.target.value)}
+                            value={netAreaMin}
+                            onChange={(e) => setNetAreaMin(e.target.value)}
                             size="small"
                             autoComplete="off"
                             sx={{ 
@@ -220,8 +198,8 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                         
                         <TextField
                             placeholder="Max"
-                            value={areaMax}
-                            onChange={(e) => setAreaMax(e.target.value)}
+                            value={netAreaMax}
+                            onChange={(e) => setNetAreaMax(e.target.value)}
                             size="small"
                             autoComplete="off"
                             sx={{ 
@@ -262,7 +240,7 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                         </Typography>
                         {selectedZoningTypes.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedZoningTypes.join(', ')}
+                                {selectedZoningTypes.map(type => zoningOptions.find(f => f.value === type)?.label).join(', ')}
                             </Typography>
                         )}
                     </Box>
@@ -293,42 +271,9 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                         <Typography sx={{ fontSize: "13px" }}>
                             Tapu Durumu
                         </Typography>
-                        {selectedTitleTypes.length > 0 && (
+                        {selectedTitleLandDeedStatus.length > 0 && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {selectedTitleTypes.join(', ')}
-                            </Typography>
-                        )}
-                    </Box>
-                    <ChevronRightIcon sx={{ fontSize: "16px" }} />
-                </Box>
-
-                {/* Altyapı Durumu */}
-                <Box 
-                    onClick={(e) => handlePopoverOpen(e, 'infrastructure')}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '8px 10px',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        marginBottom: '6px',
-                        minHeight: '36px',
-                        backgroundColor: popoverType === 'infrastructure' && open ? 'rgba(0, 123, 255, 0.05)' : 'transparent',
-                        borderColor: popoverType === 'infrastructure' && open ? 'rgba(0, 123, 255, 0.3)' : 'rgba(0, 0, 0, 0.12)',
-                        '&:hover': {
-                            backgroundColor: popoverType === 'infrastructure' && open ? 'rgba(0, 123, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)'
-                        }
-                    }}
-                >
-                    <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ fontSize: "13px" }}>
-                            Altyapı Durumu
-                        </Typography>
-                        {Object.values(infrastructure).some(f => f) && (
-                            <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {Object.values(infrastructure).filter(f => f).length} altyapı seçili
+                                {selectedTitleLandDeedStatus.map(type => titleLandDeedOptions.find(f => f.value === type)?.label).join(', ')}
                             </Typography>
                         )}
                     </Box>
@@ -401,7 +346,6 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                                 {popoverType === 'area' && 'Toplam Alan Aralığı'}
                                 {popoverType === 'zoning' && 'İmar Durumu Seçin'}
                                 {popoverType === 'title' && 'Tapu Durumu Seçin'}
-                                {popoverType === 'infrastructure' && 'Altyapı Durumu Seçin'}
                                 {popoverType === 'Altyapı' && 'Altyapı Özellikleri'}
                                 {popoverType === 'Konum & Manzara' && 'Konum & Manzara Seçin'}
                                 {popoverType === 'Arazi Özellikler' && 'Arazi Özelliklerini Seçin'}
@@ -412,41 +356,13 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                             </IconButton>
                         </Box>
 
-                        {/* Alan Aralığı Listesi */}
-                        {popoverType === 'area' && (
-                            <List sx={{ padding: 0 }}>
-                                {areaRanges.map((range) => (
-                                    <ListItem disablePadding key={range} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => toggleAreaRange(range)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={selectedAreaRanges.includes(range)}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{range}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
-
                         {/* İmar Durumu Listesi */}
                         {popoverType === 'zoning' && (
                             <List sx={{ padding: 0 }}>
                                 {zoningOptions.map((zoning) => (
-                                    <ListItem disablePadding key={zoning} sx={{ p: 0 }}>
+                                    <ListItem disablePadding key={zoning.value} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => toggleZoningType(zoning)} 
+                                            onClick={() => toggleZoningType(zoning.value)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -458,10 +374,10 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                                             }}
                                         >
                                             <Checkbox
-                                                checked={selectedZoningTypes.includes(zoning)}
+                                                checked={selectedZoningTypes.includes(zoning.value)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{zoning}</Typography>
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{zoning.label}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
@@ -471,10 +387,10 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                         {/* Tapu Durumu Listesi */}
                         {popoverType === 'title' && (
                             <List sx={{ padding: 0 }}>
-                                {titleDeedOptions.map((title) => (
-                                    <ListItem disablePadding key={title} sx={{ p: 0 }}>
+                                {titleLandDeedOptions.map((title) => (
+                                    <ListItem disablePadding key={title.value} sx={{ p: 0 }}>
                                         <ListItemButton 
-                                            onClick={() => toggleTitleType(title)} 
+                                            onClick={() => toggleTitleLandDeedType(title.value)} 
                                             sx={{
                                                 p: '4px 8px',
                                                 display: 'flex',
@@ -486,45 +402,10 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
                                             }}
                                         >
                                             <Checkbox
-                                                checked={selectedTitleTypes.includes(title)}
+                                                checked={selectedTitleLandDeedStatus.includes(title.value)}
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
                                             />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{title}</Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
-
-                        {/* Altyapı Durumu Listesi */}
-                        {popoverType === 'infrastructure' && (
-                            <List sx={{ padding: 0 }}>
-                                {[
-                                    { key: 'electricity', label: 'Elektrik' },
-                                    { key: 'water', label: 'Su' },
-                                    { key: 'naturalGas', label: 'Doğalgaz' },
-                                    { key: 'sewerage', label: 'Kanalizasyon' },
-                                    { key: 'roadAccess', label: 'Yol Erişimi' },
-                                    { key: 'internet', label: 'İnternet/Fiber' }
-                                ].map((infra) => (
-                                    <ListItem disablePadding key={infra.key} sx={{ p: 0 }}>
-                                        <ListItemButton 
-                                            onClick={() => handleInfrastructureChange(infra.key)} 
-                                            sx={{
-                                                p: '4px 8px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                borderRadius: '4px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(237, 149, 23, 0.1)'
-                                                }
-                                            }}
-                                        >
-                                            <Checkbox
-                                                checked={infrastructure[infra.key]}
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 14 }, mr: 1, p: 0 }}
-                                            />
-                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{infra.label}</Typography>
+                                            <Typography sx={{ fontSize: '13px', m: 0 }}>{title.label}</Typography>
                                         </ListItemButton>
                                     </ListItem>
                                 ))}
@@ -565,4 +446,4 @@ export default function LandDetails({ selectedCategory }: LandDetailsProps) {
             </CardContent>
         </Card>
     );
-}
+});

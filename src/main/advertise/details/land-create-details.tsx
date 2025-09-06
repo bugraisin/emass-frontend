@@ -130,6 +130,7 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                                 <MenuItem value="KONUT_IMARI">Konut İmarlı</MenuItem>
                                 <MenuItem value="TICARI_IMARI">Ticari İmarlı</MenuItem>
                                 <MenuItem value="SANAYI_IMARI">Sanayi İmarlı</MenuItem>
+                                <MenuItem value="DIGER">Diğer</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
@@ -245,8 +246,8 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                         <FormControl fullWidth variant="outlined" size="small">
                             <InputLabel sx={{ '&.Mui-focused': { color: '#1e293b' } }}>Tapu Durumu</InputLabel>
                             <Select
-                                value={details.tapuStatus || ''}
-                                onChange={(e) => handleDetailChange('tapuStatus', e.target.value)}
+                                value={details.titleLandDeedStatus || ''}
+                                onChange={(e) => handleDetailChange('titleLandDeedStatus', e.target.value)}
                                 label="Tapu Durumu"
                                 sx={{
                                     borderRadius: 1,
@@ -254,10 +255,10 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
                                 }}
                             >
-                                <MenuItem value="MUSTAKIL">Müstakil Tapulu</MenuItem>
-                                <MenuItem value="HISSELI">Hisseli Tapu</MenuItem>
                                 <MenuItem value="ARSA_PAYI">Arsa Payı</MenuItem>
-                                <MenuItem value="TAPU_BEKLIYOR">Tapu Bekleniyor</MenuItem>
+                                <MenuItem value="MUSTAKIL_TAPULU">Müsatik Tapulu</MenuItem>
+                                <MenuItem value="HISSELI_TAPULU">Hisseli Tapulu</MenuItem>
+                                <MenuItem value="TARLA_TAPULU">Tarla Tapulu</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
