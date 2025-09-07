@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Grid, IconButton, Divider, Modal, Backdrop, Chip } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos, LocationOn, Close, Fullscreen, Schedule, PushPin } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, LocationOn, Close, Fullscreen, Schedule, PushPin, Favorite } from "@mui/icons-material";
 
 interface Photo {
   id: string;
@@ -322,11 +322,11 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
 
   return (
     <>
-      {/* Ana fotoğraf container - StepSix ile aynı boyut */}
+      {/* Ana fotoğraf container - Modern overlay tasarım */}
       <Box sx={{
         position: "relative",
         width: "100%",
-        height: "400px", // StepSix ile aynı yükseklik
+        height: "380px",
         minHeight: "400px",
         maxHeight: "400px",
         overflow: "hidden",
@@ -336,7 +336,6 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
-        marginBottom: 0 // Margin kaldırıldı - direkt bitişik
       }}>
         {/* Ana fotoğraf - tıklanabilir */}
         <Box
@@ -374,12 +373,12 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
             className="fullscreen-icon"
             sx={{
               position: 'absolute',
-              top: 10,
-              left: 10,
-              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              top: 15,
+              left: 15,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
-              borderRadius: 1,
-              padding: '4px',
+              borderRadius: 1.5,
+              padding: '8px',
               opacity: 0,
               transition: 'opacity 0.3s ease'
             }}
@@ -392,18 +391,22 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
         {photos.length > 1 && (
           <>
             <IconButton onClick={handlePrev} sx={{
-              position: "absolute", top: "50%", left: 10, transform: "translateY(-50%)",
-              background: "rgba(0,0,0,0.5)", color: "#fff", borderRadius: 1,
-              "&:hover": { background: "rgba(0,0,0,0.7)" },
-              zIndex: 2
+              position: "absolute", top: "50%", left: 15, transform: "translateY(-50%)",
+              background: "rgba(0,0,0,0.7)", color: "#fff", borderRadius: 2,
+              "&:hover": { background: "rgba(0,0,0,0.9)" },
+              zIndex: 3,
+              width: 40,
+              height: 40
             }}>
               <ArrowBackIos fontSize="small" />
             </IconButton>
             <IconButton onClick={handleNext} sx={{
-              position: "absolute", top: "50%", right: 10, transform: "translateY(-50%)",
-              background: "rgba(0,0,0,0.5)", color: "#fff", borderRadius: 1,
-              "&:hover": { background: "rgba(0,0,0,0.7)" },
-              zIndex: 2
+              position: "absolute", top: "50%", right: 15, transform: "translateY(-50%)",
+              background: "rgba(0,0,0,0.7)", color: "#fff", borderRadius: 2,
+              "&:hover": { background: "rgba(0,0,0,0.9)" },
+              zIndex: 3,
+              width: 40,
+              height: 40
             }}>
               <ArrowForwardIos fontSize="small" />
             </IconButton>
@@ -414,123 +417,136 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
         {photos.length > 1 && (
           <Box sx={{
             position: 'absolute',
-            top: 10,
-            right: 10,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            top: 15,
+            right: 15,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
             color: 'white',
-            padding: '4px 8px',
-            borderRadius: 1,
-            fontSize: 12,
-            fontWeight: 500
+            padding: '6px 12px',
+            borderRadius: 2,
+            fontSize: 13,
+            fontWeight: 600
           }}>
             {currentIndex + 1} / {photos.length}
           </Box>
         )}
-      </Box>
 
-      {/* Thumbnail Panel - Altında ayrı panel */}
-      {photos.length > 1 && (
-        <Box sx={{
-          width: "100%",
-          border: "1px solid #e2e8f0",
-          borderRadius: 1,
-          backgroundColor: '#f8fafc',
-          padding: 0.5 // Çok minimal padding
-        }}>
-          
-          {/* Thumbnail container with navigation */}
-          <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', height: '44px' }}>
-            {/* Sol ok */}
-            {thumbnailOffset > 0 && (
-              <IconButton
-                onClick={handleThumbnailPrev}
-                sx={{
-                  position: 'absolute',
-                  left: -8,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  zIndex: 2,
-                  backgroundColor: 'rgba(0,0,0,0.7)',
-                  color: 'white',
-                  width: 24,
-                  height: 24,
-                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.9)' }
-                }}
-              >
-                <ArrowBackIos fontSize="small" sx={{ fontSize: 14 }} />
-              </IconButton>
-            )}
+        {/* Thumbnail Panel - Ana fotoğrafın içinde alt kısımda overlay */}
+        {photos.length > 1 && (
+          <Box sx={{
+            position: 'absolute',
+            bottom: 8,
+            left: 8,
+            right: 8,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            borderRadius: 1,
+            padding: 0.5,
+            backdropFilter: 'blur(10px)',
+            zIndex: 2
+          }}>
+            {/* Thumbnail container with navigation */}
+            <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', height: '40px' }}>
+              {/* Sol ok */}
+              {thumbnailOffset > 0 && (
+                <IconButton
+                  onClick={handleThumbnailPrev}
+                  sx={{
+                    position: 'absolute',
+                    left: -3,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 4,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    color: 'black',
+                    width: 24,
+                    height: 24,
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,1)' }
+                  }}
+                >
+                  <ArrowBackIos fontSize="small" sx={{ fontSize: 12 }} />
+                </IconButton>
+              )}
 
-            {/* Sağ ok */}
-            {thumbnailOffset + VISIBLE_THUMBNAILS < photos.length && (
-              <IconButton
-                onClick={handleThumbnailNext}
-                sx={{
-                  position: 'absolute',
-                  right: -8,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  zIndex: 2,
-                  backgroundColor: 'rgba(0,0,0,0.7)',
-                  color: 'white',
-                  width: 24,
-                  height: 24,
-                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.9)' }
-                }}
-              >
-                <ArrowForwardIos fontSize="small" sx={{ fontSize: 14 }} />
-              </IconButton>
-            )}
+              {/* Sağ ok */}
+              {thumbnailOffset + VISIBLE_THUMBNAILS < photos.length && (
+                <IconButton
+                  onClick={handleThumbnailNext}
+                  sx={{
+                    position: 'absolute',
+                    right: -3,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 4,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    color: 'black',
+                    width: 24,
+                    height: 24,
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,1)' }
+                  }}
+                >
+                  <ArrowForwardIos fontSize="small" sx={{ fontSize: 12 }} />
+                </IconButton>
+              )}
 
-            {/* Thumbnail grid - tüm paneli kaplasın */}
-            <Box sx={{
-              display: 'flex',
-              gap: 0.5,
-              overflow: 'hidden',
-              width: '100%',
-              justifyContent: 'space-evenly'
-            }}>
-              {photos.slice(thumbnailOffset, thumbnailOffset + VISIBLE_THUMBNAILS).map((photo, index) => {
-                const actualIndex = thumbnailOffset + index;
-                const visibleCount = Math.min(VISIBLE_THUMBNAILS, photos.length - thumbnailOffset);
-                const dynamicWidth = `calc((100% - ${(visibleCount - 1) * 4}px) / ${visibleCount})`; // Gap'leri hesaba kat
-                
-                return (
-                  <Box
-                    key={photo.id}
-                    onClick={() => setCurrentIndex(actualIndex)}
-                    sx={{
-                      width: dynamicWidth,
-                      minWidth: '40px',
-                      maxWidth: '80px',
-                      height: '50px',
-                      borderRadius: 0.5,
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      border: actualIndex === currentIndex ? '1px solid #ed9517' : '1px solid transparent',
-                      position: 'relative',
-                      flexShrink: 0,
-                      '&:hover': {
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                      }
-                    }}
-                  >
-                    <img
-                      src={photo.url}
-                      alt={`Fotoğraf ${actualIndex + 1}`}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
+              {/* Thumbnail grid */}
+              <Box sx={{
+                display: 'flex',
+                gap: 0.5,
+                overflow: 'hidden',
+                width: '100%',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                {photos.slice(thumbnailOffset, thumbnailOffset + Math.min(7, photos.length)).map((photo, index) => {
+                  const actualIndex = thumbnailOffset + index;
+                  
+                  return (
+                    <Box
+                      key={photo.id}
+                      onClick={() => setCurrentIndex(actualIndex)}
+                      sx={{
+                        width: '50px',
+                        height: '35px',
+                        borderRadius: 0.5,
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        border: actualIndex === currentIndex ? '1.5px solid #ed9517' : '1.5px solid rgba(255,255,255,0.3)',
+                        position: 'relative',
+                        flexShrink: 0,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          border: '1.5px solid rgba(255,255,255,0.8)',
+                          transform: 'scale(1.05)'
+                        }
                       }}
-                    />
-                  </Box>
-                );
-              })}
+                    >
+                      <img
+                        src={photo.url}
+                        alt={`Fotoğraf ${actualIndex + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      {/* Aktif thumbnail için overlay */}
+                      {actualIndex === currentIndex && (
+                        <Box sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: 'rgba(237, 149, 23, 0.3)'
+                        }} />
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
             </Box>
           </Box>
-        </Box>
-      )}
+        )}
+      </Box>
 
       {/* Photo Modal */}
       <PhotoModal
@@ -568,9 +584,10 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
+      height: '400px', // Fotoğraf galerisi ile aynı yükseklik
     }}>
-      <Typography variant="h5" sx={{ fontWeight: 700, color: "#059669" }}>
-        {formatPrice(price)} TL
+      <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
+        {formatPrice(price)} ₺
         {listingType === "RENT" && (
           <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
             /ay
@@ -578,38 +595,13 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
         )}
       </Typography>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e293b", fontSize: '16px' }}>
-          {title}
-        </Typography>
-        
-        {/* Pin butonu */}
-        <IconButton
-          onClick={() => onPinListing?.(listing)}
-          sx={{
-            width: 32,
-            height: 32,
-            opacity: pinnedListings.some(p => p.id === listing.id) ? 1 : 0.7,
-            color: pinnedListings.some(p => p.id === listing.id) ? '#ed9517' : '#64748b',
-            '&:hover': {
-              color: '#ed9517',
-              opacity: 1,
-              transform: 'scale(1.1)'
-            }
-          }}
-        >
-          <PushPin sx={{ fontSize: 18 }} />
-        </IconButton>
-      </Box>
-
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <LocationOn fontSize="small" sx={{ color: "#ef4444", mr: 0.5 }} />
         <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
           {neighborhood && `${neighborhood}, `} {district}, {city}
         </Typography>
       </Box>
 
-      <Divider sx={{ my: 1.5, borderColor: '#e2e8f0' }} />
+      <Divider sx={{ my: 1, borderColor: '#e2e8f0' }} />
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
@@ -749,7 +741,7 @@ const LocationPanel = ({ latitude, longitude, city, district, neighborhood }: {
   </Box>
 );
 
-// Tabbed Panel Component - StepSix ile aynı görünüm
+// Tabbed Panel Component - Modern tasarım
 const TabbedPanel = ({ details, latitude, longitude, city, district, neighborhood }: {
   details: any;
   latitude: number | null;
@@ -761,26 +753,33 @@ const TabbedPanel = ({ details, latitude, longitude, city, district, neighborhoo
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <Box sx={{ mt: 3 }}>
+    <Box sx={{ 
+      mt: 2,
+      border: "1px solid #e2e8f0",
+      borderRadius: 2,
+      backgroundColor: 'white',
+      overflow: 'hidden'
+    }}>
       {/* Custom Tab Headers */}
       <Box sx={{
         display: 'flex',
-        borderBottom: '1px solid #e2e8f0',
-        mb: 3
+        backgroundColor: '#f8fafc',
+        borderBottom: '1px solid #e2e8f0'
       }}>
         <Box
           onClick={() => setActiveTab(0)}
           sx={{
-            px: 3,
-            py: 2,
+            px: 2.5,
+            py: 1.5,
             cursor: 'pointer',
-            borderBottom: activeTab === 0 ? '2px solid #475569' : 'none',
-            color: activeTab === 0 ? '#1e293b' : '#64748b',
-            fontWeight: activeTab === 0 ? 600 : 400,
-            fontSize: '14px',
-            transition: 'all 0.2s ease',
+            borderBottom: activeTab === 0 ? '3px solid #ed9517' : '3px solid transparent',
+            color: activeTab === 0 ? '#ed9517' : '#64748b',
+            fontWeight: 600,
+            fontSize: '13px',
+            backgroundColor: activeTab === 0 ? 'white' : 'transparent',
             '&:hover': {
-              color: '#1e293b'
+              color: activeTab === 0 ? '#ed9517' : '#1e293b',
+              backgroundColor: activeTab === 0 ? 'white' : '#f1f5f9'
             }
           }}
         >
@@ -789,16 +788,17 @@ const TabbedPanel = ({ details, latitude, longitude, city, district, neighborhoo
         <Box
           onClick={() => setActiveTab(1)}
           sx={{
-            px: 3,
-            py: 2,
+            px: 2.5,
+            py: 1.5,
             cursor: 'pointer',
-            borderBottom: activeTab === 1 ? '2px solid #475569' : 'none',
-            color: activeTab === 1 ? '#1e293b' : '#64748b',
-            fontWeight: activeTab === 1 ? 600 : 400,
-            fontSize: '14px',
-            transition: 'all 0.2s ease',
+            borderBottom: activeTab === 1 ? '3px solid #ed9517' : '3px solid transparent',
+            color: activeTab === 1 ? '#ed9517' : '#64748b',
+            fontWeight: 600,
+            fontSize: '13px',
+            backgroundColor: activeTab === 1 ? 'white' : 'transparent',
             '&:hover': {
-              color: '#1e293b'
+              color: activeTab === 1 ? '#ed9517' : '#1e293b',
+              backgroundColor: activeTab === 1 ? 'white' : '#f1f5f9'
             }
           }}
         >
@@ -807,7 +807,7 @@ const TabbedPanel = ({ details, latitude, longitude, city, district, neighborhoo
       </Box>
 
       {/* Tab Content */}
-      <Box>
+      <Box sx={{ p: 2 }}>
         {activeTab === 0 && <FeatureCategories details={details} />}
         {activeTab === 1 && (
           <LocationPanel
@@ -828,22 +828,93 @@ export default function ListingDetailHouse({
   listing, pinnedListings, onUnpinListing, onPinListing
 }: ListingDetailHouseProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPinnedLocal, setIsPinnedLocal] = useState(
+    pinnedListings?.some(p => p.id === listing.id) || false
+  );
+
+  // Pinned durumunu güncelleme fonksiyonu
+  const handlePinToggle = () => {
+    if (isPinnedLocal) {
+      // Pinned ise kaldır
+      onUnpinListing(listing.id);
+      setIsPinnedLocal(false);
+    } else {
+      // Pinned değilse ekle
+      onPinListing && onPinListing(listing);
+      setIsPinnedLocal(true);
+    }
+  };
 
   return (
-    <Box sx={{ width: "100%", 
-        mx: "auto", 
+    <Box sx={{ width: "100%",
         fontFamily: "sans-serif", 
-        p: 2, 
-        mb: 2,         
+        p: 1, 
+        mb: 2, 
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         border: '1px solid #d3d3d3'
      }}>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={7}>
+      {/* Başlık - En üstte tek satır */}
+      <Box sx={{
+        p: 0.5,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Typography variant="h5" sx={{ 
+          fontWeight: 600, 
+          color: "#1e293b", 
+          fontSize: '16px',
+          flex: 1
+        }}>
+          {listing.title}
+        </Typography>
+        
+        {/* Pin ve Favorite Butonları */}
+        <Box sx={{ display: 'flex', gap: 0.5, mt: -0.5 }}>
+          <IconButton
+            onClick={handlePinToggle}
+            sx={{
+              width: 28,
+              height: 28,
+              borderRadius: 1,
+              backgroundColor: isPinnedLocal ? '#ed9517' : 'transparent',
+              color: isPinnedLocal ? 'white' : '#64748b',
+              border: 'none',
+              '&:hover': {
+                backgroundColor: isPinnedLocal ? '#d97706' : '#f1f5f9',
+                color: isPinnedLocal ? 'white' : '#ed9517'
+              },
+            }}
+          >
+            <PushPin sx={{ fontSize: 14 }} />
+          </IconButton>
+          
+          <IconButton
+            sx={{
+              width: 28,
+              height: 28,
+              borderRadius: 1,
+              backgroundColor: 'transparent',
+              color: '#64748b',
+              border: 'none',
+              '&:hover': {
+                backgroundColor: '#fef2f2',
+                color: '#ef4444'
+              },
+            }}
+          >
+            <Favorite sx={{ fontSize: 14 }} />
+          </IconButton>
+        </Box>
+      </Box>
+      <Divider sx={{mb: 1}}></Divider>
+
+      <Grid container spacing={1}>
+        <Grid item xs={12} md={8}>
           <PhotoGallery photos={listing.photos || []} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
         </Grid>
-        <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={4}>
           <PropertyInfoPanel
             listingType={listing.listingType}
             title={listing.title}
@@ -861,7 +932,7 @@ export default function ListingDetailHouse({
 
       <Box
         sx={{
-          mt: 3,
+          mt: 2,
           border: "1px solid #e5e7eb",
           borderRadius: "8px",
           background: "white",

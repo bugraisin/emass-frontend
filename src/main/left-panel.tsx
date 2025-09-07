@@ -585,8 +585,8 @@ const handleSearch = async () => {
 
     return (
         <Box sx={{ 
-            padding: '8px',
-            height: '100%',
+            padding: '4px',
+            height: '100%', 
             position: 'relative'
         }}>
             <Categories onCategoryChange={handleCategoryChange} />

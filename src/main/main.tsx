@@ -98,7 +98,7 @@ export default function Main() {
                 display="flex"
                 flexDirection="column"
                 width="100%"
-                maxWidth="1260px"
+                maxWidth="1440px"
                 sx={{ border: '1px solid rgba(148, 163, 184, 0.5)' }}
             >
                 <Box
@@ -106,8 +106,9 @@ export default function Main() {
                     flex="1"
                     sx={{ minHeight: 'calc(100vh - 40px)' }}
                 >
+                    {/* Sol Panel - Left Panel */}
                     <Box
-                        width="22%"
+                        width="18%"
                         sx={{
                             background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
                         }}
@@ -118,6 +119,7 @@ export default function Main() {
                         />
                     </Box>
 
+                    {/* Orta Panel - Main Panel */}
                     <Box
                         flex="1"
                         sx={{
@@ -132,14 +134,21 @@ export default function Main() {
                             pinnedListings={pinnedListings}
                         />
                     </Box>
+
+                    {/* Sağ Panel - Pinned Panel */}
+                    <Box
+                        width="22%"
+                        sx={{
+                            background: 'rgba(148, 163, 184, 0.1)',
+                        }}
+                    >
+                        <PinnedPanel 
+                            pinnedListings={pinnedListings}
+                            onUnpinListing={handleUnpinListing}
+                        />
+                    </Box>
                 </Box>
             </Box>
-            
-            {/* Sağ Panel - Pinned Listings */}
-            <PinnedPanel 
-                pinnedListings={pinnedListings}
-                onUnpinListing={handleUnpinListing}
-            />
         </Box>
     );
 }

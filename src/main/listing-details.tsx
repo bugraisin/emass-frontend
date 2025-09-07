@@ -4,6 +4,7 @@ import { Box, Typography, CircularProgress, Alert, IconButton } from '@mui/mater
 import { ArrowBack } from '@mui/icons-material';
 import ListingDetailHouse from './listing-details/listing-detail-house.tsx';
 import PinnedPanel from './pinned-panel.tsx';
+import OwnerContactPanel from './listing-details/owner-contact-panel.tsx';
 
 // Import detail components
 
@@ -191,20 +192,53 @@ export default function ListingDetails() {
       justifyContent="center"
       alignItems="flex-start"
     >
-      {/* Ana İçerik */}
-      <Box sx={{ 
-        width: '100%', 
-        maxWidth: '1200px', 
-        position: 'relative',
-      }}>
-        {renderListingDetail()}
+      {/* Ana Container - Main sayfası ile aynı yapı */}
+      <Box
+        display="flex"
+        flexDirection="column"
+        width="100%"
+        maxWidth="1440px"
+        sx={{ border: '1px solid rgba(148, 163, 184, 0.5)' }}
+      >
+        <Box
+          display="flex"
+          flex="1"
+          sx={{ minHeight: 'calc(100vh - 40px)' }}
+        >
+          {/* Sol Panel - Emlak Sahibi İletişim */}
+          <Box
+            width="18%"
+            sx={{
+              background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+            }}
+          >
+            <OwnerContactPanel listingId={id || ''} />
+          </Box>
+
+          {/* Orta Panel - İlan Detayları */}
+          <Box
+            flex="1"
+            sx={{
+              background: 'rgba(148, 163, 184, 0.1)',
+            }}
+          >
+            {renderListingDetail()}
+          </Box>
+
+          {/* Sağ Panel - Pinned Listings */}
+          <Box
+            width="22%"
+            sx={{
+              background: 'rgba(148, 163, 184, 0.1)',
+            }}
+          >
+            <PinnedPanel 
+              pinnedListings={pinnedListings}
+              onUnpinListing={handleUnpinListing}
+            />
+          </Box>
+        </Box>
       </Box>
-      
-      {/* Sağ Panel - Pinned Listings */}
-      <PinnedPanel 
-        pinnedListings={pinnedListings}
-        onUnpinListing={handleUnpinListing}
-      />
     </Box>
   );
 }

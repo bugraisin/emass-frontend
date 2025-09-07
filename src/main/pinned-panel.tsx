@@ -155,13 +155,12 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
     return (
         <Box
             sx={{
-                width: '280px',
-                background: '#fce4c391',
-                boxShadow: '0 8px 25px rgba(148, 163, 184, 0.15)',
-                padding: '6px',
+                width: '100%',
+                background: 'rgba(148, 163, 184, 0.1)',
+                border: '1px solid rgba(148, 163, 184, 0.3)',                
+                padding: '4px',
                 maxHeight: '100%',
                 overflowY: 'auto',
-                position: 'sticky',
             }}
         >
             {/* Tab Butonları */}
@@ -185,18 +184,18 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             onClick={() => setActiveTab(tab)}
                             sx={{
                                 flex: 1,
-                                fontSize: '10px', // 9px'ten 10px'e
-                                fontWeight: isActive ? 600 : 500,
+                                fontSize: '9px', 
+                                fontWeight: 600,
                                 color: isActive ? '#ed9517' : '#64748b',
                                 backgroundColor: isActive ? 'rgba(237, 149, 23, 0.1)' : 'transparent',
                                 borderRadius: '4px',
-                                padding: '8px 2px', // 6px'ten 8px'e artırdık
+                                padding: '8px 2px',
                                 minWidth: 0,
                                 textTransform: 'none',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                gap: '3px', // 2px'ten 3px'e artırdık
+                                gap: '3px',
                                 '&:hover': {
                                     backgroundColor: isActive ? 'rgba(237, 149, 23, 0.15)' : 'rgba(100, 116, 139, 0.1)',
                                 },

@@ -18,7 +18,7 @@ export default function TopPanel() {
 
     const isHomePage = location.pathname === "/";
     const isSearchPage = location.pathname.startsWith("/search");
-    const showSearchAndUser = isHomePage || isSearchPage;
+    const showSearchAndUser = true; // Her sayfada göster
 
     useEffect(() => {
         const loggedInUser = localStorage.getItem('user');
@@ -85,8 +85,7 @@ export default function TopPanel() {
                 alignItems="center"
                 justifyContent="space-between"
                 width="100%"
-                maxWidth="1220px"
-                sx={{ paddingLeft: '36px' }}
+                maxWidth="1240px"   
             >
                 <Box>
                     <a href="/" style={{
