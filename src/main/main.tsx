@@ -10,6 +10,20 @@ export default function Main() {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [pinnedListings, setPinnedListings] = useState<any[]>([]);
 
+    // localStorage'dan pinned listings'ları yükle
+    useEffect(() => {
+        const savedPinnedListings = localStorage.getItem('pinnedListings');
+        if (savedPinnedListings) {
+            try {
+                const parsedListings = JSON.parse(savedPinnedListings);
+                setPinnedListings(parsedListings);
+            } catch (error) {
+                console.error('Pinned listings localStorage hatası:', error);
+                localStorage.removeItem('pinnedListings');
+            }
+        }
+    }, []);
+
     // Sayfa ilk açıldığında tüm ilanları yükle
     useEffect(() => {
         const fetchAllListings = async () => {
@@ -53,13 +67,25 @@ export default function Main() {
     };
 
     const handlePinListing = (listing: any) => {
-        if (!pinnedListings.find(p => p.id === listing.id)) {
-            setPinnedListings(prev => [...prev, listing]);
+        const isAlreadyPinned = pinnedListings.find(p => p.id === listing.id);
+        
+        let updatedPinnedListings;
+        if (isAlreadyPinned) {
+            // Zaten pinlenmiş, unpin yap
+            updatedPinnedListings = pinnedListings.filter(p => p.id !== listing.id);
+        } else {
+            // Henüz pinlenmemiş, pin ekle
+            updatedPinnedListings = [...pinnedListings, listing];
         }
+            
+        setPinnedListings(updatedPinnedListings);
+        localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
     };
 
     const handleUnpinListing = (listingId: string) => {
-        setPinnedListings(prev => prev.filter(p => p.id !== listingId));
+        const updatedPinnedListings = pinnedListings.filter(p => p.id !== listingId);
+        setPinnedListings(updatedPinnedListings);
+        localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
     };
 
     return (
@@ -102,6 +128,7 @@ export default function Main() {
                             searchResults={searchResults}
                             isLoading={isLoading}
                             onPinListing={handlePinListing}
+                            onUnpinListing={handleUnpinListing}
                             pinnedListings={pinnedListings}
                         />
                     </Box>

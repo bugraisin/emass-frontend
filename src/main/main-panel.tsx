@@ -3,15 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Box, Grid, CardMedia, IconButton, Pagination, Skeleton } from "@mui/material";
 import ImageIcon from '@mui/icons-material/Image';
 import PushPinIcon from '@mui/icons-material/PushPin';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 interface MainPanelProps {
     searchResults?: any[];
     isLoading?: boolean;
     onPinListing?: (listing: any) => void;
+    onUnpinListing?: (listingId: string) => void;
     pinnedListings?: any[];
 }
 
-export default function MainPanel({ searchResults = [], isLoading = false, onPinListing, pinnedListings = [] }: MainPanelProps) {
+export default function MainPanel({ searchResults = [], isLoading = false, onPinListing, onUnpinListing, pinnedListings = [] }: MainPanelProps) {
 
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
@@ -187,33 +189,6 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
               }}
               onClick={() => handleCardClick(property)}
             >
-              {/* Pin butonu */}
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPinListing?.(property);
-                }}
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  background: 'rgba(255,255,255,0.9)',
-                  backdropFilter: 'blur(4px)',
-                  width: 28,
-                  height: 28,
-                  zIndex: 2,
-                  opacity: pinnedListings.some(p => p.id === property.id) ? 1 : 0.7,
-                  color: pinnedListings.some(p => p.id === property.id) ? '#ed9517' : '#64748b',
-                  '&:hover': {
-                    background: 'rgba(255,255,255,0.95)',
-                    color: '#ed9517',
-                    opacity: 1,
-                    transform: 'scale(1.1)'
-                  }
-                }}
-              >
-                <PushPinIcon sx={{ fontSize: 16 }} />
-              </IconButton>
             {property.thumbnailUrl || property.imageUrl || property.image ? (
                 <CardMedia
                     component="img"
@@ -246,49 +221,15 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                 flexDirection: 'column', 
                 justifyContent: 'space-between',
                 height: '100%',
+                position: 'relative',
                 '&:last-child': { paddingBottom: '8px' }
               }}>
-                {/* Başlık */}
-                <Typography 
-                  variant="h6" 
-                  sx={{
-                    fontWeight: 600,
-                    color: '#1e293b',
-                    fontSize: '14px',
-                    letterSpacing: '-0.1px',
-                    lineHeight: 1.3,
-                    wordWrap: 'break-word',
-                    marginBottom: '4px'
-                  }}
-                >
-                  {property.title}
-                </Typography>
-                
-                {/* İlçe ve Mahalle */}
-                <Typography 
-                  variant="body2" 
-                  sx={{
-                    color: '#64748b',
-                    fontSize: '12px',
-                    lineHeight: 1.3,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    marginBottom: '4px'
-                  }}
-                >
-                  {property.district && property.neighborhood 
-                    ? `${property.district}, ${property.neighborhood}`
-                    : property.district || property.neighborhood || 'Konum bilgisi yok'
-                  }
-                </Typography>
-
-                {/* Alt satır: Tarih sol, Fiyat sağ */}
+                {/* Üst satır: Tarih sol, Pin ve Like butonları sağ */}
                 <Box sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
                   alignItems: 'center',
-                  marginTop: 'auto'
+                  marginBottom: '4px'
                 }}>
                   {/* Eklenme Tarihi */}
                   <Typography 
@@ -308,6 +249,100 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                     }
                   </Typography>
                   
+                  {/* Pin ve Like butonları */}
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    {/* Pin butonu */}
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const isAlreadyPinned = pinnedListings.some(p => p.id === property.id);
+                        if (isAlreadyPinned) {
+                          onUnpinListing?.(property.id);
+                        } else {
+                          onPinListing?.(property);
+                        }
+                      }}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        opacity: pinnedListings.some(p => p.id === property.id) ? 1 : 0.7,
+                        color: pinnedListings.some(p => p.id === property.id) ? '#ed9517' : '#64748b',
+                        '&:hover': {
+                          color: '#ed9517',
+                          opacity: 1,
+                          transform: 'scale(1.1)'
+                        }
+                      }}
+                    >
+                      <PushPinIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                    
+                    {/* Like butonu */}
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // TODO: Like functionality
+                      }}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        opacity: 0.7,
+                        color: '#64748b',
+                        '&:hover': {
+                          color: '#ef4444',
+                          opacity: 1,
+                          transform: 'scale(1.1)'
+                        }
+                      }}
+                    >
+                      <FavoriteBorderIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
+                </Box>
+                {/* Başlık */}
+                <Typography 
+                  variant="h6" 
+                  sx={{
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    fontSize: '14px',
+                    letterSpacing: '-0.1px',
+                    lineHeight: 1.3,
+                    wordWrap: 'break-word',
+                    marginBottom: '4px',
+                    flex: 1
+                  }}
+                >
+                  {property.title}
+                </Typography>
+                
+                {/* Alt satır: Adres sol, Fiyat sağ */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginTop: 'auto'
+                }}>
+                  {/* İlçe ve Mahalle */}
+                  <Typography 
+                    variant="body2" 
+                    sx={{
+                      color: '#64748b',
+                      fontSize: '12px',
+                      lineHeight: 1.3,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                      marginRight: '8px'
+                    }}
+                  >
+                    {property.district && property.neighborhood 
+                      ? `${property.district}, ${property.neighborhood}`
+                      : property.district || property.neighborhood || 'Konum bilgisi yok'
+                    }
+                  </Typography>
+                  
                   {/* Fiyat */}
                   <Typography 
                     variant="h6" 
@@ -319,7 +354,7 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                     }}
                   >
                     {property.price ? 
-                      `${parseInt(property.price).toLocaleString('tr-TR')} TL` : 
+                      `${parseInt(property.price).toLocaleString('tr-TR')} ₺` : 
                       'Fiyat belirtilmemiş'
                     }
                   </Typography>

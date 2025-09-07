@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Grid, IconButton, Divider, Modal, Backdrop, Chip } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos, LocationOn, Close, Fullscreen, Schedule } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, LocationOn, Close, Fullscreen, Schedule, PushPin } from "@mui/icons-material";
 
 interface Photo {
   id: string;
@@ -30,6 +30,7 @@ interface ListingDetailHouseProps {
   listing: ListingData;
   pinnedListings: any[];
   onUnpinListing: (listingId: string) => void;
+  onPinListing?: (listing: any) => void;
 }
 
 // Helper functions
@@ -259,6 +260,10 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
   setCurrentIndex: (index: number) => void;
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [thumbnailOffset, setThumbnailOffset] = useState(0); // Thumbnail scroll pozisyonu
+
+  const THUMBNAIL_WIDTH = 55; // Thumbnail + gap genişliği (65'ten 55'e)
+  const VISIBLE_THUMBNAILS = 8; // Görünür thumbnail sayısı (6'dan 8'e artırdık)
 
   // Guard against undefined or null photos
   if (!photos || !Array.isArray(photos)) {
@@ -283,6 +288,16 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
 
   const handlePrev = () => setCurrentIndex(currentIndex === 0 ? photos.length - 1 : currentIndex - 1);
   const handleNext = () => setCurrentIndex(currentIndex === photos.length - 1 ? 0 : currentIndex + 1);
+
+  // Thumbnail navigation
+  const handleThumbnailPrev = () => {
+    setThumbnailOffset(Math.max(0, thumbnailOffset - VISIBLE_THUMBNAILS));
+  };
+
+  const handleThumbnailNext = () => {
+    const maxOffset = Math.max(0, photos.length - VISIBLE_THUMBNAILS);
+    setThumbnailOffset(Math.min(maxOffset, thumbnailOffset + VISIBLE_THUMBNAILS));
+  };
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -320,7 +335,8 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        flexShrink: 0
+        flexShrink: 0,
+        marginBottom: 0 // Margin kaldırıldı - direkt bitişik
       }}>
         {/* Ana fotoğraf - tıklanabilir */}
         <Box
@@ -372,66 +388,6 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
           </Box>
         </Box>
 
-        {/* Thumbnail strip */}
-        {photos.length > 1 && (
-          <Box sx={{
-            position: 'absolute',
-            bottom: 10,
-            left: 10,
-            right: 10,
-            display: 'flex',
-            gap: 0.5,
-            justifyContent: 'center'
-          }}>
-            {photos.slice(0, 5).map((photo, index) => (
-              <Box
-                key={photo.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentIndex(index);
-                }}
-                sx={{
-                  width: 40,
-                  height: 30,
-                  borderRadius: 0.5,
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  border: index === currentIndex ? '2px solid white' : '1px solid rgba(255,255,255,0.5)',
-                  opacity: index === currentIndex ? 1 : 0.7,
-                  transition: 'all 0.2s ease',
-                  flexShrink: 0
-                }}
-              >
-                <img
-                  src={photo.url}
-                  alt=""
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
-              </Box>
-            ))}
-            {photos.length > 5 && (
-              <Box sx={{
-                width: 40,
-                height: 30,
-                borderRadius: 0.5,
-                backgroundColor: 'rgba(0,0,0,0.6)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '10px',
-                flexShrink: 0
-              }}>
-                +{photos.length - 5}
-              </Box>
-            )}
-          </Box>
-        )}
-
         {/* Navigation Arrows */}
         {photos.length > 1 && (
           <>
@@ -453,7 +409,128 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
             </IconButton>
           </>
         )}
+
+        {/* Fotoğraf sayısı - sağ üst köşe */}
+        {photos.length > 1 && (
+          <Box sx={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: 1,
+            fontSize: 12,
+            fontWeight: 500
+          }}>
+            {currentIndex + 1} / {photos.length}
+          </Box>
+        )}
       </Box>
+
+      {/* Thumbnail Panel - Altında ayrı panel */}
+      {photos.length > 1 && (
+        <Box sx={{
+          width: "100%",
+          border: "1px solid #e2e8f0",
+          borderRadius: 1,
+          backgroundColor: '#f8fafc',
+          padding: 0.5 // Çok minimal padding
+        }}>
+          
+          {/* Thumbnail container with navigation */}
+          <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', height: '44px' }}>
+            {/* Sol ok */}
+            {thumbnailOffset > 0 && (
+              <IconButton
+                onClick={handleThumbnailPrev}
+                sx={{
+                  position: 'absolute',
+                  left: -8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                  color: 'white',
+                  width: 24,
+                  height: 24,
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.9)' }
+                }}
+              >
+                <ArrowBackIos fontSize="small" sx={{ fontSize: 14 }} />
+              </IconButton>
+            )}
+
+            {/* Sağ ok */}
+            {thumbnailOffset + VISIBLE_THUMBNAILS < photos.length && (
+              <IconButton
+                onClick={handleThumbnailNext}
+                sx={{
+                  position: 'absolute',
+                  right: -8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                  color: 'white',
+                  width: 24,
+                  height: 24,
+                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.9)' }
+                }}
+              >
+                <ArrowForwardIos fontSize="small" sx={{ fontSize: 14 }} />
+              </IconButton>
+            )}
+
+            {/* Thumbnail grid - tüm paneli kaplasın */}
+            <Box sx={{
+              display: 'flex',
+              gap: 0.5,
+              overflow: 'hidden',
+              width: '100%',
+              justifyContent: 'space-evenly'
+            }}>
+              {photos.slice(thumbnailOffset, thumbnailOffset + VISIBLE_THUMBNAILS).map((photo, index) => {
+                const actualIndex = thumbnailOffset + index;
+                const visibleCount = Math.min(VISIBLE_THUMBNAILS, photos.length - thumbnailOffset);
+                const dynamicWidth = `calc((100% - ${(visibleCount - 1) * 4}px) / ${visibleCount})`; // Gap'leri hesaba kat
+                
+                return (
+                  <Box
+                    key={photo.id}
+                    onClick={() => setCurrentIndex(actualIndex)}
+                    sx={{
+                      width: dynamicWidth,
+                      minWidth: '40px',
+                      maxWidth: '80px',
+                      height: '50px',
+                      borderRadius: 0.5,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      border: actualIndex === currentIndex ? '1px solid #ed9517' : '1px solid transparent',
+                      position: 'relative',
+                      flexShrink: 0,
+                      '&:hover': {
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }
+                    }}
+                  >
+                    <img
+                      src={photo.url}
+                      alt={`Fotoğraf ${actualIndex + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+        </Box>
+      )}
 
       {/* Photo Modal */}
       <PhotoModal
@@ -469,7 +546,7 @@ const PhotoGallery = ({ photos, currentIndex, setCurrentIndex }: {
 };
 
 // Property Info Panel Component - StepSix ile aynı görünüm
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
+const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details, listing, pinnedListings, onPinListing }: {
   listingType: string;
   title: string;
   price: string;
@@ -477,6 +554,9 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   district: string;
   neighborhood: string;
   details: any;
+  listing: any;
+  pinnedListings: any[];
+  onPinListing?: (listing: any) => void;
 }) => {
   const importantDetails = getImportantDetailsForKonut(details);
 
@@ -498,9 +578,29 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
         )}
       </Typography>
 
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1e293b", fontSize: '16px' }}>
-        {title}
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "#1e293b", fontSize: '16px' }}>
+          {title}
+        </Typography>
+        
+        {/* Pin butonu */}
+        <IconButton
+          onClick={() => onPinListing?.(listing)}
+          sx={{
+            width: 32,
+            height: 32,
+            opacity: pinnedListings.some(p => p.id === listing.id) ? 1 : 0.7,
+            color: pinnedListings.some(p => p.id === listing.id) ? '#ed9517' : '#64748b',
+            '&:hover': {
+              color: '#ed9517',
+              opacity: 1,
+              transform: 'scale(1.1)'
+            }
+          }}
+        >
+          <PushPin sx={{ fontSize: 18 }} />
+        </IconButton>
+      </Box>
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <LocationOn fontSize="small" sx={{ color: "#ef4444", mr: 0.5 }} />
@@ -725,7 +825,7 @@ const TabbedPanel = ({ details, latitude, longitude, city, district, neighborhoo
 
 // Main Component - StepSix ile aynı görünüm
 export default function ListingDetailHouse({
-  listing, pinnedListings, onUnpinListing
+  listing, pinnedListings, onUnpinListing, onPinListing
 }: ListingDetailHouseProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -734,10 +834,8 @@ export default function ListingDetailHouse({
         mx: "auto", 
         fontFamily: "sans-serif", 
         p: 2, 
-        mb: 2, 
-        mt: 1,                    
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',            
-        borderRadius: '12px',
+        mb: 2,         
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
         border: '1px solid #d3d3d3'
      }}>
 
@@ -754,6 +852,9 @@ export default function ListingDetailHouse({
             district={listing.district}
             neighborhood={listing.neighborhood}
             details={listing.details}
+            listing={listing}
+            pinnedListings={pinnedListings}
+            onPinListing={onPinListing}
           />
         </Grid>
       </Grid>

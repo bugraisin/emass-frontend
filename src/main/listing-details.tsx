@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Alert, IconButton } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import ListingDetailHouse from './listing-details/listing-detail-house.tsx';
+import PinnedPanel from './pinned-panel.tsx';
 
 // Import detail components
 
@@ -30,6 +31,7 @@ export default function ListingDetails() {
   const [listing, setListing] = useState<ListingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pinnedListings, setPinnedListings] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -83,8 +85,37 @@ export default function ListingDetails() {
     fetchListing();
   }, [id]);
 
+  // Pinned listings'i localStorage'dan yükle
+  useEffect(() => {
+    const savedPinnedListings = localStorage.getItem('pinnedListings');
+    if (savedPinnedListings) {
+      try {
+        const parsedListings = JSON.parse(savedPinnedListings);
+        setPinnedListings(parsedListings);
+      } catch (error) {
+        console.error('Pinned listings localStorage hatası:', error);
+        localStorage.removeItem('pinnedListings');
+      }
+    }
+  }, []);
+
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handlePinListing = (listingToPin: any) => {
+    const updatedPinnedListings = pinnedListings.find(p => p.id === listingToPin.id) 
+      ? pinnedListings // Zaten pinlenmiş, değişiklik yapma
+      : [...pinnedListings, listingToPin]; // Yeni pin ekle
+      
+    setPinnedListings(updatedPinnedListings);
+    localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
+  };
+
+  const handleUnpinListing = (listingId: string) => {
+    const updatedPinnedListings = pinnedListings.filter(p => p.id !== listingId);
+    setPinnedListings(updatedPinnedListings);
+    localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
   };
 
   const renderListingDetail = () => {
@@ -95,8 +126,9 @@ export default function ListingDetails() {
         return (
           <ListingDetailHouse 
             listing={listing}
-            pinnedListings={[]}
-            onUnpinListing={() => {}}
+            pinnedListings={pinnedListings}
+            onUnpinListing={handleUnpinListing}
+            onPinListing={handlePinListing}
           />
         );
       default:
@@ -154,13 +186,25 @@ export default function ListingDetails() {
   }
 
   return (
-    <Box sx={{ 
-      width: '100%', 
-      maxWidth: '1200px', 
-      mx: 'auto',
-      position: 'relative',
-    }}>
-      {renderListingDetail()}
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="flex-start"
+    >
+      {/* Ana İçerik */}
+      <Box sx={{ 
+        width: '100%', 
+        maxWidth: '1200px', 
+        position: 'relative',
+      }}>
+        {renderListingDetail()}
+      </Box>
+      
+      {/* Sağ Panel - Pinned Listings */}
+      <PinnedPanel 
+        pinnedListings={pinnedListings}
+        onUnpinListing={handleUnpinListing}
+      />
     </Box>
   );
 }
