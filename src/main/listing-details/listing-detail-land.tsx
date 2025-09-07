@@ -1,4 +1,4 @@
-// listing-details/listing-detail-house.tsx
+// listing-details/listing-detail-land.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
 import PhotoGallery from './shared/PhotoGallery.tsx';
@@ -31,82 +31,69 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailHouseProps {
+interface ListingDetailLandProps {
   listing: ListingData;
   pinnedListings: any[];
   onUnpinListing: (listingId: string) => void;
   onPinListing?: (listing: any) => void;
 }
 
-const getImportantDetailsForKonut = (details: any) => {
+const getImportantDetailsForLand = (details: any) => {
   const safeDetails = details || {};
   
   return {
-    "Oda Sayısı": safeDetails.roomCount || 'Belirtilmemiş',
-    "Brüt Alan (m²)": safeDetails.grossArea || 'Belirtilmemiş',
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
-    "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
-    "Toplam Kat Sayısı": safeDetails.totalFloors || 'Belirtilmemiş',
-    "Banyo Sayısı": safeDetails.bathroomCount || 'Belirtilmemiş',
-    "Site/Apartman Adı": safeDetails.siteName || 'Belirtilmemiş',
-    "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
-    "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
+    "İmar Durumu": safeDetails.zoningStatus || 'Belirtilmemiş',
+    "Tapu Durumu": safeDetails.titleDeedStatus || 'Belirtilmemiş',
+    "Elektrik": safeDetails.electricity ? 'Var' : 'Yok',
+    "Su": safeDetails.water ? 'Var' : 'Yok',
+    "Doğalgaz": safeDetails.naturalGas ? 'Var' : 'Yok',
+    "Kanalizasyon": safeDetails.sewerage ? 'Var' : 'Yok',
+    "Yol Erişimi": safeDetails.roadAccess ? 'Var' : 'Yok',
+    "Köşe Parsel": safeDetails.cornerLot ? 'Evet' : 'Hayır',
+    "Yapı İzni": safeDetails.buildingPermit ? 'Var' : 'Yok',
   };
 };
 
-const HOUSE_FEATURE_CATEGORIES = [
+const LAND_FEATURE_CATEGORIES = [
   {
-    title: 'Temel Özellikler',
+    title: 'Altyapı',
     features: [
-      { key: 'furnished', label: 'Eşyalı' },
-      { key: 'balcony', label: 'Balkon' },
-      { key: 'terrace', label: 'Teras' },
-      { key: 'garden', label: 'Bahçe' },
-      { key: 'withinSite', label: 'Site İçerisinde' },
+      { key: 'electricity', label: 'Elektrik' },
+      { key: 'water', label: 'Su' },
+      { key: 'naturalGas', label: 'Doğalgaz' },
+      { key: 'sewerage', label: 'Kanalizasyon' },
+      { key: 'roadAccess', label: 'Yol Erişimi' },
     ]
   },
   {
-    title: 'Otopark',
+    title: 'Konum & Manzara',
     features: [
-      { key: 'openPark', label: 'Açık Otopark' },
-      { key: 'closedPark', label: 'Kapalı Otopark' },
-      { key: 'garagePark', label: 'Garaj' },
+      { key: 'cornerLot', label: 'Köşe Parsel' },
+      { key: 'seaView', label: 'Deniz Manzarası' },
+      { key: 'cityView', label: 'Şehir Manzarası' },
+      { key: 'forestView', label: 'Orman Manzarası' },
+      { key: 'mountainView', label: 'Dağ Manzarası' },
     ]
   },
   {
-    title: 'Bina & Güvenlik',
+    title: 'Arazi Özellikler',
     features: [
-      { key: 'elevator', label: 'Asansör' },
-      { key: 'security', label: 'Güvenlik' },
-      { key: 'concierge', label: 'Kapıcı' },
-      { key: 'generator', label: 'Jeneratör' },
+      { key: 'flat', label: 'Düz Arazi' },
+      { key: 'slope', label: 'Eğimli Arazi' },
+      { key: 'fenced', label: 'Çevrili/Çitli' },
+      { key: 'agricultural', label: 'Tarımsal Faaliyet' },
+      { key: 'buildingPermit', label: 'Yapı İzni Var' },
     ]
   },
   {
-    title: 'Konfor & Isıtma',
+    title: 'Tarım & Bahçe',
     features: [
-      { key: 'airConditioning', label: 'Klima' },
-      { key: 'floorHeating', label: 'Yerden Isıtma' },
-      { key: 'fireplace', label: 'Şömine' },
-    ]
-  },
-  {
-    title: 'Mutfak & İç Mekan',
-    features: [
-      { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
-      { key: 'separateKitchen', label: 'Ayrı Mutfak' },
-      { key: 'americanKitchen', label: 'Amerikan Mutfak' },
-      { key: 'laundryRoom', label: 'Çamaşır Odası' },
-    ]
-  },
-  {
-    title: 'Site İmkanları',
-    features: [
-      { key: 'pool', label: 'Havuz' },
-      { key: 'gym', label: 'Spor Salonu' },
-      { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
-      { key: 'sportsArea', label: 'Spor Alanları' },
+      { key: 'vineyard', label: 'Bağ/Üzüm' },
+      { key: 'orchard', label: 'Meyve Bahçesi' },
+      { key: 'oliveTrees', label: 'Zeytin Ağaçları' },
+      { key: 'greenhouse', label: 'Sera' },
+      { key: 'well', label: 'Su Kuyusu' },
     ]
   }
 ];
@@ -120,7 +107,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForKonut(details);
+  const importantDetails = getImportantDetailsForLand(details);
 
   return (
     <Box sx={{
@@ -151,7 +138,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Emlak Özellikleri
+          Arsa Özellikleri
         </Typography>
 
         <Box>
@@ -182,9 +169,9 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   );
 };
 
-export default function ListingDetailHouse({
+export default function ListingDetailLand({
   listing, pinnedListings, onUnpinListing, onPinListing
-}: ListingDetailHouseProps) {
+}: ListingDetailLandProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPinnedLocal, setIsPinnedLocal] = useState(
     pinnedListings?.some(p => p.id === listing.id) || false
@@ -238,7 +225,7 @@ export default function ListingDetailHouse({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={HOUSE_FEATURE_CATEGORIES}
+        featureCategories={LAND_FEATURE_CATEGORIES}
       />
     </>
   );

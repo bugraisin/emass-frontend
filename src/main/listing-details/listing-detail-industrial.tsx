@@ -1,4 +1,4 @@
-// listing-details/listing-detail-house.tsx
+// listing-details/listing-detail-industrial.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
 import PhotoGallery from './shared/PhotoGallery.tsx';
@@ -31,82 +31,69 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailHouseProps {
+interface ListingDetailIndustrialProps {
   listing: ListingData;
   pinnedListings: any[];
   onUnpinListing: (listingId: string) => void;
   onPinListing?: (listing: any) => void;
 }
 
-const getImportantDetailsForKonut = (details: any) => {
+const getImportantDetailsForIndustrial = (details: any) => {
   const safeDetails = details || {};
   
   return {
-    "Oda Sayısı": safeDetails.roomCount || 'Belirtilmemiş',
-    "Brüt Alan (m²)": safeDetails.grossArea || 'Belirtilmemiş',
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
+    "Tavan Yüksekliği (m)": safeDetails.ceilingHeight || 'Belirtilmemiş',
     "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
-    "Toplam Kat Sayısı": safeDetails.totalFloors || 'Belirtilmemiş',
-    "Banyo Sayısı": safeDetails.bathroomCount || 'Belirtilmemiş',
-    "Site/Apartman Adı": safeDetails.siteName || 'Belirtilmemiş',
-    "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
-    "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
+    "Üç Fazlı Elektrik": safeDetails.threephaseElectricity ? 'Var' : 'Yok',
+    "Doğalgaz Hattı": safeDetails.naturalGasLine ? 'Var' : 'Yok',
+    "Vinç Sistemi": safeDetails.craneSystem ? 'Var' : 'Yok',
+    "Yükleme Rampası": safeDetails.loadingRamp ? 'Var' : 'Yok',
+    "TIR Girişi": safeDetails.truckEntrance ? 'Var' : 'Yok',
+    "Yangın Sistemi": safeDetails.fireExtinguishingSystem ? 'Var' : 'Yok',
+    "Güvenlik": safeDetails.security ? 'Var' : 'Yok',
   };
 };
 
-const HOUSE_FEATURE_CATEGORIES = [
+const INDUSTRIAL_FEATURE_CATEGORIES = [
   {
-    title: 'Temel Özellikler',
+    title: 'Altyapı & Enerji',
     features: [
-      { key: 'furnished', label: 'Eşyalı' },
-      { key: 'balcony', label: 'Balkon' },
-      { key: 'terrace', label: 'Teras' },
-      { key: 'garden', label: 'Bahçe' },
-      { key: 'withinSite', label: 'Site İçerisinde' },
+      { key: 'threephaseElectricity', label: 'Üç Fazlı Elektrik' },
+      { key: 'naturalGasLine', label: 'Doğalgaz Hattı' },
+      { key: 'steamLine', label: 'Buhar Hattı' },
+      { key: 'waterSystem', label: 'Su Sistemi' },
+      { key: 'wasteWaterSystem', label: 'Atık Su Sistemi' },
     ]
   },
   {
-    title: 'Otopark',
+    title: 'Üretim & İmalat',
     features: [
-      { key: 'openPark', label: 'Açık Otopark' },
-      { key: 'closedPark', label: 'Kapalı Otopark' },
-      { key: 'garagePark', label: 'Garaj' },
+      { key: 'craneSystem', label: 'Vinç Sistemi' },
+      { key: 'ventilationSystem', label: 'Havalandırma Sistemi' },
+      { key: 'airConditioning', label: 'Klima Sistemi' },
+      { key: 'wideOpenArea', label: 'Geniş Açık Alan' },
+      { key: 'machineMountingSuitable', label: 'Makine Montajı Uygun' },
     ]
   },
   {
-    title: 'Bina & Güvenlik',
+    title: 'Depolama & Lojistik',
     features: [
-      { key: 'elevator', label: 'Asansör' },
+      { key: 'loadingRamp', label: 'Yükleme Rampası' },
+      { key: 'truckEntrance', label: 'TIR Girişi' },
+      { key: 'forkliftTraffic', label: 'Forklift Trafiği' },
+      { key: 'rackingSystem', label: 'Raf Sistemi' },
+      { key: 'coldStorage', label: 'Soğuk Depolama' },
+    ]
+  },
+  {
+    title: 'Güvenlik & Sistem',
+    features: [
+      { key: 'fireExtinguishingSystem', label: 'Yangın Söndürme Sistemi' },
+      { key: 'securityCameras', label: 'Güvenlik Kameraları' },
+      { key: 'alarmSystem', label: 'Alarm Sistemi' },
+      { key: 'fencedArea', label: 'Çitli/Bariyerli Alan' },
       { key: 'security', label: 'Güvenlik' },
-      { key: 'concierge', label: 'Kapıcı' },
-      { key: 'generator', label: 'Jeneratör' },
-    ]
-  },
-  {
-    title: 'Konfor & Isıtma',
-    features: [
-      { key: 'airConditioning', label: 'Klima' },
-      { key: 'floorHeating', label: 'Yerden Isıtma' },
-      { key: 'fireplace', label: 'Şömine' },
-    ]
-  },
-  {
-    title: 'Mutfak & İç Mekan',
-    features: [
-      { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
-      { key: 'separateKitchen', label: 'Ayrı Mutfak' },
-      { key: 'americanKitchen', label: 'Amerikan Mutfak' },
-      { key: 'laundryRoom', label: 'Çamaşır Odası' },
-    ]
-  },
-  {
-    title: 'Site İmkanları',
-    features: [
-      { key: 'pool', label: 'Havuz' },
-      { key: 'gym', label: 'Spor Salonu' },
-      { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
-      { key: 'sportsArea', label: 'Spor Alanları' },
     ]
   }
 ];
@@ -120,7 +107,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForKonut(details);
+  const importantDetails = getImportantDetailsForIndustrial(details);
 
   return (
     <Box sx={{
@@ -151,7 +138,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Emlak Özellikleri
+          Endüstriyel Özellikleri
         </Typography>
 
         <Box>
@@ -182,9 +169,9 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   );
 };
 
-export default function ListingDetailHouse({
+export default function ListingDetailIndustrial({
   listing, pinnedListings, onUnpinListing, onPinListing
-}: ListingDetailHouseProps) {
+}: ListingDetailIndustrialProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPinnedLocal, setIsPinnedLocal] = useState(
     pinnedListings?.some(p => p.id === listing.id) || false
@@ -238,7 +225,7 @@ export default function ListingDetailHouse({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={HOUSE_FEATURE_CATEGORIES}
+        featureCategories={INDUSTRIAL_FEATURE_CATEGORIES}
       />
     </>
   );

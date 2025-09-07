@@ -1,4 +1,4 @@
-// listing-details/listing-detail-house.tsx
+// listing-details/listing-detail-service.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
 import PhotoGallery from './shared/PhotoGallery.tsx';
@@ -31,82 +31,63 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailHouseProps {
+interface ListingDetailServiceProps {
   listing: ListingData;
   pinnedListings: any[];
   onUnpinListing: (listingId: string) => void;
   onPinListing?: (listing: any) => void;
 }
 
-const getImportantDetailsForKonut = (details: any) => {
+const getImportantDetailsForService = (details: any) => {
   const safeDetails = details || {};
   
   return {
-    "Oda Sayısı": safeDetails.roomCount || 'Belirtilmemiş',
-    "Brüt Alan (m²)": safeDetails.grossArea || 'Belirtilmemiş',
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
-    "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
-    "Toplam Kat Sayısı": safeDetails.totalFloors || 'Belirtilmemiş',
-    "Banyo Sayısı": safeDetails.bathroomCount || 'Belirtilmemiş',
-    "Site/Apartman Adı": safeDetails.siteName || 'Belirtilmemiş',
-    "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
+    "Kapasite": safeDetails.capacity || 'Belirtilmemiş',
+    "Kapalılık Durumu": safeDetails.spaceType || 'Belirtilmemiş',
     "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
+    "Güvenlik": safeDetails.security ? 'Var' : 'Yok',
+    "Aydınlatma": safeDetails.lighting ? 'Var' : 'Yok',
+    "Güvenlik Kamerası": safeDetails.cctv ? 'Var' : 'Yok',
+    "İnternet": safeDetails.internet ? 'Var' : 'Yok',
+    "Resepsiyon": safeDetails.reception ? 'Var' : 'Yok',
+    "Müşteri Otoparkı": safeDetails.customerParking ? 'Var' : 'Yok',
   };
 };
 
-const HOUSE_FEATURE_CATEGORIES = [
+const SERVICE_FEATURE_CATEGORIES = [
   {
-    title: 'Temel Özellikler',
+    title: 'Temel Altyapı',
     features: [
-      { key: 'furnished', label: 'Eşyalı' },
-      { key: 'balcony', label: 'Balkon' },
-      { key: 'terrace', label: 'Teras' },
-      { key: 'garden', label: 'Bahçe' },
-      { key: 'withinSite', label: 'Site İçerisinde' },
-    ]
-  },
-  {
-    title: 'Otopark',
-    features: [
-      { key: 'openPark', label: 'Açık Otopark' },
-      { key: 'closedPark', label: 'Kapalı Otopark' },
-      { key: 'garagePark', label: 'Garaj' },
-    ]
-  },
-  {
-    title: 'Bina & Güvenlik',
-    features: [
-      { key: 'elevator', label: 'Asansör' },
       { key: 'security', label: 'Güvenlik' },
-      { key: 'concierge', label: 'Kapıcı' },
-      { key: 'generator', label: 'Jeneratör' },
+      { key: 'lighting', label: 'Aydınlatma' },
+      { key: 'cctv', label: 'Güvenlik Kamerası' },
+      { key: 'internet', label: 'İnternet' },
     ]
   },
   {
-    title: 'Konfor & Isıtma',
+    title: 'Hizmet Alanları',
     features: [
-      { key: 'airConditioning', label: 'Klima' },
-      { key: 'floorHeating', label: 'Yerden Isıtma' },
-      { key: 'fireplace', label: 'Şömine' },
+      { key: 'reception', label: 'Resepsiyon' },
+      { key: 'restRoom', label: 'Tuvalet' },
+      { key: 'kitchen', label: 'Mutfak' },
     ]
   },
   {
-    title: 'Mutfak & İç Mekan',
+    title: 'Teknik Donanım',
     features: [
-      { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
-      { key: 'separateKitchen', label: 'Ayrı Mutfak' },
-      { key: 'americanKitchen', label: 'Amerikan Mutfak' },
-      { key: 'laundryRoom', label: 'Çamaşır Odası' },
+      { key: 'washingArea', label: 'Yıkama Sistemi' },
+      { key: 'maintenanceArea', label: 'Bakım/Onarım Alanı' },
+      { key: 'airConditioning', label: 'Klima Sistemi' },
+      { key: 'ventilationSystem', label: 'Havalandırma' },
     ]
   },
   {
-    title: 'Site İmkanları',
+    title: 'Ek Hizmetler',
     features: [
-      { key: 'pool', label: 'Havuz' },
-      { key: 'gym', label: 'Spor Salonu' },
-      { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
-      { key: 'sportsArea', label: 'Spor Alanları' },
+      { key: 'storage', label: 'Depolama Alanı' },
+      { key: 'officeArea', label: 'Ofis Alanı' },
+      { key: 'customerParking', label: 'Müşteri Otoparkı' },
     ]
   }
 ];
@@ -120,7 +101,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForKonut(details);
+  const importantDetails = getImportantDetailsForService(details);
 
   return (
     <Box sx={{
@@ -151,7 +132,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Emlak Özellikleri
+          Hizmet Alanı Özellikleri
         </Typography>
 
         <Box>
@@ -182,9 +163,9 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   );
 };
 
-export default function ListingDetailHouse({
+export default function ListingDetailService({
   listing, pinnedListings, onUnpinListing, onPinListing
-}: ListingDetailHouseProps) {
+}: ListingDetailServiceProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPinnedLocal, setIsPinnedLocal] = useState(
     pinnedListings?.some(p => p.id === listing.id) || false
@@ -238,7 +219,7 @@ export default function ListingDetailHouse({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={HOUSE_FEATURE_CATEGORIES}
+        featureCategories={SERVICE_FEATURE_CATEGORIES}
       />
     </>
   );

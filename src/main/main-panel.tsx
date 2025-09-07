@@ -214,29 +214,33 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                     <ImageIcon sx={{ fontSize: 40, color: '#9ca3af' }} />
                 </Box>
             )}
+              
               <CardContent sx={{ 
-                padding: '8px 12px', 
+                padding: '6px 8px', 
                 flex: 1, 
                 display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'space-between',
+                flexDirection: 'column',
                 height: '100%',
-                position: 'relative',
-                '&:last-child': { paddingBottom: '8px' }
+                '&:last-child': { paddingBottom: '6px' }
               }}>
-                {/* Üst satır: Tarih sol, Pin ve Like butonları sağ */}
+                {/* 1. SATIR: Tarih (sol) ve Butonlar (sağ) */}
                 <Box sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
                   alignItems: 'center',
+                  height: '24px',
                   marginBottom: '4px'
                 }}>
-                  {/* Eklenme Tarihi */}
+                  {/* Tarih */}
                   <Typography 
                     variant="caption" 
                     sx={{
                       color: '#9ca3af',
-                      fontSize: '11px',
+                      fontSize: '10px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '60%'
                     }}
                   >
                     {property.createdAt ? 
@@ -249,7 +253,7 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                     }
                   </Typography>
                   
-                  {/* Pin ve Like butonları */}
+                  {/* Butonlar */}
                   <Box sx={{ display: 'flex', gap: 0.5 }}>
                     {/* Pin butonu */}
                     <IconButton
@@ -263,18 +267,18 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                         }
                       }}
                       sx={{
-                        width: 24,
-                        height: 24,
-                        opacity: pinnedListings.some(p => p.id === property.id) ? 1 : 0.7,
+                        width: 18,
+                        height: 18,
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                        border: '1px solid rgba(0,0,0,0.1)',
                         color: pinnedListings.some(p => p.id === property.id) ? '#ed9517' : '#64748b',
                         '&:hover': {
-                          color: '#ed9517',
-                          opacity: 1,
-                          transform: 'scale(1.1)'
+                          backgroundColor: 'rgba(255,255,255,1)',
+                          color: '#ed9517'
                         }
                       }}
                     >
-                      <PushPinIcon sx={{ fontSize: 14 }} />
+                      <PushPinIcon sx={{ fontSize: 10 }} />
                     </IconButton>
                     
                     {/* Like butonu */}
@@ -284,57 +288,66 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                         // TODO: Like functionality
                       }}
                       sx={{
-                        width: 24,
-                        height: 24,
-                        opacity: 0.7,
+                        width: 18,
+                        height: 18,
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                        border: '1px solid rgba(0,0,0,0.1)',
                         color: '#64748b',
                         '&:hover': {
-                          color: '#ef4444',
-                          opacity: 1,
-                          transform: 'scale(1.1)'
+                          backgroundColor: 'rgba(255,255,255,1)',
+                          color: '#ef4444'
                         }
                       }}
                     >
-                      <FavoriteBorderIcon sx={{ fontSize: 14 }} />
+                      <FavoriteBorderIcon sx={{ fontSize: 10 }} />
                     </IconButton>
                   </Box>
                 </Box>
-                {/* Başlık */}
-                <Typography 
-                  variant="h6" 
-                  sx={{
-                    fontWeight: 600,
-                    color: '#1e293b',
-                    fontSize: '14px',
-                    letterSpacing: '-0.1px',
-                    lineHeight: 1.3,
-                    wordWrap: 'break-word',
-                    marginBottom: '4px',
-                    flex: 1
-                  }}
-                >
-                  {property.title}
-                </Typography>
                 
-                {/* Alt satır: Adres sol, Fiyat sağ */}
+                {/* 2. SATIR: Başlık */}
+                <Box sx={{ 
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  marginBottom: '4px'
+                }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{
+                      fontWeight: 600,
+                      color: '#1e293b',
+                      fontSize: '12px',
+                      letterSpacing: '-0.1px',
+                      lineHeight: 1.3,
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      wordBreak: 'break-word',
+                      width: '100%'
+                    }}
+                  >
+                    {property.title}
+                  </Typography>
+                </Box>
+                
+                {/* 3. SATIR: Adres (sol) ve Fiyat (sağ) */}
                 <Box sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
                   alignItems: 'center',
-                  marginTop: 'auto'
+                  height: '20px'
                 }}>
-                  {/* İlçe ve Mahalle */}
+                  {/* Adres */}
                   <Typography 
                     variant="body2" 
                     sx={{
                       color: '#64748b',
-                      fontSize: '12px',
-                      lineHeight: 1.3,
+                      fontSize: '10px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
-                      flex: 1,
-                      marginRight: '8px'
+                      maxWidth: '55%'
                     }}
                   >
                     {property.district && property.neighborhood 
@@ -349,13 +362,18 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                     sx={{
                       color: '#ed9517',
                       fontWeight: 700,
-                      fontSize: '14px',
+                      fontSize: '11px',
                       letterSpacing: '-0.1px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '40%',
+                      textAlign: 'right'
                     }}
                   >
                     {property.price ? 
                       `${parseInt(property.price).toLocaleString('tr-TR')} ₺` : 
-                      'Fiyat belirtilmemiş'
+                      'Fiyat yok'
                     }
                   </Typography>
                 </Box>

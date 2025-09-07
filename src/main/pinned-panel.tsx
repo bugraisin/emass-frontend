@@ -259,20 +259,18 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                     onClick={(e) => activeTab === 'pinned' ? handleUnpin(e, listing.id) : handleRemoveFromRecent(e, listing.id)}
                                     sx={{
                                         position: 'absolute',
-                                        top: '4px',
-                                        right: '4px',
-                                        background: 'rgba(255,255,255,0.95)',
-                                        backdropFilter: 'blur(4px)',
-                                        width: '22px',
-                                        height: '22px',
-                                        zIndex: 2,
+                                        top: '2px',
+                                        right: '2px',
+                                        width: '20px',
+                                        height: '20px',
+                                        zIndex: 10,
                                         '&:hover': {
                                             background: '#fee2e2',
                                             color: '#dc2626',
                                         }
                                     }}
                                 >
-                                    <CloseIcon sx={{ fontSize: 14 }} />
+                                    <CloseIcon sx={{ fontSize: 12 }} />
                                 </IconButton>
                             )}
                             
@@ -306,6 +304,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             {/* İçerik */}
                             <CardContent sx={{ 
                                 padding: '4px 6px',
+                                paddingRight: '22px', // Çarpı butonu için alan bırak
                                 flex: 1, 
                                 display: 'flex', 
                                 flexDirection: 'column', 
@@ -327,60 +326,36 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                         display: '-webkit-box',
                                         WebkitLineClamp: 2,
                                         WebkitBoxOrient: 'vertical',
-                                        marginBottom: '2px'
+                                        marginBottom: '4px',
+                                        maxWidth: '100%',
+                                        wordBreak: 'break-word'
                                     }}
                                 >
                                     {listing.title}
                                 </Typography>
-                                
-                                {/* İlçe ve Mahalle */}
-                                <Typography 
-                                    variant="body2" 
-                                    sx={{
-                                        color: '#64748b',
-                                        fontSize: '10px',
-                                        lineHeight: 1.2,
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        marginBottom: '2px'
-                                    }}
-                                >
-                                    {listing.district && listing.neighborhood 
-                                        ? `${listing.district}, ${listing.neighborhood}`
-                                        : listing.district || listing.neighborhood || 'Konum bilgisi yok'
-                                    }
-                                </Typography>
 
-                                {/* Alt satır: Tarih sol, Fiyat sağ */}
+                                {/* Alt satır: Adres sol, Fiyat sağ */}
                                 <Box sx={{ 
                                     display: 'flex', 
                                     justifyContent: 'space-between', 
                                     alignItems: 'center',
                                     marginTop: 'auto'
                                 }}>
-                                    {/* Eklenme/Görüntülenme Tarihi */}
+                                    {/* Adres Bilgisi */}
                                     <Typography 
                                         variant="caption" 
                                         sx={{
                                             color: '#9ca3af',
                                             fontSize: '9px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            maxWidth: '60%'
                                         }}
                                     >
-                                        {activeTab === 'recent' && listing.viewedAt ? 
-                                            new Date(listing.viewedAt).toLocaleDateString('tr-TR', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            }) :
-                                            listing.createdAt ? 
-                                                new Date(listing.createdAt).toLocaleDateString('tr-TR', {
-                                                    day: 'numeric',
-                                                    month: 'short',
-                                                    year: 'numeric'
-                                                }) : 
-                                                'Tarih yok'
+                                        {listing.district && listing.neighborhood 
+                                            ? `${listing.neighborhood}, ${listing.district}`
+                                            : listing.district || listing.neighborhood || ''
                                         }
                                     </Typography>
                                     
@@ -390,8 +365,10 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                         sx={{
                                             color: '#ed9517',
                                             fontWeight: 700,
-                                            fontSize: '11px',
+                                            fontSize: '10px',
                                             letterSpacing: '-0.1px',
+                                            textAlign: 'right',
+                                            minWidth: '35%'
                                         }}
                                     >
                                         {listing.price ? 

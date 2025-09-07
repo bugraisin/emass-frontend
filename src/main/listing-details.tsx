@@ -1,12 +1,15 @@
+// listing-details.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Alert, IconButton } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import ListingDetailHouse from './listing-details/listing-detail-house.tsx';
+import ListingDetailCommercial from './listing-details/listing-detail-commercial.tsx';
+import ListingDetailOffice from './listing-details/listing-detail-office.tsx';
+import ListingDetailIndustrial from './listing-details/listing-detail-industrial.tsx';
+import ListingDetailService from './listing-details/listing-detail-service.tsx';
+import ListingDetailLand from './listing-details/listing-detail-land.tsx';
 import PinnedPanel from './pinned-panel.tsx';
-import OwnerContactPanel from './listing-details/owner-contact-panel.tsx';
-
-// Import detail components
 
 interface ListingData {
   id: string;
@@ -54,16 +57,26 @@ export default function ListingDetails() {
         // Backend data'sını frontend formatına çevir
         const mappedListing: ListingData = {
           id: backendData.id.toString(),
-          listingType: backendData.listingType, // SALE olarak bırak
-          propertyType: backendData.propertyType, // KONUT olarak bırak
-          subtype: backendData.housingDetails?.subtype || backendData.commercialDetails?.subtype || '',
+          listingType: backendData.listingType,
+          propertyType: backendData.propertyType,
+          subtype: backendData.housingDetails?.subtype || 
+                   backendData.commercialDetails?.subtype || 
+                   backendData.officeDetails?.subtype ||
+                   backendData.industrialDetails?.subtype ||
+                   backendData.serviceDetails?.subtype ||
+                   backendData.landDetails?.subtype || '',
           title: backendData.title,
           description: backendData.description,
           price: backendData.price.toString(),
           city: backendData.city,
           district: backendData.district,
           neighborhood: backendData.neighborhood,
-          details: backendData.housingDetails || backendData.commercialDetails || backendData.officeDetails || backendData.industrialDetails || backendData.serviceDetails || backendData.landDetails || {},
+          details: backendData.housingDetails || 
+                   backendData.commercialDetails || 
+                   backendData.officeDetails || 
+                   backendData.industrialDetails || 
+                   backendData.serviceDetails || 
+                   backendData.landDetails || {},
           photos: backendData.photoUrls ? backendData.photoUrls.map((photo: any) => ({
             id: photo.id.toString(),
             url: photo.imageUrl,
@@ -122,16 +135,42 @@ export default function ListingDetails() {
   const renderListingDetail = () => {
     if (!listing) return null;
 
+    const commonProps = {
+      listing,
+      pinnedListings,
+      onUnpinListing: handleUnpinListing,
+      onPinListing: handlePinListing
+    };
+
     switch (listing.propertyType) {
       case 'KONUT':
-        return (
-          <ListingDetailHouse 
-            listing={listing}
-            pinnedListings={pinnedListings}
-            onUnpinListing={handleUnpinListing}
-            onPinListing={handlePinListing}
-          />
-        );
+        return <ListingDetailHouse {...commonProps} />;
+      
+      case 'TICARI':
+        return <ListingDetailCommercial {...commonProps} />;
+      
+      case 'ENDUSTRIYEL':
+        return <ListingDetailIndustrial {...commonProps} />;
+      
+      case 'OFIS':
+        return <ListingDetailOffice {...commonProps} />;
+      
+      case 'ENDUSTRIYEL':
+        return <ListingDetailIndustrial {...commonProps} />;
+      
+      case 'OFIS':
+        return <ListingDetailOffice {...commonProps} />;
+      
+      case 'HIZMET':
+        return <ListingDetailService {...commonProps} />;
+      
+      case 'ARSA':
+        return <ListingDetailLand {...commonProps} />;
+      
+      case 'HIZMET':
+        return <ListingDetailService {...commonProps} />;
+      
+      
       default:
         return (
           <Box sx={{ p: 3, textAlign: 'center' }}>
@@ -140,8 +179,7 @@ export default function ListingDetails() {
                 Bu emlak tipi için detay görünümü yakında eklenecek
               </Typography>
               <Typography variant="body2">
-                Şu anda sadece konut ilanları için detaylı görünüm mevcuttur. 
-                Diğer emlak tipleri ({listing.propertyType}) için detay sayfaları yakında eklenecektir.
+                Bilinmeyen emlak tipi ({listing.propertyType}) için detay sayfası henüz hazırlanmamış.
               </Typography>
             </Alert>
           </Box>
@@ -205,24 +243,28 @@ export default function ListingDetails() {
           flex="1"
           sx={{ minHeight: 'calc(100vh - 40px)' }}
         >
-          {/* Sol Panel - Emlak Sahibi İletişim */}
-          <Box
-            width="18%"
-            sx={{
-              background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-            }}
-          >
-            <OwnerContactPanel listingId={id || ''} />
-          </Box>
 
           {/* Orta Panel - İlan Detayları */}
           <Box
             flex="1"
             sx={{
               background: 'rgba(148, 163, 184, 0.1)',
+              overflow: "auto",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
-            {renderListingDetail()}
+            {/* İçerik Container - Tüm detail componentleri bu container içinde */}
+            <Box sx={{ 
+              width: "100%",
+              maxWidth: "1200px",
+              fontFamily: "sans-serif", 
+              p: 1,
+              backgroundColor: 'white',
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+            }}>
+              {renderListingDetail()}
+            </Box>
           </Box>
 
           {/* Sağ Panel - Pinned Listings */}
