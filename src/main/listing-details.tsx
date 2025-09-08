@@ -1,15 +1,16 @@
-// listing-details.tsx
+// listing-details.tsx - TEK YER PIN YÖNETİMİ
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Alert, IconButton } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
+import PinnedPanel from './pinned-panel.tsx';
 import ListingDetailHouse from './listing-details/listing-detail-house.tsx';
 import ListingDetailCommercial from './listing-details/listing-detail-commercial.tsx';
-import ListingDetailOffice from './listing-details/listing-detail-office.tsx';
 import ListingDetailIndustrial from './listing-details/listing-detail-industrial.tsx';
+import ListingDetailOffice from './listing-details/listing-detail-office.tsx';
 import ListingDetailService from './listing-details/listing-detail-service.tsx';
 import ListingDetailLand from './listing-details/listing-detail-land.tsx';
-import PinnedPanel from './pinned-panel.tsx';
 
 interface ListingData {
   id: string;
@@ -54,7 +55,6 @@ export default function ListingDetails() {
         
         const backendData = await response.json();
         
-        // Backend data'sını frontend formatına çevir
         const mappedListing: ListingData = {
           id: backendData.id.toString(),
           listingType: backendData.listingType,
@@ -99,17 +99,13 @@ export default function ListingDetails() {
     fetchListing();
   }, [id]);
 
-  // Pinned listings'i localStorage'dan yükle
+  // localStorage'dan pinned listings'i yükle
   useEffect(() => {
-    const savedPinnedListings = localStorage.getItem('pinnedListings');
-    if (savedPinnedListings) {
-      try {
-        const parsedListings = JSON.parse(savedPinnedListings);
-        setPinnedListings(parsedListings);
-      } catch (error) {
-        console.error('Pinned listings localStorage hatası:', error);
-        localStorage.removeItem('pinnedListings');
-      }
+    try {
+      const saved = localStorage.getItem('pinnedListings');
+      setPinnedListings(saved ? JSON.parse(saved) : []);
+    } catch {
+      setPinnedListings([]);
     }
   }, []);
 
@@ -117,69 +113,82 @@ export default function ListingDetails() {
     navigate(-1);
   };
 
-  const handlePinListing = (listingToPin: any) => {
-    const updatedPinnedListings = pinnedListings.find(p => p.id === listingToPin.id) 
-      ? pinnedListings // Zaten pinlenmiş, değişiklik yapma
-      : [...pinnedListings, listingToPin]; // Yeni pin ekle
+  // BU TEK PIN HANDLER TÜM YERLERİ YÖNETİR
+  const handlePinToggle = () => {
+    if (!listing) return;
+    
+    try {
+      const current = JSON.parse(localStorage.getItem('pinnedListings') || '[]');
+      const isAlreadyPinned = current.some((item: any) => String(item.id) === String(listing.id));
       
-    setPinnedListings(updatedPinnedListings);
-    localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
+      let updated;
+      if (isAlreadyPinned) {
+        // Unpin
+        updated = current.filter((item: any) => String(item.id) !== String(listing.id));
+      } else {
+        // Pin
+        const pinnedItem = {
+          id: String(listing.id),
+          title: listing.title,
+          price: listing.price,
+          district: listing.district,
+          neighborhood: listing.neighborhood,
+          thumbnailUrl: listing.photos?.[0]?.url || '',
+          createdAt: listing.createdAt
+        };
+        updated = [...current, pinnedItem];
+      }
+      
+      localStorage.setItem('pinnedListings', JSON.stringify(updated));
+      setPinnedListings(updated);
+      window.dispatchEvent(new Event('pinnedListingsChanged'));
+    } catch (error) {
+      console.error('Pin işlemi hatası:', error);
+    }
   };
 
   const handleUnpinListing = (listingId: string) => {
-    const updatedPinnedListings = pinnedListings.filter(p => p.id !== listingId);
-    setPinnedListings(updatedPinnedListings);
-    localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
+    try {
+      const updated = pinnedListings.filter(p => String(p.id) !== String(listingId));
+      localStorage.setItem('pinnedListings', JSON.stringify(updated));
+      setPinnedListings(updated);
+      window.dispatchEvent(new Event('pinnedListingsChanged'));
+    } catch (error) {
+      console.error('Unpin işlemi hatası:', error);
+    }
   };
 
   const renderListingDetail = () => {
     if (!listing) return null;
 
+    // PIN DURUMUNU HESAPLA
+    const isPinned = pinnedListings.some(p => String(p.id) === String(listing.id));
+
     const commonProps = {
       listing,
-      pinnedListings,
-      onUnpinListing: handleUnpinListing,
-      onPinListing: handlePinListing
+      isPinned,
+      onPinToggle: handlePinToggle
     };
 
     switch (listing.propertyType) {
       case 'KONUT':
         return <ListingDetailHouse {...commonProps} />;
-      
       case 'TICARI':
         return <ListingDetailCommercial {...commonProps} />;
-      
       case 'ENDUSTRIYEL':
         return <ListingDetailIndustrial {...commonProps} />;
-      
       case 'OFIS':
         return <ListingDetailOffice {...commonProps} />;
-      
-      case 'ENDUSTRIYEL':
-        return <ListingDetailIndustrial {...commonProps} />;
-      
-      case 'OFIS':
-        return <ListingDetailOffice {...commonProps} />;
-      
       case 'HIZMET':
         return <ListingDetailService {...commonProps} />;
-      
       case 'ARSA':
         return <ListingDetailLand {...commonProps} />;
-      
-      case 'HIZMET':
-        return <ListingDetailService {...commonProps} />;
-      
-      
       default:
         return (
           <Box sx={{ p: 3, textAlign: 'center' }}>
             <Alert severity="info" sx={{ maxWidth: 600, mx: 'auto' }}>
               <Typography variant="h6" sx={{ mb: 1 }}>
                 Bu emlak tipi için detay görünümü yakında eklenecek
-              </Typography>
-              <Typography variant="body2">
-                Bilinmeyen emlak tipi ({listing.propertyType}) için detay sayfası henüz hazırlanmamış.
               </Typography>
             </Alert>
           </Box>
@@ -189,14 +198,7 @@ export default function ListingDetails() {
 
   if (loading) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="60vh"
-        flexDirection="column"
-        gap={2}
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh" flexDirection="column" gap={2}>
         <CircularProgress size={40} />
         <Typography color="textSecondary">İlan yükleniyor...</Typography>
       </Box>
@@ -205,17 +207,8 @@ export default function ListingDetails() {
 
   if (error) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        minHeight="60vh"
-        flexDirection="column"
-        gap={2}
-      >
-        <Alert severity="error" sx={{ maxWidth: 400 }}>
-          {error}
-        </Alert>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh" flexDirection="column" gap={2}>
+        <Alert severity="error" sx={{ maxWidth: 400 }}>{error}</Alert>
         <IconButton onClick={handleBack} sx={{ mt: 2 }}>
           <ArrowBack />
           <Typography sx={{ ml: 1 }}>Geri Dön</Typography>
@@ -225,55 +218,30 @@ export default function ListingDetails() {
   }
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="flex-start"
-    >
-      {/* Ana Container - Main sayfası ile aynı yapı */}
-      <Box
-        display="flex"
-        flexDirection="column"
-        width="100%"
-        maxWidth="1440px"
-        sx={{ border: '1px solid rgba(148, 163, 184, 0.5)' }}
-      >
-        <Box
-          display="flex"
-          flex="1"
-          sx={{ minHeight: 'calc(100vh - 40px)' }}
-        >
-
-          {/* Orta Panel - İlan Detayları */}
-          <Box
-            flex="1"
-            sx={{
-              background: 'rgba(148, 163, 184, 0.1)',
-              overflow: "auto",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            {/* İçerik Container - Tüm detail componentleri bu container içinde */}
+    <Box display="flex" justifyContent="center" alignItems="flex-start">
+      <Box display="flex" flexDirection="column" width="100%" maxWidth="1440px" 
+           sx={{ border: '1px solid rgba(148, 163, 184, 0.5)' }}>
+        <Box display="flex" flex="1" sx={{ minHeight: 'calc(100vh - 40px)' }}>
+          
+          <Box flex="1" sx={{ 
+            background: 'rgba(148, 163, 184, 0.1)', 
+            overflow: "auto", 
+            display: "flex", 
+            justifyContent: "center" 
+          }}>
             <Box sx={{ 
-              width: "100%",
-              maxWidth: "1200px",
+              width: "100%", 
+              maxWidth: "1200px", 
               fontFamily: "sans-serif", 
-              p: 1,
-              backgroundColor: 'white',
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+              p: 1, 
+              backgroundColor: 'white', 
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)" 
             }}>
               {renderListingDetail()}
             </Box>
           </Box>
 
-          {/* Sağ Panel - Pinned Listings */}
-          <Box
-            width="22%"
-            sx={{
-              background: 'rgba(148, 163, 184, 0.1)',
-            }}
-          >
+          <Box width="22%" sx={{ background: 'rgba(148, 163, 184, 0.1)' }}>
             <PinnedPanel 
               pinnedListings={pinnedListings}
               onUnpinListing={handleUnpinListing}

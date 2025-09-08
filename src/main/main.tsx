@@ -24,6 +24,28 @@ export default function Main() {
         }
     }, []);
 
+    // PinnedListingsChanged event'ini dinle - Ana düzeltme burada
+    useEffect(() => {
+        const handlePinnedListingsChange = () => {
+            try {
+                const savedPinnedListings = localStorage.getItem('pinnedListings');
+                const parsedListings = savedPinnedListings ? JSON.parse(savedPinnedListings) : [];
+                setPinnedListings(parsedListings);
+            } catch (error) {
+                console.error('Pinned listings güncelleme hatası:', error);
+                setPinnedListings([]);
+            }
+        };
+
+        // Custom event'i dinle
+        window.addEventListener('pinnedListingsChanged', handlePinnedListingsChange);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('pinnedListingsChanged', handlePinnedListingsChange);
+        };
+    }, []);
+
     // Sayfa ilk açıldığında tüm ilanları yükle
     useEffect(() => {
         const fetchAllListings = async () => {
@@ -67,25 +89,40 @@ export default function Main() {
     };
 
     const handlePinListing = (listing: any) => {
-        const isAlreadyPinned = pinnedListings.find(p => p.id === listing.id);
+        const isAlreadyPinned = pinnedListings.find(p => String(p.id) === String(listing.id));
         
         let updatedPinnedListings;
         if (isAlreadyPinned) {
             // Zaten pinlenmiş, unpin yap
-            updatedPinnedListings = pinnedListings.filter(p => p.id !== listing.id);
+            updatedPinnedListings = pinnedListings.filter(p => String(p.id) !== String(listing.id));
         } else {
             // Henüz pinlenmemiş, pin ekle
-            updatedPinnedListings = [...pinnedListings, listing];
+            const pinnedItem = {
+                id: String(listing.id),
+                title: listing.title || '',
+                price: String(listing.price || ''),
+                district: listing.district || '',
+                neighborhood: listing.neighborhood || '',
+                thumbnailUrl: listing.thumbnailUrl || listing.imageUrl || listing.image || listing.photos?.[0]?.url || '',
+                createdAt: listing.createdAt || new Date().toISOString()
+            };
+            updatedPinnedListings = [...pinnedListings, pinnedItem];
         }
             
         setPinnedListings(updatedPinnedListings);
         localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
+        
+        // Custom event dispatch et ki diğer componentler de güncellensin
+        window.dispatchEvent(new Event('pinnedListingsChanged'));
     };
 
     const handleUnpinListing = (listingId: string) => {
-        const updatedPinnedListings = pinnedListings.filter(p => p.id !== listingId);
+        const updatedPinnedListings = pinnedListings.filter(p => String(p.id) !== String(listingId));
         setPinnedListings(updatedPinnedListings);
         localStorage.setItem('pinnedListings', JSON.stringify(updatedPinnedListings));
+        
+        // Custom event dispatch et
+        window.dispatchEvent(new Event('pinnedListingsChanged'));
     };
 
     return (

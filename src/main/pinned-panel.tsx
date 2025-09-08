@@ -12,7 +12,7 @@ interface PinnedPanelProps {
     onUnpinListing: (listingId: string) => void;
 }
 
-// Son görüntülenen ilanları yönetmek için utility fonksiyonlar
+// DÜZELTILMIŞ Recent listings utility fonksiyonlar
 const getRecentListings = (): any[] => {
     try {
         const recent = localStorage.getItem('recentListings');
@@ -26,21 +26,24 @@ const getRecentListings = (): any[] => {
 const addToRecentListings = (listing: any) => {
     try {
         let recentListings = getRecentListings();
+        const listingId = String(listing.id); // ID'yi string'e çevir
         
-        // Aynı ilan zaten varsa çıkar
-        recentListings = recentListings.filter(item => item.id !== listing.id);
+        // GÜÇLÜ ID KARŞILAŞTIRMASI - Aynı ilan zaten varsa çıkar
+        recentListings = recentListings.filter(item => String(item.id) !== listingId);
         
         // Yeni ilanı başa ekle
-        recentListings.unshift({
-            id: listing.id,
-            title: listing.title,
-            price: listing.price,
-            district: listing.district,
-            neighborhood: listing.neighborhood,
-            thumbnailUrl: listing.thumbnailUrl || listing.imageUrl || listing.image,
-            createdAt: listing.createdAt,
+        const recentItem = {
+            id: listingId, // String olarak kaydet
+            title: listing.title || '',
+            price: String(listing.price || ''),
+            district: listing.district || '',
+            neighborhood: listing.neighborhood || '',
+            thumbnailUrl: listing.thumbnailUrl || listing.imageUrl || listing.image || listing.photos?.[0]?.url || '',
+            createdAt: listing.createdAt || new Date().toISOString(),
             viewedAt: new Date().toISOString()
-        });
+        };
+        
+        recentListings.unshift(recentItem);
         
         // Maksimum 10 ilan tut
         if (recentListings.length > 10) {
@@ -48,12 +51,30 @@ const addToRecentListings = (listing: any) => {
         }
         
         localStorage.setItem('recentListings', JSON.stringify(recentListings));
+        
+        // Custom event dispatch et ki diğer componentler güncellensin
+        window.dispatchEvent(new Event('recentListingsChanged'));
+        
     } catch (error) {
         console.error('Recent listings kaydedilirken hata:', error);
     }
 };
 
-export { addToRecentListings }; // Bu fonksiyonu ilan detay sayfalarında kullanmak için export ediyoruz
+const removeFromRecentListings = (listingId: string) => {
+    try {
+        const recentListings = getRecentListings();
+        const id = String(listingId);
+        const updated = recentListings.filter(item => String(item.id) !== id);
+        localStorage.setItem('recentListings', JSON.stringify(updated));
+        window.dispatchEvent(new Event('recentListingsChanged'));
+        return updated;
+    } catch (error) {
+        console.error('Recent listings silme hatası:', error);
+        return getRecentListings();
+    }
+};
+
+export { addToRecentListings }; // Export ediyoruz
 
 export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPanelProps) {
     const navigate = useNavigate();
@@ -65,7 +86,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
         setRecentListings(getRecentListings());
     }, []);
     
-    // localStorage değişikliklerini dinle (başka sekme/pencereden değişirse)
+    // localStorage ve custom event değişikliklerini dinle
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === 'recentListings') {
@@ -73,8 +94,17 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
             }
         };
         
+        const handleRecentChange = () => {
+            setRecentListings(getRecentListings());
+        };
+        
         window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        window.addEventListener('recentListingsChanged', handleRecentChange);
+        
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('recentListingsChanged', handleRecentChange);
+        };
     }, []);
     
     // Dummy data for testing - backend'den gelecek
@@ -108,7 +138,6 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
         // Eğer recent sekmesinde değilsek, bu ilanı recent'e ekle
         if (activeTab !== 'recent') {
             addToRecentListings(listing);
-            setRecentListings(getRecentListings()); // State'i güncelle
         }
     };
 
@@ -117,15 +146,13 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
         if (activeTab === 'pinned') {
             onUnpinListing(listingId);
         }
-        // Liked ve recent için ayrı handler'lar eklenebilir
     };
 
-    // Recent listeden ilan silme fonksiyonu
+    // DÜZELTILMIŞ Recent listeden ilan silme fonksiyonu
     const handleRemoveFromRecent = (e: React.MouseEvent, listingId: string) => {
         e.stopPropagation();
-        const updatedRecent = recentListings.filter(item => item.id !== listingId);
-        localStorage.setItem('recentListings', JSON.stringify(updatedRecent));
-        setRecentListings(updatedRecent);
+        const updated = removeFromRecentListings(listingId);
+        setRecentListings(updated);
     };
 
     // Tab içeriği ve sayıları
@@ -203,10 +230,10 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             }}
                         >
                             {tabInfo.icon}
-                            <Box sx={{ fontSize: '9px', lineHeight: 1, textAlign: 'center' }}> {/* 8px'ten 9px'e */}
+                            <Box sx={{ fontSize: '9px', lineHeight: 1, textAlign: 'center' }}>
                                 {tabInfo.label}
                             </Box>
-                            <Box sx={{ fontSize: '8px', lineHeight: 1, color: isActive ? '#ed9517' : '#9ca3af' }}> {/* 7px'ten 8px'e */}
+                            <Box sx={{ fontSize: '8px', lineHeight: 1, color: isActive ? '#ed9517' : '#9ca3af' }}>
                                 ({tabInfo.count})
                             </Box>
                         </Button>
@@ -233,8 +260,8 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                     </Typography>
                 </Box>
             ) : (
-                currentListings.map((listing) => (
-                    <Box key={listing.id} sx={{ marginBottom: '6px' }}>
+                currentListings.map((listing, index) => (
+                    <Box key={`${activeTab}-${listing.id}-${index}`} sx={{ marginBottom: '6px' }}>
                         <Card sx={{
                             display: "flex",
                             flexDirection: "row",
@@ -253,7 +280,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                         }}
                         onClick={() => handleCardClick(listing)}
                         >
-                            {/* Close/Unpin butonu - sadece pinned sekmesinde, recent'te de var ama farklı */}
+                            {/* Close/Unpin butonu */}
                             {(activeTab === 'pinned' || activeTab === 'recent') && (
                                 <IconButton
                                     onClick={(e) => activeTab === 'pinned' ? handleUnpin(e, listing.id) : handleRemoveFromRecent(e, listing.id)}
@@ -304,7 +331,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             {/* İçerik */}
                             <CardContent sx={{ 
                                 padding: '4px 6px',
-                                paddingRight: '22px', // Çarpı butonu için alan bırak
+                                paddingRight: '6px',
                                 flex: 1, 
                                 display: 'flex', 
                                 flexDirection: 'column', 
@@ -336,10 +363,9 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
 
                                 {/* Alt satır: Adres sol, Fiyat sağ */}
                                 <Box sx={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
+                                    display: 'flex',
                                     alignItems: 'center',
-                                    marginTop: 'auto'
+                                    marginTop: 'auto',
                                 }}>
                                     {/* Adres Bilgisi */}
                                     <Typography 
@@ -350,7 +376,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap',
-                                            maxWidth: '60%'
+                                            flex: 1,
                                         }}
                                     >
                                         {listing.district && listing.neighborhood 
@@ -368,7 +394,8 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                             fontSize: '10px',
                                             letterSpacing: '-0.1px',
                                             textAlign: 'right',
-                                            minWidth: '35%'
+                                            marginLeft: 'auto',
+                                            paddingLeft: '8px'
                                         }}
                                     >
                                         {listing.price ? 

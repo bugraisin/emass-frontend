@@ -33,9 +33,8 @@ interface ListingData {
 
 interface ListingDetailServiceProps {
   listing: ListingData;
-  pinnedListings: any[];
-  onUnpinListing: (listingId: string) => void;
-  onPinListing?: (listing: any) => void;
+  isPinned: boolean;
+  onPinToggle: () => void;
 }
 
 const getImportantDetailsForService = (details: any) => {
@@ -164,29 +163,16 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 };
 
 export default function ListingDetailService({
-  listing, pinnedListings, onUnpinListing, onPinListing
+  listing, isPinned, onPinToggle
 }: ListingDetailServiceProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPinnedLocal, setIsPinnedLocal] = useState(
-    pinnedListings?.some(p => p.id === listing.id) || false
-  );
-
-  const handlePinToggle = () => {
-    if (isPinnedLocal) {
-      onUnpinListing(listing.id);
-      setIsPinnedLocal(false);
-    } else {
-      onPinListing && onPinListing(listing);
-      setIsPinnedLocal(true);
-    }
-  };
 
   return (
     <>
       <HeaderWithActions 
         title={listing.title}
-        isPinned={isPinnedLocal}
-        onPinToggle={handlePinToggle}
+        isPinned={isPinned}
+        onPinToggle={onPinToggle}
       />
 
       <Grid container spacing={2}>

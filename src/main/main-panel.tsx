@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Box, Grid, CardMedia, IconButton, Pagination, Skeleton } from "@mui/material";
 import ImageIcon from '@mui/icons-material/Image';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { addToRecentListings } from './pinned-panel.tsx';
 
 interface MainPanelProps {
     searchResults?: any[];
@@ -13,11 +14,38 @@ interface MainPanelProps {
     pinnedListings?: any[];
 }
 
-export default function MainPanel({ searchResults = [], isLoading = false, onPinListing, onUnpinListing, pinnedListings = [] }: MainPanelProps) {
-
+export default function MainPanel({ searchResults = [], isLoading = false }: MainPanelProps) {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
+    const [pinnedListings, setPinnedListings] = useState<any[]>([]);
     const itemsPerPage = 24;
+
+    // localStorage'dan pinned listings'i yükle ve güncellemeleri dinle
+    useEffect(() => {
+        const loadPinnedListings = () => {
+            try {
+                const saved = localStorage.getItem('pinnedListings');
+                setPinnedListings(saved ? JSON.parse(saved) : []);
+            } catch {
+                setPinnedListings([]);
+            }
+        };
+
+        loadPinnedListings();
+
+        // Pin değişikliklerini dinle
+        const handlePinnedChange = () => {
+            loadPinnedListings();
+        };
+
+        window.addEventListener('pinnedListingsChanged', handlePinnedChange);
+        window.addEventListener('storage', handlePinnedChange);
+
+        return () => {
+            window.removeEventListener('pinnedListingsChanged', handlePinnedChange);
+            window.removeEventListener('storage', handlePinnedChange);
+        };
+    }, []);
 
     // Skeleton loading animasyonu
     const SkeletonLoadingCards = () => (
@@ -43,7 +71,6 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                                 height: '120px'
                             }}
                         >
-                            {/* Resim skeleton */}
                             <Skeleton 
                                 variant="rectangular" 
                                 width={130} 
@@ -56,7 +83,6 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                                 }}
                             />
                             
-                            {/* İçerik skeleton */}
                             <CardContent sx={{ 
                                 padding: '8px 12px', 
                                 flex: 1, 
@@ -66,7 +92,6 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                                 height: '100%',
                                 '&:last-child': { paddingBottom: '8px' }
                             }}>
-                                {/* Başlık skeleton */}
                                 <Skeleton 
                                     variant="text" 
                                     width="75%" 
@@ -78,7 +103,6 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                                     }}
                                 />
                                 
-                                {/* İlçe-Mahalle skeleton */}
                                 <Skeleton 
                                     variant="text" 
                                     width="60%" 
@@ -90,14 +114,12 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                                     }} 
                                 />
                                 
-                                {/* Alt satır: Tarih sol, Fiyat sağ skeleton */}
                                 <Box sx={{ 
                                     display: 'flex', 
                                     justifyContent: 'space-between', 
                                     alignItems: 'center',
                                     marginTop: 'auto'
                                 }}>
-                                    {/* Tarih skeleton */}
                                     <Skeleton 
                                         variant="text" 
                                         width="35%" 
@@ -108,7 +130,6 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
                                         }} 
                                     />
                                     
-                                    {/* Fiyat skeleton */}
                                     <Skeleton 
                                         variant="text" 
                                         width="45%" 
@@ -150,6 +171,9 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
     const currentProperties = searchResults.slice(startIndex, endIndex);
 
     const handleCardClick = (property: any) => {
+        // Recent'e ekle
+        addToRecentListings(property);
+        // İlan detayına git
         navigate(`/ilan/${property.id}`);
     };
 
@@ -157,265 +181,302 @@ export default function MainPanel({ searchResults = [], isLoading = false, onPin
         setCurrentPage(value);
     };
 
-  return (
-    <Box 
-      display="flex" 
-      flexDirection="column" 
-      height="100%" 
-      sx={{
-        padding: '8px',
-      }}
-    >
-      <Grid container spacing={1} sx={{ alignContent: 'flex-start' }}>
-        {currentProperties.map((property, index) => (
-          <Grid item xs={12} sm={6} key={`${property.id}-${index}`}>
-            <Card
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                cursor: "pointer",
-                background: '#fff',
-                borderRadius: '6px',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                overflow: 'hidden',
-                height: '120px',
-                transition: 'box-shadow 0.15s ease',
-                position: 'relative',
-                "&:hover": {
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                },
-              }}
-              onClick={() => handleCardClick(property)}
-            >
-            {property.thumbnailUrl || property.imageUrl || property.image ? (
-                <CardMedia
-                    component="img"
-                    sx={{ 
-                      width: 130, 
-                      height: '100%', 
-                      objectFit: 'cover',
-                      flexShrink: 0
-                    }}
-                    image={property.thumbnailUrl || property.imageUrl || property.image}
-                    alt={property.title}
-                />
-            ) : (
-                <Box sx={{
-                    width: 130,
-                    height: '100%',
-                    backgroundColor: '#f3f4f6',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                }}>
-                    <ImageIcon sx={{ fontSize: 40, color: '#9ca3af' }} />
-                </Box>
-            )}
-              
-              <CardContent sx={{ 
-                padding: '6px 8px', 
-                flex: 1, 
-                display: 'flex', 
-                flexDirection: 'column',
-                height: '100%',
-                '&:last-child': { paddingBottom: '6px' }
-              }}>
-                {/* 1. SATIR: Tarih (sol) ve Butonlar (sağ) */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  height: '24px',
-                  marginBottom: '4px'
-                }}>
-                  {/* Tarih */}
-                  <Typography 
-                    variant="caption" 
-                    sx={{
-                      color: '#9ca3af',
-                      fontSize: '10px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '60%'
-                    }}
-                  >
-                    {property.createdAt ? 
-                      new Date(property.createdAt).toLocaleDateString('tr-TR', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      }) : 
-                      'Tarih yok'
-                    }
-                  </Typography>
-                  
-                  {/* Butonlar */}
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    {/* Pin butonu */}
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const isAlreadyPinned = pinnedListings.some(p => p.id === property.id);
-                        if (isAlreadyPinned) {
-                          onUnpinListing?.(property.id);
-                        } else {
-                          onPinListing?.(property);
-                        }
-                      }}
-                      sx={{
-                        width: 18,
-                        height: 18,
-                        backgroundColor: 'rgba(255,255,255,0.9)',
-                        border: '1px solid rgba(0,0,0,0.1)',
-                        color: pinnedListings.some(p => p.id === property.id) ? '#ed9517' : '#64748b',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255,255,255,1)',
-                          color: '#ed9517'
-                        }
-                      }}
-                    >
-                      <PushPinIcon sx={{ fontSize: 10 }} />
-                    </IconButton>
-                    
-                    {/* Like butonu */}
-                    <IconButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // TODO: Like functionality
-                      }}
-                      sx={{
-                        width: 18,
-                        height: 18,
-                        backgroundColor: 'rgba(255,255,255,0.9)',
-                        border: '1px solid rgba(0,0,0,0.1)',
-                        color: '#64748b',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255,255,255,1)',
-                          color: '#ef4444'
-                        }
-                      }}
-                    >
-                      <FavoriteBorderIcon sx={{ fontSize: 10 }} />
-                    </IconButton>
-                  </Box>
-                </Box>
-                
-                {/* 2. SATIR: Başlık */}
-                <Box sx={{ 
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  marginBottom: '4px'
-                }}>
-                  <Typography 
-                    variant="h6" 
-                    sx={{
-                      fontWeight: 600,
-                      color: '#1e293b',
-                      fontSize: '12px',
-                      letterSpacing: '-0.1px',
-                      lineHeight: 1.3,
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      wordBreak: 'break-word',
-                      width: '100%'
-                    }}
-                  >
-                    {property.title}
-                  </Typography>
-                </Box>
-                
-                {/* 3. SATIR: Adres (sol) ve Fiyat (sağ) */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center',
-                  height: '20px'
-                }}>
-                  {/* Adres */}
-                  <Typography 
-                    variant="body2" 
-                    sx={{
-                      color: '#64748b',
-                      fontSize: '10px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '55%'
-                    }}
-                  >
-                    {property.district && property.neighborhood 
-                      ? `${property.district}, ${property.neighborhood}`
-                      : property.district || property.neighborhood || 'Konum bilgisi yok'
-                    }
-                  </Typography>
-                  
-                  {/* Fiyat */}
-                  <Typography 
-                    variant="h6" 
-                    sx={{
-                      color: '#ed9517',
-                      fontWeight: 700,
-                      fontSize: '11px',
-                      letterSpacing: '-0.1px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '40%',
-                      textAlign: 'right'
-                    }}
-                  >
-                    {property.price ? 
-                      `${parseInt(property.price).toLocaleString('tr-TR')} ₺` : 
-                      'Fiyat yok'
-                    }
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Pagination */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        marginTop: '20px',
-        paddingBottom: '16px'
-      }}>
-        <Pagination 
-          count={totalPages} 
-          page={currentPage} 
-          onChange={handlePageChange}
-          color="primary"
-          size="medium"
-          sx={{
-            '& .MuiPaginationItem-root': {
-              fontWeight: 500,
-              fontSize: '14px',
-              color: '#64748b',
-              '&:hover': {
-                backgroundColor: 'rgba(237, 149, 23, 0.1)',
-                color: '#ed9517'
-              },
-              '&.Mui-selected': {
-                backgroundColor: '#ed9517',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: '#d97706'
-                }
-              }
+    // PIN TOGGLE HANDLER - listing-details ile aynı mantık
+    const handlePinToggle = (e: React.MouseEvent, property: any) => {
+        e.stopPropagation();
+        
+        try {
+            const current = JSON.parse(localStorage.getItem('pinnedListings') || '[]');
+            const listingId = String(property.id);
+            const isAlreadyPinned = current.some((item: any) => String(item.id) === listingId);
+            
+            let updated;
+            if (isAlreadyPinned) {
+                // Unpin
+                updated = current.filter((item: any) => String(item.id) !== listingId);
+            } else {
+                // Pin - fotoğraf verilerini de dahil et
+                const pinnedItem = {
+                    id: listingId,
+                    title: property.title,
+                    price: property.price,
+                    district: property.district,
+                    neighborhood: property.neighborhood,
+                    thumbnailUrl: property.thumbnailUrl || property.imageUrl || property.image || '',
+                    imageUrl: property.thumbnailUrl || property.imageUrl || property.image || '',
+                    image: property.thumbnailUrl || property.imageUrl || property.image || '',
+                    createdAt: property.createdAt
+                };
+                updated = [...current, pinnedItem];
             }
-          }}
-        />
-      </Box>
-    </Box>
-  );
+            
+            localStorage.setItem('pinnedListings', JSON.stringify(updated));
+            setPinnedListings(updated);
+            
+            // Diğer componentları bilgilendir
+            window.dispatchEvent(new Event('pinnedListingsChanged'));
+            
+        } catch (error) {
+            console.error('Pin işlemi hatası:', error);
+        }
+    };
+
+    // İlanın pinned olup olmadığını kontrol et
+    const isListingPinned = (propertyId: string): boolean => {
+        return pinnedListings.some(p => String(p.id) === String(propertyId));
+    };
+
+    return (
+        <Box 
+            display="flex" 
+            flexDirection="column" 
+            height="100%" 
+            sx={{
+                padding: '8px',
+            }}
+        >
+            <Grid container spacing={1} sx={{ alignContent: 'flex-start' }}>
+                {currentProperties.map((property, index) => (
+                    <Grid item xs={12} sm={6} key={`${property.id}-${index}`}>
+                        <Card
+                            sx={{
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                background: '#fff',
+                                borderRadius: '6px',
+                                border: '1px solid #e5e7eb',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                overflow: 'hidden',
+                                height: '120px',
+                                transition: 'box-shadow 0.15s ease',
+                                position: 'relative',
+                                "&:hover": {
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                },
+                            }}
+                            onClick={() => handleCardClick(property)}
+                        >
+                            {property.thumbnailUrl || property.imageUrl || property.image ? (
+                                <CardMedia
+                                    component="img"
+                                    sx={{ 
+                                        width: 130, 
+                                        height: '100%', 
+                                        objectFit: 'cover',
+                                        flexShrink: 0
+                                    }}
+                                    image={property.thumbnailUrl || property.imageUrl || property.image}
+                                    alt={property.title}
+                                />
+                            ) : (
+                                <Box sx={{
+                                    width: 130,
+                                    height: '100%',
+                                    backgroundColor: '#f3f4f6',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    <ImageIcon sx={{ fontSize: 40, color: '#9ca3af' }} />
+                                </Box>
+                            )}
+                              
+                            <CardContent sx={{ 
+                                padding: '6px 8px', 
+                                flex: 1, 
+                                display: 'flex', 
+                                flexDirection: 'column',
+                                height: '100%',
+                                '&:last-child': { paddingBottom: '6px' }
+                            }}>
+                                {/* 1. SATIR: Tarih (sol) ve Butonlar (sağ) */}
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    height: '24px',
+                                    marginBottom: '4px'
+                                }}>
+                                    {/* Tarih */}
+                                    <Typography 
+                                        variant="caption" 
+                                        sx={{
+                                            color: '#9ca3af',
+                                            fontSize: '10px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            maxWidth: '60%'
+                                        }}
+                                    >
+                                        {property.createdAt ? 
+                                            new Date(property.createdAt).toLocaleDateString('tr-TR', {
+                                                day: 'numeric',
+                                                month: 'short',
+                                                year: 'numeric'
+                                            }) : 
+                                            'Tarih yok'
+                                        }
+                                    </Typography>
+                                      
+                                    {/* Butonlar */}
+                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                        {/* Pin butonu */}
+                                        <IconButton
+                                            onClick={(e) => handlePinToggle(e, property)}
+                                            sx={{
+                                                width: 18,
+                                                height: 18,
+                                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                                border: '1px solid rgba(0,0,0,0.1)',
+                                                color: isListingPinned(property.id) ? '#ed9517' : '#64748b',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(255,255,255,1)',
+                                                    color: '#ed9517'
+                                                }
+                                            }}
+                                        >
+                                            <PushPinIcon sx={{ fontSize: 10 }} />
+                                        </IconButton>
+                                        
+                                        {/* Like butonu */}
+                                        <IconButton
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // TODO: Like functionality
+                                            }}
+                                            sx={{
+                                                width: 18,
+                                                height: 18,
+                                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                                border: '1px solid rgba(0,0,0,0.1)',
+                                                color: '#64748b',
+                                                '&:hover': {
+                                                    backgroundColor: 'rgba(255,255,255,1)',
+                                                    color: '#ef4444'
+                                                }
+                                            }}
+                                        >
+                                            <FavoriteBorderIcon sx={{ fontSize: 10 }} />
+                                        </IconButton>
+                                    </Box>
+                                </Box>
+                                
+                                {/* 2. SATIR: Başlık */}
+                                <Box sx={{ 
+                                    flex: 1,
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    marginBottom: '4px'
+                                }}>
+                                    <Typography 
+                                        variant="h6" 
+                                        sx={{
+                                            fontWeight: 600,
+                                            color: '#1e293b',
+                                            fontSize: '12px',
+                                            letterSpacing: '-0.1px',
+                                            lineHeight: 1.3,
+                                            overflow: 'hidden',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            wordBreak: 'break-word',
+                                            width: '100%'
+                                        }}
+                                    >
+                                        {property.title}
+                                    </Typography>
+                                </Box>
+                                
+                                {/* 3. SATIR: Adres (sol) ve Fiyat (sağ) */}
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    height: '20px'
+                                }}>
+                                    {/* Adres */}
+                                    <Typography 
+                                        variant="body2" 
+                                        sx={{
+                                            color: '#64748b',
+                                            fontSize: '10px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            maxWidth: '55%'
+                                        }}
+                                    >
+                                        {property.district && property.neighborhood 
+                                            ? `${property.district}, ${property.neighborhood}`
+                                            : property.district || property.neighborhood || 'Konum bilgisi yok'
+                                        }
+                                    </Typography>
+                                    
+                                    {/* Fiyat */}
+                                    <Typography 
+                                        variant="h6" 
+                                        sx={{
+                                            color: '#ed9517',
+                                            fontWeight: 700,
+                                            fontSize: '11px',
+                                            letterSpacing: '-0.1px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            maxWidth: '40%',
+                                            textAlign: 'right'
+                                        }}
+                                    >
+                                        {property.price ? 
+                                            `${parseInt(property.price).toLocaleString('tr-TR')} ₺` : 
+                                            'Fiyat yok'
+                                        }
+                                    </Typography>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+
+            {/* Pagination */}
+            <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                marginTop: '20px',
+                paddingBottom: '16px'
+            }}>
+                <Pagination 
+                    count={totalPages} 
+                    page={currentPage} 
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="medium"
+                    sx={{
+                        '& .MuiPaginationItem-root': {
+                            fontWeight: 500,
+                            fontSize: '14px',
+                            color: '#64748b',
+                            '&:hover': {
+                                backgroundColor: 'rgba(237, 149, 23, 0.1)',
+                                color: '#ed9517'
+                            },
+                            '&.Mui-selected': {
+                                backgroundColor: '#ed9517',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#d97706'
+                                }
+                            }
+                        }
+                    }}
+                />
+            </Box>
+        </Box>
+    );
 }
