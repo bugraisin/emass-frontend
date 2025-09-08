@@ -37,9 +37,9 @@ export default function DescriptionBox({ description }: DescriptionBoxProps) {
       <Box
         dangerouslySetInnerHTML={{ __html: description }}
         sx={{
-          fontSize: "12px",
+          fontSize: "14px",
           color: "#374151",
-          lineHeight: 1.4,
+          lineHeight: 1.2,
           px: 2,
           py: 1.5,
           whiteSpace: "pre-wrap",

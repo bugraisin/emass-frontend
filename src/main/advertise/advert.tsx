@@ -73,42 +73,12 @@ export default function Advert() {
     const [photos, setPhotos] = useState<Photo[]>([]);
 
     // Fotoğraf validasyon fonksiyonu
-    const validatePhotos = async (photosToValidate: Photo[]): Promise<Photo[]> => {
-        const validPhotos: Photo[] = [];
-        
-        for (const photo of photosToValidate) {
-            try {
-                // Dosya tipini kontrol et
-                if (!photo.file.type.startsWith('image/')) {
-                    console.warn(`Geçersiz dosya tipi: ${photo.file.type}`);
-                    continue;
-                }
-                
-                // Dosya boyutunu kontrol et (5MB limit)
-                if (photo.file.size > 5 * 1024 * 1024) {
-                    console.warn(`Dosya çok büyük: ${photo.file.size} bytes`);
-                    continue;
-                }
-                
-                // Dosyanın gerçekten bir resim olduğunu kontrol et
-                const isValidImage = await new Promise<boolean>((resolve) => {
-                    const img = new Image();
-                    img.onload = () => resolve(true);
-                    img.onerror = () => resolve(false);
-                    img.src = photo.url;
-                });
-                
-                if (isValidImage) {
-                    validPhotos.push(photo);
-                } else {
-                    console.warn(`Geçersiz resim dosyası: ${photo.file.name}`);
-                }
-            } catch (error) {
-                console.error(`Fotoğraf validasyon hatası: ${photo.file.name}`, error);
-            }
-        }
-        
-        return validPhotos;
+    const validatePhotos = (photosToValidate: Photo[]): Photo[] => {
+        return photosToValidate.filter(photo => {
+            return photo.file.size > 0 && 
+                photo.file.size <= 5 * 1024 * 1024 && 
+                photo.file.type.startsWith('image/');
+        });
     };
 
     // Aktif property type'a göre doğru detay state'ini döndüren helper fonksiyon

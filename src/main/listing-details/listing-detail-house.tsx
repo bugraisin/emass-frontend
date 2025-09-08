@@ -51,6 +51,8 @@ const getImportantDetailsForKonut = (details: any) => {
     "Site/Apartman Adı": safeDetails.siteName || 'Belirtilmemiş',
     "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
     "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
+    "Eşyalı": safeDetails.furnished ? 'Var' : 'Yok',
+    "Site İçerisinde": safeDetails.withinSite ? 'Var' : 'Yok',
   };
 };
 
@@ -129,7 +131,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
-      height: '400px',
+      height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
         {formatPrice(price)} ₺
