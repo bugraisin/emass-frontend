@@ -18,7 +18,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
   const [modalOpen, setModalOpen] = useState(false);
   const [thumbnailOffset, setThumbnailOffset] = useState(0);
 
-  const VISIBLE_THUMBNAILS = 9; // Alt çubukta görünecek thumbnail sayısı
+  const VISIBLE_THUMBNAILS = 18; // 2 sıra x 9 thumbnail = 18 thumbnail
 
   // Güvenli index hesaplama
   const safeCurrentIndex = currentIndex >= 0 && currentIndex < (photos?.length || 0) ? currentIndex : 0;
@@ -35,22 +35,32 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
     setCurrentIndex(newIndex);
   };
 
-  const handleThumbnailPrev = () => {
+  const handleThumbnailPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     setThumbnailOffset(Math.max(0, thumbnailOffset - VISIBLE_THUMBNAILS));
   };
 
-  const handleThumbnailNext = () => {
+  const handleThumbnailNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     const maxOffset = Math.max(0, (photos?.length || 0) - VISIBLE_THUMBNAILS);
     setThumbnailOffset(Math.min(maxOffset, thumbnailOffset + VISIBLE_THUMBNAILS));
+  };
+
+  const handleThumbnailClick = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentIndex(index);
   };
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
-  // Keyboard navigation
+  // Keyboard navigation - hem modal açıkken hem de kapalıyken çalışır
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (!modalOpen || !photos || photos.length <= 1) return;
+      if (!photos || photos.length <= 1) return;
 
       switch (event.key) {
         case 'ArrowLeft':
@@ -62,34 +72,21 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
           handleNext();
           break;
         case 'Escape':
-          event.preventDefault();
-          closeModal();
+          if (modalOpen) {
+            event.preventDefault();
+            closeModal();
+          }
           break;
       }
     };
 
-    if (modalOpen) {
-      window.addEventListener('keydown', handleKeyPress);
-    }
+    // Event listener'ı her zaman ekle (modal durumuna bakma)
+    window.addEventListener('keydown', handleKeyPress);
 
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [modalOpen, photos, safeCurrentIndex]);
-
-  // Aktif fotoğraf değiştiğinde thumbnail scroll'unu ayarla
-  useEffect(() => {
-    if (photos.length <= VISIBLE_THUMBNAILS) return; // Tüm thumbnail'ler görünüyorsa scroll gerekmez
-    
-    // Current index hangi sayfa aralığında olmalı?
-    const currentPage = Math.floor(safeCurrentIndex / VISIBLE_THUMBNAILS);
-    const newOffset = currentPage * VISIBLE_THUMBNAILS;
-    
-    // Eğer current index görünür alanda değilse scroll yap
-    if (safeCurrentIndex < thumbnailOffset || safeCurrentIndex >= thumbnailOffset + VISIBLE_THUMBNAILS) {
-      setThumbnailOffset(newOffset);
-    }
-  }, [safeCurrentIndex, photos.length, thumbnailOffset]);
+  }, [photos, safeCurrentIndex, modalOpen]); // modalOpen dependency'e eklendi
 
   // Güvenlik kontrolü
   if (!photos || !Array.isArray(photos) || photos.length === 0) {
@@ -175,6 +172,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
             <img
               src={currentPhoto.url}
               alt="ilan"
+              key={currentPhoto.id} // Key eklendi re-render için
               style={{
                 maxWidth: "100%",
                 maxHeight: "100%",
@@ -206,24 +204,46 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
           {/* Ana fotoğraf navigation okları */}
           {photos.length > 1 && (
             <>
-              <IconButton onClick={handlePrev} sx={{
-                position: "absolute", top: "50%", left: 15, transform: "translateY(-50%)",
-                background: "rgba(0,0,0,0.7)", color: "#fff", borderRadius: 2,
-                "&:hover": { background: "rgba(0,0,0,0.9)" },
-                zIndex: 3,
-                width: 40,
-                height: 40
-              }}>
+              <IconButton 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrev();
+                }} 
+                sx={{
+                  position: "absolute", 
+                  top: "50%", 
+                  left: 15, 
+                  transform: "translateY(-50%)",
+                  background: "rgba(0,0,0,0.7)", 
+                  color: "#fff", 
+                  borderRadius: 2,
+                  "&:hover": { background: "rgba(0,0,0,0.9)" },
+                  zIndex: 3,
+                  width: 40,
+                  height: 40
+                }}
+              >
                 <ArrowBackIos fontSize="small" />
               </IconButton>
-              <IconButton onClick={handleNext} sx={{
-                position: "absolute", top: "50%", right: 15, transform: "translateY(-50%)",
-                background: "rgba(0,0,0,0.7)", color: "#fff", borderRadius: 2,
-                "&:hover": { background: "rgba(0,0,0,0.9)" },
-                zIndex: 3,
-                width: 40,
-                height: 40
-              }}>
+              <IconButton 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNext();
+                }} 
+                sx={{
+                  position: "absolute", 
+                  top: "50%", 
+                  right: 15, 
+                  transform: "translateY(-50%)",
+                  background: "rgba(0,0,0,0.7)", 
+                  color: "#fff", 
+                  borderRadius: 2,
+                  "&:hover": { background: "rgba(0,0,0,0.9)" },
+                  zIndex: 3,
+                  width: 40,
+                  height: 40
+                }}
+              >
                 <ArrowForwardIos fontSize="small" />
               </IconButton>
             </>
@@ -240,20 +260,26 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
               padding: '6px 12px',
               borderRadius: 2,
               fontSize: 13,
-              fontWeight: 600
+              fontWeight: 600,
+              zIndex: 2
             }}>
               {safeCurrentIndex + 1} / {photos.length}
             </Box>
           )}
         </Box>
 
-        {/* Alt thumbnail paneli - fotoğrafın uzantısı */}
+        {/* Alt thumbnail paneli - 2 sıra */}
         {photos.length > 1 && (
           <Box sx={{
             width: '100%',
-            backgroundColor: '#f8fafc',
-            borderTop: '1px solid #e5e7eb',
-            p: 0.8,
+            backgroundColor: '#f3f4f6',
+            borderBottom: '1px solid #e5e7eb',
+            borderLeft: '1px solid #e5e7eb',
+            borderRight: '1px solid #e5e7eb',
+            borderTop: 'none',
+            borderRadius: '0 0 12px 12px',
+            boxShadow: '0 4px 12px rgba(148,163,184,0.10)',
+            p: 0.5,
           }}>
             <Box sx={{ 
               position: 'relative', 
@@ -267,7 +293,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
                   sx={{
                     position: 'absolute',
                     left: -8,
-                    zIndex: 4,
+                    zIndex: 10,
                     backgroundColor: 'rgba(255,255,255,0.9)',
                     color: 'black',
                     width: 26,
@@ -286,7 +312,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
                   sx={{
                     position: 'absolute',
                     right: -8,
-                    zIndex: 4,
+                    zIndex: 10,
                     backgroundColor: 'rgba(255,255,255,0.9)',
                     color: 'black',
                     width: 26,
@@ -298,9 +324,10 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
                 </IconButton>
               )}
 
-              {/* Thumbnail listesi */}
+              {/* Thumbnail listesi - 2 sıra */}
               <Box sx={{
                 display: 'flex',
+                flexDirection: 'column',
                 gap: 0.6,
                 overflow: 'hidden',
                 width: '100%',
@@ -308,41 +335,97 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
                 alignItems: 'center',
                 px: 1
               }}>
-                {photos.slice(thumbnailOffset, thumbnailOffset + VISIBLE_THUMBNAILS).map((photo, index) => {
-                  const actualIndex = thumbnailOffset + index;
-                  
-                  if (!photo || !photo.url || !photo.id) return null;
-                  
-                  return (
-                    <Box
-                      key={photo.id}
-                      onClick={() => setCurrentIndex(actualIndex)}
-                      sx={{
-                        width: '70px',
-                        height: '45px',
-                        borderRadius: 1,
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        border: actualIndex === safeCurrentIndex ? '2px solid #ed9517' : '1px solid rgba(0,0,0,0.15)',
-                        flexShrink: 0,
-                        '&:hover': {
-                          border: '2px solid #ed9517',
-                        },
-                        transition: 'border 0.2s ease'
-                      }}
-                    >
-                      <img
-                        src={photo.url}
-                        alt={`Fotoğraf ${actualIndex + 1}`}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
+                {/* Üst sıra - İlk 9 thumbnail */}
+                <Box sx={{
+                  display: 'flex',
+                  gap: 0.6,
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  {photos.slice(thumbnailOffset, thumbnailOffset + 9).map((photo, index) => {
+                    const actualIndex = thumbnailOffset + index;
+                    
+                    if (!photo || !photo.url || !photo.id) return null;
+                    
+                    return (
+                      <Box
+                        key={`top-${photo.id}-${actualIndex}`}
+                        onClick={(e) => handleThumbnailClick(e, actualIndex)}
+                        sx={{
+                          width: '70px',
+                          height: '45px',
+                          borderRadius: 1,
+                          overflow: 'hidden',
+                          cursor: 'pointer',
+                          border: actualIndex === safeCurrentIndex ? '2px solid #ed9517' : '1px solid rgba(0,0,0,0.15)',
+                          flexShrink: 0,
+                          zIndex: 5,
+                          '&:hover': {
+                            border: '2px solid #ed9517',
+                          },
+                          transition: 'border 0.2s ease'
                         }}
-                      />
-                    </Box>
-                  );
-                })}
+                      >
+                        <img
+                          src={photo.url}
+                          alt={`Fotoğraf ${actualIndex + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </Box>
+                    );
+                  })}
+                </Box>
+
+                {/* Alt sıra - İkinci 9 thumbnail */}
+                {photos.length > thumbnailOffset + 9 && (
+                  <Box sx={{
+                    display: 'flex',
+                    gap: 0.6,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    {photos.slice(thumbnailOffset + 9, thumbnailOffset + 18).map((photo, index) => {
+                      const actualIndex = thumbnailOffset + 9 + index;
+                      
+                      if (!photo || !photo.url || !photo.id) return null;
+                      
+                      return (
+                        <Box
+                          key={`bottom-${photo.id}-${actualIndex}`}
+                          onClick={(e) => handleThumbnailClick(e, actualIndex)}
+                          sx={{
+                            width: '70px',
+                            height: '45px',
+                            borderRadius: 1,
+                            overflow: 'hidden',
+                            cursor: 'pointer',
+                            border: actualIndex === safeCurrentIndex ? '2px solid #ed9517' : '1px solid rgba(0,0,0,0.15)',
+                            flexShrink: 0,
+                            zIndex: 5,
+                            '&:hover': {
+                              border: '2px solid #ed9517',
+                            },
+                            transition: 'border 0.2s ease'
+                          }}
+                        >
+                          <img
+                            src={photo.url}
+                            alt={`Fotoğraf ${actualIndex + 1}`}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
               </Box>
             </Box>
           </Box>
@@ -397,6 +480,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
             <img
               src={currentPhoto.url}
               alt={`Fotoğraf ${safeCurrentIndex + 1}`}
+              key={`modal-${currentPhoto.id}`} // Modal için ayrı key
               style={{
                 maxWidth: '100%',
                 maxHeight: '100%',
@@ -482,7 +566,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
                   
                   return (
                     <Box
-                      key={photo.id}
+                      key={`modal-thumb-${photo.id}`}
                       onClick={() => setCurrentIndex(index)}
                       sx={{
                         width: '60px',

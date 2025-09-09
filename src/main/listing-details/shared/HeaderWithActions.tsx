@@ -1,14 +1,24 @@
 import React from "react";
-import { Box, Typography, IconButton, Divider } from "@mui/material";
+import { Box, Typography, IconButton, Divider, Button } from "@mui/material";
 import { PushPin, Favorite } from "@mui/icons-material";
 
 interface HeaderWithActionsProps {
   title: string;
   isPinned: boolean;
   onPinToggle: () => void;
+  isFavorited: boolean;
+  onFavoriteToggle: () => void;
+  favoriteCount: number;
 }
 
-export default function HeaderWithActions({ title, isPinned, onPinToggle }: HeaderWithActionsProps) {
+export default function HeaderWithActions({ 
+  title, 
+  isPinned, 
+  onPinToggle, 
+  isFavorited, 
+  onFavoriteToggle, 
+  favoriteCount 
+}: HeaderWithActionsProps) {
   return (
     <>
       <Box sx={{
@@ -17,46 +27,41 @@ export default function HeaderWithActions({ title, isPinned, onPinToggle }: Head
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <Typography variant="h5" sx={{ 
-          fontWeight: 600, 
-          color: "#1e293b", 
+        <Typography variant="h5" sx={{
+          fontWeight: 600,
+          color: "#1e293b",
           fontSize: '16px',
           flex: 1
         }}>
           {title}
         </Typography>
-        
+                
         <Box sx={{ display: 'flex', gap: 0.5, mt: -0.5 }}>
           <IconButton
             onClick={onPinToggle}
+            disableRipple
             sx={{
               width: 28,
               height: 28,
               borderRadius: 1,
-              backgroundColor: isPinned ? '#ed9517' : 'transparent',
-              color: isPinned ? 'white' : '#64748b',
+              color: isPinned ? '#ed9517' : '#64748b',
               border: 'none',
-              '&:hover': {
-                backgroundColor: isPinned ? '#d97706' : '#f1f5f9',
-                color: isPinned ? 'white' : '#ed9517'
-              },
+              padding: 0,
             }}
           >
             <PushPin sx={{ fontSize: 14 }} />
           </IconButton>
-          
+                    
           <IconButton
+            onClick={onFavoriteToggle}
+            disableRipple
             sx={{
               width: 28,
               height: 28,
               borderRadius: 1,
-              backgroundColor: 'transparent',
-              color: '#64748b',
+              color: isFavorited ? '#ef4444' : '#64748b',
               border: 'none',
-              '&:hover': {
-                backgroundColor: '#fef2f2',
-                color: '#ef4444'
-              },
+              padding: 0,
             }}
           >
             <Favorite sx={{ fontSize: 14 }} />

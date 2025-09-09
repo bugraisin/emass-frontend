@@ -35,21 +35,39 @@ interface ListingDetailIndustrialProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
+  isFavorited: boolean;
+  onFavoriteToggle: () => void;
+  favoriteCount: number;
 }
 
-const getImportantDetailsForIndustrial = (details: any) => {
+const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
   const safeDetails = details || {};
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Belirtilmemiş';
+    }
+  };
   
   return {
+    "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "Tavan Yüksekliği (m)": safeDetails.ceilingHeight || 'Belirtilmemiş',
     "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
+    "Bölüm Sayısı": safeDetails.roomCount || "Belirtilmemiş",
+    "Kat Sayısı": safeDetails.floorCount || "Belirtilmemiş",
     "Üç Fazlı Elektrik": safeDetails.threephaseElectricity ? 'Var' : 'Yok',
     "Doğalgaz Hattı": safeDetails.naturalGasLine ? 'Var' : 'Yok',
-    "Vinç Sistemi": safeDetails.craneSystem ? 'Var' : 'Yok',
-    "Yükleme Rampası": safeDetails.loadingRamp ? 'Var' : 'Yok',
-    "TIR Girişi": safeDetails.truckEntrance ? 'Var' : 'Yok',
+    "Havalandırma Sistemi": safeDetails.ventilationSystem ? 'Var' : 'Yok',
     "Yangın Sistemi": safeDetails.fireExtinguishingSystem ? 'Var' : 'Yok',
+    "Alarm Sistemi": safeDetails.alarmSystem ? "Var" : "Yok",
     "Güvenlik": safeDetails.security ? 'Var' : 'Yok',
   };
 };
@@ -97,8 +115,10 @@ const INDUSTRIAL_FEATURE_CATEGORIES = [
   }
 ];
 
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
+const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
+  createdAt: string;
   listingType: string;
+  subtype: string;
   title: string;
   price: string;
   city: string;
@@ -106,7 +126,21 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForIndustrial(details);
+  const importantDetails = getImportantDetailsForIndustrial(details, createdAt);
+
+  const getSubtypeLabel = (value: string) => {
+    const subtypeOptions = [
+      { value: "FABRIKA", label: "Fabrika" },
+      { value: "ATOLYE", label: "Atölye" },
+      { value: "IMALATHANE", label: "İmalathane" },
+      { value: "DEPO", label: "Depo" },
+      { value: "SOGUK_HAVA_DEPOSU", label: "Soğuk Hava Deposu" },
+      { value: "ANTREPO", label: "Antrepo" },
+      { value: "LABORATUVAR", label: "Laboratuvar" },
+      { value: "URETIM_TESISI", label: "Üretim Tesisi" }
+    ];
+    return subtypeOptions.find(s => s.value === value)?.label || value;
+  };
 
   return (
     <Box sx={{
@@ -116,7 +150,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
-      height: '400px',
+      height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
         {formatPrice(price)} ₺
@@ -137,7 +171,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Endüstriyel Özellikleri
+          {getSubtypeLabel(subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -169,7 +203,12 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 };
 
 export default function ListingDetailIndustrial({
-  listing, isPinned, onPinToggle
+  listing, 
+  isPinned, 
+  onPinToggle,
+  isFavorited,
+  onFavoriteToggle,
+  favoriteCount
 }: ListingDetailIndustrialProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -179,6 +218,9 @@ export default function ListingDetailIndustrial({
         title={listing.title}
         isPinned={isPinned}
         onPinToggle={onPinToggle}
+        isFavorited={isFavorited}
+        onFavoriteToggle={onFavoriteToggle}
+        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>
@@ -191,7 +233,9 @@ export default function ListingDetailIndustrial({
         </Grid>
         <Grid item xs={12} md={4}>
           <PropertyInfoPanel
+            createdAt={listing.createdAt}
             listingType={listing.listingType}
+            subtype={listing.subtype}
             title={listing.title}
             price={listing.price}
             city={listing.city}

@@ -37,6 +37,38 @@ export default function ListingDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pinnedListings, setPinnedListings] = useState<any[]>([]);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [currentUserId] = useState<number>(1);
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if(!listing?.id) return;
+      
+      try {
+        const favoriteResponse = await fetch(
+          `http://localhost:8080/api/favorites/${listing.id}/check?userId=${currentUserId}`
+        );
+        if (favoriteResponse.ok) {
+          const isFav = await favoriteResponse.json();
+          setIsFavorited(isFav);
+        }
+
+        const countResponse = await fetch(
+          `http://localhost:8080/api/favorites/count/${listing.id}`
+        );
+
+        if(countResponse.ok) {
+          const count = await countResponse.json();
+          setFavoriteCount(count);
+        }
+      } catch(error) {
+        console.error("Favorite durumu kontrol edilirken hata", error);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [listing?.id, currentUserId]);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -59,24 +91,14 @@ export default function ListingDetails() {
           id: backendData.id.toString(),
           listingType: backendData.listingType,
           propertyType: backendData.propertyType,
-          subtype: backendData.housingDetails?.subtype || 
-                   backendData.commercialDetails?.subtype || 
-                   backendData.officeDetails?.subtype ||
-                   backendData.industrialDetails?.subtype ||
-                   backendData.serviceDetails?.subtype ||
-                   backendData.landDetails?.subtype || '',
+          subtype: backendData.details?.subtype || '',
           title: backendData.title,
           description: backendData.description,
           price: backendData.price.toString(),
           city: backendData.city,
           district: backendData.district,
           neighborhood: backendData.neighborhood,
-          details: backendData.housingDetails || 
-                   backendData.commercialDetails || 
-                   backendData.officeDetails || 
-                   backendData.industrialDetails || 
-                   backendData.serviceDetails || 
-                   backendData.landDetails || {},
+          details: backendData.details || {},
           photos: backendData.photoUrls ? backendData.photoUrls.map((photo: any) => ({
             id: photo.id.toString(),
             url: photo.imageUrl,
@@ -113,7 +135,49 @@ export default function ListingDetails() {
     navigate(-1);
   };
 
-  // BU TEK PIN HANDLER TÜM YERLERİ YÖNETİR
+  const handleFavoriteToggle = async () => {
+    if (!listing) return;
+
+    try {
+      if (isFavorited) {
+        // Favoriden çıkar
+        const response = await fetch(
+          `http://localhost:8080/api/favorites/${listing.id}`,
+          { 
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUserId })
+          }
+        );
+
+        if (response.ok) {
+          setIsFavorited(false);
+          setFavoriteCount(prev => prev - 1);
+          window.dispatchEvent(new Event('favoritesChanged'));
+        }
+      } else {
+        // Favoriye ekle
+        const response = await fetch(
+          `http://localhost:8080/api/favorites/${listing.id}`,
+          { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUserId })
+          }
+        );
+
+        if (response.ok) {
+          setIsFavorited(true);
+          setFavoriteCount(prev => prev + 1);
+          window.dispatchEvent(new Event('favoritesChanged'));
+        }
+      }
+    } catch (error) {
+      console.error("Favori işlemi hatası:", error);
+    }
+  };
+
+
   const handlePinToggle = () => {
     if (!listing) return;
     
@@ -163,11 +227,14 @@ export default function ListingDetails() {
 
     // PIN DURUMUNU HESAPLA
     const isPinned = pinnedListings.some(p => String(p.id) === String(listing.id));
-
+    
     const commonProps = {
       listing,
       isPinned,
-      onPinToggle: handlePinToggle
+      onPinToggle: handlePinToggle,
+      isFavorited,
+      onFavoriteToggle: handleFavoriteToggle,
+      favoriteCount
     };
 
     switch (listing.propertyType) {
@@ -241,7 +308,7 @@ export default function ListingDetails() {
             </Box>
           </Box>
 
-          <Box width="22%" sx={{ background: 'rgba(148, 163, 184, 0.1)' }}>
+          <Box width="20%">
             <PinnedPanel 
               pinnedListings={pinnedListings}
               onUnpinListing={handleUnpinListing}

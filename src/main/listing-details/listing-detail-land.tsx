@@ -35,22 +35,65 @@ interface ListingDetailLandProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
+  isFavorited: boolean;
+  onFavoriteToggle: () => void;
+  favoriteCount: number;
 }
 
-const getImportantDetailsForLand = (details: any) => {
+const getImportantDetailsForLand = (details: any, createdAt: string) => {
   const safeDetails = details || {};
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Belirtilmemiş';
+    }
+  };
+
+  const getZoningStatus = (value: string) => {
+    const zoningOptions = [
+      { value: "IMARLI", label: "İmarlı" },
+      { value: "IMARSIZ", label: "İmarsız" },
+      { value: "TARLA", label: "Tarla" },
+      { value: "BAHCE", label: "Bahçe" },
+      { value: "KONUT_IMARLI", label: "Konut İmarlı" },
+      { value: "TICARI_IMARLI", label: "Ticari İmarlı" },
+      { value: "SANAYI_IMARLI", label: "Sanayi İmarlı" },
+      { value: "DIGER", label: "Diğer" }
+    ];
+    return zoningOptions.find(s => s.value === value)?.label || value;
+  };
+
+  const getTitleLandDeedStatus = (value: string) => {
+    const zoningOptions = [
+      { value: "ARSA_PAYI", label: "Arsa Payı" },
+      { value: "MUSTAKIL_TAPULU", label: "Müstakil Tapulu" },
+      { value: "HISSELI_TAPULU", label: "Hisseli Tapulu" },
+      { value: "TARLA_TAPULU", label: "Tarla Tapulu" }
+    ];
+    return zoningOptions.find(s => s.value === value)?.label || value;
+  };
   
   return {
+    "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
-    "İmar Durumu": safeDetails.zoningStatus || 'Belirtilmemiş',
-    "Tapu Durumu": safeDetails.titleDeedStatus || 'Belirtilmemiş',
-    "Elektrik": safeDetails.electricity ? 'Var' : 'Yok',
-    "Su": safeDetails.water ? 'Var' : 'Yok',
-    "Doğalgaz": safeDetails.naturalGas ? 'Var' : 'Yok',
-    "Kanalizasyon": safeDetails.sewerage ? 'Var' : 'Yok',
-    "Yol Erişimi": safeDetails.roadAccess ? 'Var' : 'Yok',
-    "Köşe Parsel": safeDetails.cornerLot ? 'Evet' : 'Hayır',
-    "Yapı İzni": safeDetails.buildingPermit ? 'Var' : 'Yok',
+    "İmar Durumu": safeDetails.zoningStatus ? getZoningStatus(safeDetails.zoningStatus) : 'Belirtilmemiş',
+    "Tapu Durumu": safeDetails.titleDeedStatus ? getTitleLandDeedStatus(safeDetails.titleLandDeedStatus) : 'Belirtilmemiş',
+    "Ada No": safeDetails.adaNo || "Belirtilmemiş",
+    "Parsel No": safeDetails.parcelNo || "Belirtilmemiş",
+    "Pafta No": safeDetails.paftaNo || "Belirtilmemiş",
+    "KAKS": safeDetails.kaks || "Belirtilmemiş",
+    "Gabari (m)": safeDetails.gabari || "Belirtilmemiş",
+    "Yol Erişimi": safeDetails.roadAccess ? "Var" : "Yok",
+    "Elektrik": safeDetails.electricity ? "Var" : "Yok",
+    "Su": safeDetails.water ? "Var" : "Yok",
+    "Doğalgaz": safeDetails.naturalGas ? "Var" : "Yok",
   };
 };
 
@@ -97,16 +140,17 @@ const LAND_FEATURE_CATEGORIES = [
   }
 ];
 
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
+const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, createdAt, details }: {
   listingType: string;
   title: string;
   price: string;
   city: string;
   district: string;
   neighborhood: string;
+  createdAt: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForLand(details);
+  const importantDetails = getImportantDetailsForLand(details, createdAt);
 
   return (
     <Box sx={{
@@ -116,7 +160,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
-      height: '400px',
+      height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
         {formatPrice(price)} ₺
@@ -169,7 +213,12 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 };
 
 export default function ListingDetailLand({
-  listing, isPinned, onPinToggle
+  listing, 
+  isPinned, 
+  onPinToggle,
+  isFavorited,
+  onFavoriteToggle,
+  favoriteCount
 }: ListingDetailLandProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -179,6 +228,9 @@ export default function ListingDetailLand({
         title={listing.title}
         isPinned={isPinned}
         onPinToggle={onPinToggle}
+        isFavorited={isFavorited}
+        onFavoriteToggle={onFavoriteToggle}
+        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>
@@ -197,6 +249,7 @@ export default function ListingDetailLand({
             city={listing.city}
             district={listing.district}
             neighborhood={listing.neighborhood}
+            createdAt={listing.createdAt}
             details={listing.details}
           />
         </Grid>

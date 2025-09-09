@@ -35,22 +35,65 @@ interface ListingDetailCommercialProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
+  isFavorited: boolean;
+  onFavoriteToggle: () => void;
+  favoriteCount: number;
 }
 
-const getImportantDetailsForCommercial = (details: any) => {
+const getImportantDetailsForCommercial = (details: any, createdAt: string) => {
   const safeDetails = details || {};
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Belirtilmemiş';
+    }
+  };
+
+  const getHeatingTypeLabel = (value: string) => {
+    const heatingOptions = [
+      { value: "DOGALGAZ", label: "Doğalgaz" },
+      { value: "MERKEZI", label: "Merkezi" },
+      { value: "KALORIFER", label: "Kalorifer" },
+      { value: "KLIMA", label: "Klima" },
+      { value: "ELEKTRIKLI", label: "Elektrikli" },
+      { value: "SOBALI", label: "Sobali" },
+      { value: "YOK", label: "Yok" }
+    ];
+    return heatingOptions.find(h => h.value === value)?.label || value;
+  };
+
+  const getBuildingTypeDetails = (value: string) => {
+    const buildingOptions = [
+      { value: "APARTMAN", label: "Apartman"},
+      { value: "PLAZA", label: "Plaza"},
+      { value: "MUSTAKIL", label: "Müstakil"},
+      { value: "PASAJ", label: "Pasaj"},
+      { value: "AVM", label: "AVM"},
+    ];
+    return buildingOptions.find(h => h.value === value)?.label || value;
+  };
   
   return {
+    "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
+    "Toplam Kat": safeDetails.floorCount || "Belirtilmemiş",
     "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Isıtma Türü": safeDetails.heatingType || 'Belirtilmemiş',
     "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
-    "Vitrin": safeDetails.showcase ? 'Var' : 'Yok',
-    "Otopark": safeDetails.parking ? 'Var' : 'Yok',
-    "Güvenlik": safeDetails.security ? 'Var' : 'Yok',
-    "Asansör": safeDetails.elevator ? 'Var' : 'Yok',
-    "Klima": safeDetails.airConditioning ? 'Var' : 'Yok',
+    "Aidat (₺)": safeDetails.siteFee || "Belirtilmemiş",
+    "Bina Tipi": safeDetails.buildingType ? getBuildingTypeDetails(safeDetails.buildingType) : "Belirtilmemiş",
+    "Isıtma Tipi": safeDetails.heatingType ? getHeatingTypeLabel(safeDetails.heatingType) : 'Belirtilmemiş',
+    "Mutfak": safeDetails.kitchen ? "Var" : "Yok",
+    "Klima": safeDetails.airConditioning ? "Var" : "Yok",
+    "Tuvalet": safeDetails.toilet ? "Var" : "Yok",
+    "İnternet": safeDetails.internet ? "Var" : "Yok",
   };
 };
 
@@ -93,8 +136,10 @@ const COMMERCIAL_FEATURE_CATEGORIES = [
   }
 ];
 
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
+const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
+  createdAt: string;
   listingType: string;
+  subtype: string;
   title: string;
   price: string;
   city: string;
@@ -102,7 +147,23 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForCommercial(details);
+  const importantDetails = getImportantDetailsForCommercial(details, createdAt);
+
+  const getSubtypeLabel = (value: string) => {
+    const subtypeOptions = [
+      { value: "DUKKAN", label: "Dükkan" },
+      { value: "MAGAZA", label: "Mağaza" },
+      { value: "MARKET", label: "Market" },
+      { value: "RESTAURANT", label: "Restaurant" },
+      { value: "KAFE", label: "Kafe" },
+      { value: "BAR", label: "Bar" },
+      { value: "PASTANE", label: "Pastane" },
+      { value: "BERBER_KUAFOR", label: "Berber & Kuaför" },
+      { value: "GuZELLIK_SALONU", label: "Güzellik Salonu" },
+      { value: "ECZANE", label: "Eczane" }
+    ];
+    return subtypeOptions.find(s => s.value === value)?.label || value;
+  };
 
   return (
     <Box sx={{
@@ -112,7 +173,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
-      height: '400px',
+      height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
         {formatPrice(price)} ₺
@@ -133,7 +194,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Ticari Emlak Özellikleri
+          {getSubtypeLabel(subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -165,7 +226,12 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 };
 
 export default function ListingDetailCommercial({
-  listing, isPinned, onPinToggle
+  listing, 
+  isPinned, 
+  onPinToggle,
+  isFavorited,
+  onFavoriteToggle,
+  favoriteCount
 }: ListingDetailCommercialProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -175,6 +241,9 @@ export default function ListingDetailCommercial({
         title={listing.title}
         isPinned={isPinned}
         onPinToggle={onPinToggle}
+        isFavorited={isFavorited}
+        onFavoriteToggle={onFavoriteToggle}
+        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>
@@ -187,7 +256,9 @@ export default function ListingDetailCommercial({
         </Grid>
         <Grid item xs={12} md={4}>
           <PropertyInfoPanel
+            createdAt={listing.createdAt}
             listingType={listing.listingType}
+            subtype={listing.subtype}
             title={listing.title}
             price={listing.price}
             city={listing.city}

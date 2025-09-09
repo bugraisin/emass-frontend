@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Box, Grid, CardMedia, IconButton, Pagination, Skeleton } from "@mui/material";
 import ImageIcon from '@mui/icons-material/Image';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { addToRecentListings } from './pinned-panel.tsx';
 
 interface MainPanelProps {
@@ -19,6 +18,15 @@ export default function MainPanel({ searchResults = [], isLoading = false }: Mai
     const [currentPage, setCurrentPage] = useState(1);
     const [pinnedListings, setPinnedListings] = useState<any[]>([]);
     const itemsPerPage = 24;
+
+    // SearchResults'ı tarihe göre sırala (yeni -> eski)
+    const sortedResults = useMemo(() => {
+        return [...searchResults].sort((a, b) => {
+            const dateA = new Date(a.createdAt || 0).getTime();
+            const dateB = new Date(b.createdAt || 0).getTime();
+            return dateB - dateA; // Yeni tarihler üstte
+        });
+    }, [searchResults]);
 
     // localStorage'dan pinned listings'i yükle ve güncellemeleri dinle
     useEffect(() => {
@@ -152,7 +160,7 @@ export default function MainPanel({ searchResults = [], isLoading = false }: Mai
         return <SkeletonLoadingCards />;
     }
 
-    if (searchResults.length === 0) {
+    if (sortedResults.length === 0) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100%" flexDirection="column">
                 <Typography variant="h6" color="textSecondary">
@@ -165,10 +173,10 @@ export default function MainPanel({ searchResults = [], isLoading = false }: Mai
         );
     }
 
-    const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+    const totalPages = Math.ceil(sortedResults.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentProperties = searchResults.slice(startIndex, endIndex);
+    const currentProperties = sortedResults.slice(startIndex, endIndex);
 
     const handleCardClick = (property: any) => {
         // Recent'e ekle
@@ -340,27 +348,6 @@ export default function MainPanel({ searchResults = [], isLoading = false }: Mai
                                             }}
                                         >
                                             <PushPinIcon sx={{ fontSize: 10 }} />
-                                        </IconButton>
-                                        
-                                        {/* Like butonu */}
-                                        <IconButton
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                // TODO: Like functionality
-                                            }}
-                                            sx={{
-                                                width: 18,
-                                                height: 18,
-                                                backgroundColor: 'rgba(255,255,255,0.9)',
-                                                border: '1px solid rgba(0,0,0,0.1)',
-                                                color: '#64748b',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(255,255,255,1)',
-                                                    color: '#ef4444'
-                                                }
-                                            }}
-                                        >
-                                            <FavoriteBorderIcon sx={{ fontSize: 10 }} />
                                         </IconButton>
                                     </Box>
                                 </Box>

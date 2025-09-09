@@ -173,12 +173,7 @@ export default function Main() {
                     </Box>
 
                     {/* Sağ Panel - Pinned Panel */}
-                    <Box
-                        width="22%"
-                        sx={{
-                            background: 'rgba(148, 163, 184, 0.1)',
-                        }}
-                    >
+                    <Box width="20%">
                         <PinnedPanel 
                             pinnedListings={pinnedListings}
                             onUnpinListing={handleUnpinListing}

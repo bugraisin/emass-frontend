@@ -35,22 +35,66 @@ interface ListingDetailOfficeProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
+  isFavorited: boolean;
+  onFavoriteToggle: () => void;
+  favoriteCount: number;
 }
 
-const getImportantDetailsForOffice = (details: any) => {
+const getImportantDetailsForOffice = (details: any, createdAt: string) => {
   const safeDetails = details || {};
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Belirtilmemiş';
+    }
+  };
+
+  const getHeatingTypeLabel = (value: string) => {
+    const heatingOptions = [
+      { value: "DOGALGAZ", label: "Doğalgaz" },
+      { value: "MERKEZI", label: "Merkezi" },
+      { value: "KALORIFER", label: "Kalorifer" },
+      { value: "KLIMA", label: "Klima" },
+      { value: "ELEKTRIKLI", label: "Elektrikli" },
+      { value: "SOBALI", label: "Sobali" },
+      { value: "YOK", label: "Yok" }
+    ];
+    return heatingOptions.find(h => h.value === value)?.label || value;
+  };
+
+  const getBuildingTypeDetails = (value: string) => {
+    const buildingOptions = [
+      { value: "APARTMAN", label: "Apartman"},
+      { value: "PLAZA", label: "Plaza"},
+      { value: "MUSTAKIL", label: "Müstakil"},
+      { value: "PASAJ", label: "Pasaj"},
+      { value: "AVM", label: "AVM"},
+    ];
+    return buildingOptions.find(h => h.value === value)?.label || value;
+  };
   
   return {
+    "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "Oda Sayısı": safeDetails.roomCount || 'Belirtilmemiş',
-    "Toplantı Odası": safeDetails.meetingRoomCount || 'Belirtilmemiş',
     "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
+    "Toplam Kat": safeDetails.floorCount || "Belirtilmemiş",
     "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Cephe Yönü": safeDetails.facadeDirection || 'Belirtilmemiş',
-    "Isıtma Türü": safeDetails.heatingType || 'Belirtilmemiş',
+    "Isıtma Tipi": safeDetails.heatingType ? getHeatingTypeLabel(safeDetails.heatingType) : 'Belirtilmemiş',
+    "Bina Tipi": safeDetails.buildingType ? getBuildingTypeDetails(safeDetails.buildingType) : "Belirtilmemiş",
     "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
     "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
-    "Otopark": safeDetails.parking ? 'Var' : 'Yok',
+    "Mutfak": safeDetails.kitchen ? "Var" : "Yok",
+    "Klima": safeDetails.airConditioning ? "Var" : "Yok",
+    "Tuvalet": safeDetails.toilet ? "Var" : "Yok",
+    "İnternet": safeDetails.internet ? "Var" : "Yok",
   };
 };
 
@@ -95,8 +139,10 @@ const OFFICE_FEATURE_CATEGORIES = [
   }
 ];
 
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
+const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
+  createdAt: string;
   listingType: string;
+  subtype: string;
   title: string;
   price: string;
   city: string;
@@ -104,7 +150,21 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForOffice(details);
+  const importantDetails = getImportantDetailsForOffice(details, createdAt);
+
+  const getSubtypeLabel = (value: string) => {
+    const subtypeOptions = [
+      { value: "OFIS", label: "Ofis" },
+      { value: "BÜRO", label: "Büro" },
+      { value: "COWORKING", label: "Coworking" },
+      { value: "CALL_CENTER", label: "Call Center" },
+      { value: "TOPLANTI_SALONU", label: "Toplantı Salonu" },
+      { value: "MUAYENEHANE", label: "Muayenehane" },
+      { value: "AVUKATLIK_BÜROSU", label: "Avukatlık Bürosu" },
+      { value: "MUHASEBE_OFISI", label: "Muhasebe Ofisi" },
+    ];
+    return subtypeOptions.find(s => s.value === value)?.label || value;
+  };
 
   return (
     <Box sx={{
@@ -114,7 +174,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
-      height: '400px',
+      height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
         {formatPrice(price)} ₺
@@ -135,7 +195,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Ofis Özellikleri
+           {getSubtypeLabel(subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -167,7 +227,12 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 };
 
 export default function ListingDetailOffice({
-  listing, isPinned, onPinToggle
+  listing, 
+  isPinned, 
+  onPinToggle,
+  isFavorited,
+  onFavoriteToggle,
+  favoriteCount
 }: ListingDetailOfficeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -177,6 +242,9 @@ export default function ListingDetailOffice({
         title={listing.title}
         isPinned={isPinned}
         onPinToggle={onPinToggle}
+        isFavorited={isFavorited}
+        onFavoriteToggle={onFavoriteToggle}
+        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>
@@ -189,7 +257,9 @@ export default function ListingDetailOffice({
         </Grid>
         <Grid item xs={12} md={4}>
           <PropertyInfoPanel
+            createdAt={listing.createdAt}
             listingType={listing.listingType}
+            subtype={listing.subtype}
             title={listing.title}
             price={listing.price}
             city={listing.city}

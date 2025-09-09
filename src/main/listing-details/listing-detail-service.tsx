@@ -35,12 +35,29 @@ interface ListingDetailServiceProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
+  isFavorited: boolean;
+  onFavoriteToggle: () => void;
+  favoriteCount: number;
 }
 
-const getImportantDetailsForService = (details: any) => {
+const getImportantDetailsForService = (details: any, createdAt: string) => {
   const safeDetails = details || {};
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch {
+      return 'Belirtilmemiş';
+    }
+  };
   
   return {
+    "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "Kapasite": safeDetails.capacity || 'Belirtilmemiş',
     "Kapalılık Durumu": safeDetails.spaceType || 'Belirtilmemiş',
@@ -91,16 +108,30 @@ const SERVICE_FEATURE_CATEGORIES = [
   }
 ];
 
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, details }: {
+const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
+  createdAt: string;
   listingType: string;
-  title: string;
+  subtype: string;
   price: string;
   city: string;
   district: string;
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForService(details);
+  const importantDetails = getImportantDetailsForService(details, createdAt);
+
+  const getSubtypeLabel = (value: string) => {
+    const subtypeOptions = [
+      { value: "OTOPARK", label: "Otopark" },
+      { value: "SPOR_SALONU", label: "Spor Salonu" },
+      { value: "YIKAMA", label: "Yıkama" },
+      { value: "OTO_SERVIS", label: "Oto Servis" },
+      { value: "BENZIN_ISTASYONU", label: "Benzin İstasyonu" },
+      { value: "KARGO_MERKEZI", label: "Kargo Merkezi" },
+      { value: "TEMIZLIK_MERKEZI", label: "Temizlik Merkezi" }
+    ];
+    return subtypeOptions.find(s => s.value === value)?.label || value;
+  };
 
   return (
     <Box sx={{
@@ -110,7 +141,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       backgroundColor: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
-      height: '400px',
+      height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
         {formatPrice(price)} ₺
@@ -131,7 +162,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Hizmet Alanı Özellikleri
+          {getSubtypeLabel(subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -163,7 +194,12 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 };
 
 export default function ListingDetailService({
-  listing, isPinned, onPinToggle
+  listing, 
+  isPinned, 
+  onPinToggle,
+  isFavorited,
+  onFavoriteToggle,
+  favoriteCount
 }: ListingDetailServiceProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -173,6 +209,9 @@ export default function ListingDetailService({
         title={listing.title}
         isPinned={isPinned}
         onPinToggle={onPinToggle}
+        isFavorited={isFavorited}
+        onFavoriteToggle={onFavoriteToggle}
+        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>
@@ -185,8 +224,9 @@ export default function ListingDetailService({
         </Grid>
         <Grid item xs={12} md={4}>
           <PropertyInfoPanel
+            createdAt={listing.createdAt}
             listingType={listing.listingType}
-            title={listing.title}
+            subtype={listing.subtype}
             price={listing.price}
             city={listing.city}
             district={listing.district}

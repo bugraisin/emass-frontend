@@ -123,13 +123,13 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#1e293b' },
                                 }}
                             >
-                                <MenuItem value="IMARI">İmarlı</MenuItem>
+                                <MenuItem value="IMARLI">İmarlı</MenuItem>
                                 <MenuItem value="IMARSIZ">İmarsız</MenuItem>
                                 <MenuItem value="TARLA">Tarla</MenuItem>
                                 <MenuItem value="BAHCE">Bahçe</MenuItem>
-                                <MenuItem value="KONUT_IMARI">Konut İmarlı</MenuItem>
-                                <MenuItem value="TICARI_IMARI">Ticari İmarlı</MenuItem>
-                                <MenuItem value="SANAYI_IMARI">Sanayi İmarlı</MenuItem>
+                                <MenuItem value="KONUT_IMARLI">Konut İmarlı</MenuItem>
+                                <MenuItem value="TICARI_IMARLI">Ticari İmarlı</MenuItem>
+                                <MenuItem value="SANAYI_IMARLI">Sanayi İmarlı</MenuItem>
                                 <MenuItem value="DIGER">Diğer</MenuItem>
                             </Select>
                         </FormControl>
@@ -256,7 +256,7 @@ export default function LandDetails({ details, setDetails }: LandDetailsProps) {
                                 }}
                             >
                                 <MenuItem value="ARSA_PAYI">Arsa Payı</MenuItem>
-                                <MenuItem value="MUSTAKIL_TAPULU">Müsatik Tapulu</MenuItem>
+                                <MenuItem value="MUSTAKIL_TAPULU">Müstakil Tapulu</MenuItem>
                                 <MenuItem value="HISSELI_TAPULU">Hisseli Tapulu</MenuItem>
                                 <MenuItem value="TARLA_TAPULU">Tarla Tapulu</MenuItem>
                             </Select>

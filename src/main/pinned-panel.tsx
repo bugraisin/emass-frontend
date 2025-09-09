@@ -80,11 +80,29 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'pinned' | 'liked' | 'recent'>('pinned');
     const [recentListings, setRecentListings] = useState<any[]>([]);
+    const [likedListings, setLikedListings] = useState<any[]>([]);
+    const [currentUserId] = useState<number>(1);
     
-    // Component mount olduğunda recent listings'i yükle
+    // Favorileri yükleme fonksiyonu
+    const fetchLikedListings = async () => {
+        try {
+            // URL'i düzelt - /api/favorites?userId= şeklinde olacak
+            const response = await fetch(`http://localhost:8080/api/favorites?userId=${currentUserId}`);
+            if (response.ok) {
+                const favorites = await response.json();
+                setLikedListings(favorites);
+            }
+        } catch (error) {
+            console.error('Favori ilanlar yüklenirken hata:', error);
+            setLikedListings([]);
+        }
+    };
+    
+    // Component mount olduğunda recent listings'i ve favorileri yükle
     useEffect(() => {
         setRecentListings(getRecentListings());
-    }, []);
+        fetchLikedListings();
+    }, [currentUserId]);
     
     // localStorage ve custom event değişikliklerini dinle
     useEffect(() => {
@@ -106,9 +124,19 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
             window.removeEventListener('recentListingsChanged', handleRecentChange);
         };
     }, []);
-    
-    // Dummy data for testing - backend'den gelecek
-    const likedListings: any[] = []; // Backend'den gelecek
+
+    // Favoriler değişikliklerini dinle
+    useEffect(() => {
+        const handleFavoriteChange = () => {
+            fetchLikedListings();
+        };
+
+        window.addEventListener('favoritesChanged', handleFavoriteChange);
+        
+        return () => {
+            window.removeEventListener('favoritesChanged', handleFavoriteChange);
+        };
+    }, [currentUserId]);
     
     // Aktif sekmeye göre gösterilecek veriyi belirle
     const getCurrentListings = () => {
@@ -168,7 +196,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                 return { 
                     label: 'Beğeniler', 
                     icon: <FavoriteIcon sx={{ fontSize: 14 }} />, 
-                    count: likedListings.length 
+                    count: likedListings.length
                 };
             case 'recent':
                 return { 
@@ -361,11 +389,12 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                     {listing.title}
                                 </Typography>
 
-                                {/* Alt satır: Adres sol, Fiyat sağ */}
+                                {/* Alt bilgiler: Adres ve Fiyat dikey sırada */}
                                 <Box sx={{ 
                                     display: 'flex',
-                                    alignItems: 'center',
+                                    flexDirection: 'column',
                                     marginTop: 'auto',
+                                    gap: '2px'
                                 }}>
                                     {/* Adres Bilgisi */}
                                     <Typography 
@@ -376,7 +405,6 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap',
-                                            flex: 1,
                                         }}
                                     >
                                         {listing.district && listing.neighborhood 
@@ -393,9 +421,6 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                             fontWeight: 700,
                                             fontSize: '10px',
                                             letterSpacing: '-0.1px',
-                                            textAlign: 'right',
-                                            marginLeft: 'auto',
-                                            paddingLeft: '8px'
                                         }}
                                     >
                                         {listing.price ? 
