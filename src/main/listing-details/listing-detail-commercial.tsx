@@ -37,7 +37,6 @@ interface ListingDetailCommercialProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 const getImportantDetailsForCommercial = (details: any, createdAt: string) => {
@@ -230,8 +229,7 @@ export default function ListingDetailCommercial({
   isPinned, 
   onPinToggle,
   isFavorited,
-  onFavoriteToggle,
-  favoriteCount
+  onFavoriteToggle
 }: ListingDetailCommercialProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -243,7 +241,6 @@ export default function ListingDetailCommercial({
         onPinToggle={onPinToggle}
         isFavorited={isFavorited}
         onFavoriteToggle={onFavoriteToggle}
-        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>

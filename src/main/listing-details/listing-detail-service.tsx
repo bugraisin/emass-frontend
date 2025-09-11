@@ -37,7 +37,6 @@ interface ListingDetailServiceProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 const getImportantDetailsForService = (details: any, createdAt: string) => {
@@ -198,8 +197,7 @@ export default function ListingDetailService({
   isPinned, 
   onPinToggle,
   isFavorited,
-  onFavoriteToggle,
-  favoriteCount
+  onFavoriteToggle
 }: ListingDetailServiceProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -211,7 +209,6 @@ export default function ListingDetailService({
         onPinToggle={onPinToggle}
         isFavorited={isFavorited}
         onFavoriteToggle={onFavoriteToggle}
-        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>

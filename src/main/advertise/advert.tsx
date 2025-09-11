@@ -5,7 +5,7 @@ import StepTwo from "./step-two.tsx";
 import StepThree from "./step-three.tsx";
 import StepFour from "./step-four.tsx";
 import StepFive from "./step-five.tsx";
-import { ArrowBack, ArrowForward, CheckCircle, Close } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, CheckCircle } from "@mui/icons-material";
 import StepSixOffice from "./step-six/step-six-office.tsx";
 import StepSixHouse from "./step-six/step-six-house.tsx";
 import { 
@@ -20,6 +20,7 @@ import StepSixCommercial from "./step-six/step-six-commercial.tsx";
 import StepSixIndustrial from "./step-six/step-six-industrial.tsx";
 import StepSixLand from "./step-six/step-six-land.tsx";
 import StepSixService from "./step-six/step-six-service.tsx";
+import { ListingService } from "../services/ListingService.ts";
 
 interface Photo {
     id: string;
@@ -27,13 +28,14 @@ interface Photo {
     url: string;
     isMain: boolean;
 }
+
 const StepSixComponents = {
-KONUT: StepSixHouse,
-OFIS: StepSixOffice,
-TICARI: StepSixCommercial,
-ENDUSTRIYEL: StepSixIndustrial,
-ARSA: StepSixLand,
-HIZMET: StepSixService,
+    KONUT: StepSixHouse,
+    OFIS: StepSixOffice,
+    TICARI: StepSixCommercial,
+    ENDUSTRIYEL: StepSixIndustrial,
+    ARSA: StepSixLand,
+    HIZMET: StepSixService,
 } as const;
 
 export default function Advert() {
@@ -44,12 +46,12 @@ export default function Advert() {
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
 
-    // Backend uyumlu state'ler - StepOne
+    // StepOne state'leri
     const [listingType, setListingType] = useState<string>("");
     const [propertyType, setPropertyType] = useState<string>("");
     const [subtype, setSubtype] = useState<string>("");
 
-    // Backend uyumlu state'ler - StepTwo
+    // StepTwo state'leri
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [price, setPrice] = useState<string>("");
@@ -57,11 +59,11 @@ export default function Advert() {
     const [district, setDistrict] = useState<string>("");
     const [neighborhood, setNeighborhood] = useState<string>("");
     
-    // Konum state'leri - StepFive
+    // StepFive state'leri
     const [latitude, setLatitude] = useState<number | null>(null);
     const [longitude, setLongitude] = useState<number | null>(null);
 
-    // Property type'a göre ayrı detay state'leri
+    // Property detay state'leri
     const [housingDetails, setHousingDetails] = useState<HousingDetails | {}>({});
     const [commercialDetails, setCommercialDetails] = useState<CommercialDetails| {}>({});
     const [officeDetails, setOfficeDetails] = useState<OfficeDetails | {}>({});
@@ -72,216 +74,102 @@ export default function Advert() {
     // Fotoğraflar state'i
     const [photos, setPhotos] = useState<Photo[]>([]);
 
-    // Fotoğraf validasyon fonksiyonu
-    const validatePhotos = (photosToValidate: Photo[]): Photo[] => {
-        return photosToValidate.filter(photo => {
-            return photo.file.size > 0 && 
-                photo.file.size <= 5 * 1024 * 1024 && 
-                photo.file.type.startsWith('image/');
-        });
-    };
-
-    // Aktif property type'a göre doğru detay state'ini döndüren helper fonksiyon
     const getCurrentDetails = () => {
         switch (propertyType) {
-            case 'KONUT':
-                return housingDetails;
-            case 'TICARI':
-                return commercialDetails;
-            case 'OFIS':
-                return officeDetails;
-            case 'ENDUSTRIYEL':
-                return industrialDetails;
-            case 'ARSA':
-                return landDetails;
-            case 'HIZMET':
-                return serviceDetails;
-            default:
-                return {};
+            case 'KONUT': return housingDetails;
+            case 'TICARI': return commercialDetails;
+            case 'OFIS': return officeDetails;
+            case 'ENDUSTRIYEL': return industrialDetails;
+            case 'ARSA': return landDetails;
+            case 'HIZMET': return serviceDetails;
+            default: return {};
         }
     };
 
-    // Aktif property type'a göre doğru setter fonksiyonunu döndüren helper fonksiyon
     const getCurrentDetailsSetter = () => {
         switch (propertyType) {
-            case 'KONUT':
-                return setHousingDetails;
-            case 'TICARI':
-                return setCommercialDetails;
-            case 'OFIS':
-                return setOfficeDetails;
-            case 'ENDUSTRIYEL':
-                return setIndustrialDetails;
-            case 'ARSA':
-                return setLandDetails;
-            case 'HIZMET':
-                return setServiceDetails;
-            default:
-                return () => {};
+            case 'KONUT': return setHousingDetails;
+            case 'TICARI': return setCommercialDetails;
+            case 'OFIS': return setOfficeDetails;
+            case 'ENDUSTRIYEL': return setIndustrialDetails;
+            case 'ARSA': return setLandDetails;
+            case 'HIZMET': return setServiceDetails;
+            default: return () => {};
         }
     };
 
     const handleNextStep = async () => {
         if (activeStep === 0 && listingType && propertyType && subtype) {
-            console.log("İlan türü bilgileri:", {
-                listingType,
-                propertyType,
-                subtype
-            });
             setActiveStep(1);
         } else if (activeStep === 1 && title && description && price && city && district) {
-            console.log("Temel bilgiler:", {
-                title,
-                description,
-                price,
-                city,
-                district,
-                neighborhood
-            });
             setActiveStep(2);
         } else if (activeStep === 2) {
-            console.log(`${propertyType} detayları:`, getCurrentDetails());
             setActiveStep(3);
         } else if (activeStep === 3 && photos.length >= 1) {
-            console.log("Fotoğraf bilgileri:", {
-                photoCount: photos.length,
-                mainPhoto: photos.find(p => p.isMain)
-            });
             setActiveStep(4);
         } else if (activeStep === 4 && latitude && longitude) {
-            console.log("Konum bilgileri:", {
-                latitude,
-                longitude
-            });
             setActiveStep(5);
         } else if (activeStep === 5) {
-            // Son adım - İlanı kaydet
-            const listingData = {
-                ownerId: 1, // Bu değeri gerçek kullanıcı ID'si ile değiştirin
-                title,
-                description,
-                listingType,
-                propertyType,
-                price: parseFloat(price),
-                city,
-                district,
-                neighborhood,
-                latitude,
-                longitude,
-                
-                // Property type'a göre doğru detaylar
-                ...(propertyType === 'KONUT' && { 
-                    housingDetails: { 
-                        subtype, 
-                        ...housingDetails 
-                    } 
-                }),
-                ...(propertyType === 'TICARI' && { 
-                    commercialDetails: { 
-                        subtype, 
-                        ...commercialDetails 
-                    } 
-                }),
-                ...(propertyType === 'OFIS' && { 
-                    officeDetails: { 
-                        subtype, 
-                        ...officeDetails 
-                    } 
-                }),
-                ...(propertyType === 'ENDUSTRIYEL' && { 
-                    industrialDetails: { 
-                        subtype, 
-                        ...industrialDetails 
-                    } 
-                }),
-                ...(propertyType === 'ARSA' && { 
-                    landDetails: { 
-                        subtype, 
-                        ...landDetails 
-                    } 
-                }),
-                ...(propertyType === 'HIZMET' && { 
-                    serviceDetails: { 
-                        subtype, 
-                        ...serviceDetails 
-                    } 
-                })
-            };
+            await submitListing();
+        }
+    };
+
+    const submitListing = async () => {
+        const listingData = {
+            ownerId: 1,
+            title,
+            description,
+            listingType,
+            propertyType,
+            price: parseFloat(price),
+            city,
+            district,
+            neighborhood,
+            latitude: latitude!,
+            longitude: longitude!,
             
-            try {
-                console.log("API'ye gönderilen veri:", listingData);
-                setIsLoading(true);
-                
-                // 1. İlanı oluştur
-                const listingResponse = await fetch('http://localhost:8080/api/listings', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(listingData)
-                });
-                
-                if (!listingResponse.ok) {
-                    const errorData = await listingResponse.json().catch(() => ({ message: 'Bilinmeyen hata' }));
-                    console.error("İlan oluşturma hatası:", errorData);
-                    setErrorMessage("İlan oluşturulurken hata oluştu: " + (errorData.message || 'Bilinmeyen hata'));
+            ...(propertyType === 'KONUT' && { 
+                housingDetails: { subtype, ...housingDetails } 
+            }),
+            ...(propertyType === 'TICARI' && { 
+                commercialDetails: { subtype, ...commercialDetails } 
+            }),
+            ...(propertyType === 'OFIS' && { 
+                officeDetails: { subtype, ...officeDetails } 
+            }),
+            ...(propertyType === 'ENDUSTRIYEL' && { 
+                industrialDetails: { subtype, ...industrialDetails } 
+            }),
+            ...(propertyType === 'ARSA' && { 
+                landDetails: { subtype, ...landDetails } 
+            }),
+            ...(propertyType === 'HIZMET' && { 
+                serviceDetails: { subtype, ...serviceDetails } 
+            })
+        };
+        
+        try {
+            setIsLoading(true);
+            
+            const listingResult = await ListingService.createListing(listingData);
+            
+            if (photos.length > 0) {
+                try {
+                    await ListingService.uploadListingPhotos(listingResult.id, photos);
+                } catch (photoError) {
+                    setErrorMessage("İlan oluşturuldu ancak fotoğraflar yüklenirken hata oluştu. Lütfen fotoğraflarınızı kontrol edin.");
                     setShowError(true);
-                    return;
                 }
-                
-                const listingResult = await listingResponse.json();
-                console.log("İlan başarıyla oluşturuldu:", listingResult);
-                
-                // 2. Fotoğrafları gönder (eğer varsa)
-                if (photos.length > 0) {
-                    try {
-                        // Fotoğrafları validate et
-                        const validPhotos = await validatePhotos(photos);
-                        
-                        if (validPhotos.length === 0) {
-                            setErrorMessage("İlan oluşturuldu ancak yüklenen fotoğraflar geçersiz. Lütfen JPG, PNG veya WebP formatında, 5MB'dan küçük geçerli resim dosyaları seçin.");
-                            setShowError(true);
-                            return;
-                        }
-                        
-                        if (validPhotos.length < photos.length) {
-                            console.warn(`${photos.length - validPhotos.length} fotoğraf geçersiz olduğu için atlandı.`);
-                        }
-                        
-                        const formData = new FormData();
-                        validPhotos.forEach(photo => {
-                            formData.append('photos', photo.file);
-                        });
-                        
-                        const photoResponse = await fetch(`http://localhost:8080/api/listings/${listingResult.id}/photos`, {
-                            method: 'POST',
-                            body: formData
-                        });
-                        
-                        if (!photoResponse.ok) {
-                            const photoErrorData = await photoResponse.text().catch(() => 'Bilinmeyen hata');
-                            console.warn("Fotoğraf yükleme hatası:", photoErrorData);
-                            setErrorMessage("İlan oluşturuldu ancak fotoğraflar yüklenirken hata oluştu. Lütfen fotoğraflarınızı kontrol edin.");
-                            setShowError(true);
-                        } else {
-                            console.log("Fotoğraflar başarıyla yüklendi");
-                        }
-                    } catch (photoError) {
-                        console.error("Fotoğraf işleme hatası:", photoError);
-                        setErrorMessage("İlan oluşturuldu ancak fotoğraf işlenirken hata oluştu.");
-                        setShowError(true);
-                    }
-                }
-                
-                setShowSuccess(true);
-                
-            } catch (error) {
-                console.error("Network Hatası:", error);
-                setErrorMessage("Bağlantı hatası oluştu. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.");
-                setShowError(true);
-            } finally {
-                setIsLoading(false);
             }
+            
+            setShowSuccess(true);
+            
+        } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : 'Bilinmeyen bir hata oluştu';
+            setErrorMessage(`İlan oluşturulurken hata oluştu: ${errorMsg}`);
+            setShowError(true);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -291,7 +179,7 @@ export default function Advert() {
         }
     };
 
-    function isNextButtonDisabled() {
+    const isNextButtonDisabled = () => {
         if (activeStep === 0) {
             return !(listingType && propertyType && subtype);
         } else if (activeStep === 1) {
@@ -303,67 +191,62 @@ export default function Advert() {
         } else if (activeStep === 4) {
             return !(latitude && longitude);
         } else if (activeStep === 5) {
-            return false; // Önizleme adımında her zaman yayınlayabilir
+            return false;
         }
         return false;
-    }
+    };
 
-    // Property type değiştiğinde ilgili detay state'ini subtype ile başlat
-    // Helper function to get initial boolean properties
     const getInitialBooleans = (propertyType: string): Record<string, boolean> => {
-    const booleanMap: Record<string, string[]> = {
-        'KONUT': [
-        'furnished', 'balcony', 'terrace', 'garden', 'withinSite',
-        'openPark', 'closedPark', 'garagePark', 'elevator', 'security',
-        'concierge', 'generator', 'airConditioning', 'floorHeating',
-        'fireplace', 'builtinKitchen', 'separateKitchen', 'americanKitchen',
-        'laundryRoom', 'pool', 'gym', 'childrenPlayground', 'sportsArea'
-        ],
-        'OFIS': [
-        'furnished', 'parking', 'elevator', 'security', 'generator',
-        'airConditioning', 'internet', 'kitchen', 'fireSystem',
-        'reception', 'waitingArea', 'archive', 'library',
-        'serverRoom', 'accessControl', 'fiberInternet', 'soundproof'
-        ],
-        'TICARI': [
-        'furnished', 'parking', 'elevator', 'security', 'generator',
-        'airConditioning', 'internet', 'kitchen', 'toilet',
-        'showcase', 'warehouse', 'loadingDock', 'cashRegister',
-        'outdoorSeating', 'waitingArea', 'changingRoom'
-        ],
-        'ENDUSTRIYEL': [
-        'parking', 'security', 'generator', 'compressedAir', 'steamLine',
-        'railwayAccess', 'dockAccess', 'officeArea', 'changeRoom',
-        'threephaseElectricity', 'naturalGasLine', 'waterSystem', 'wasteWaterSystem',
-        'craneSystem', 'ventilationSystem', 'airConditioning', 'wideOpenArea',
-        'machineMountingSuitable', 'loadingRamp', 'truckEntrance', 'forkliftTraffic',
-        'rackingSystem', 'coldStorage', 'fireExtinguishingSystem', 'securityCameras',
-        'alarmSystem', 'fencedArea'
-        ],
-        'ARSA': [
-        'electricity', 'water', 'naturalGas', 'roadAccess', 'seaView',
-        'forestView', 'cityView', 'southFacing', 'sewerage', 'cornerLot',
-        'mountainView', 'flat', 'slope', 'fenced', 'agricultural',
-        'buildingPermit', 'vineyard', 'orchard', 'oliveTrees', 'greenhouse', 'well'
-        ],
-        'HIZMET': [
-        'furnished', 'parking', 'elevator', 'security', 'generator',
-        'airConditioning', 'kitchen', 'restroom', 'disabledAccess',
-        'lighting', 'cctv', 'internet', 'reception', 'restRoom',
-        'washingArea', 'maintenanceArea', 'ventilationSystem',
-        'storage', 'officeArea', 'customerParking'
-        ]
+        const booleanMap: Record<string, string[]> = {
+            'KONUT': [
+                'furnished', 'balcony', 'terrace', 'garden', 'withinSite',
+                'openPark', 'closedPark', 'garagePark', 'elevator', 'security',
+                'concierge', 'generator', 'airConditioning', 'floorHeating',
+                'fireplace', 'builtinKitchen', 'separateKitchen', 'americanKitchen',
+                'laundryRoom', 'pool', 'gym', 'childrenPlayground', 'sportsArea'
+            ],
+            'OFIS': [
+                'furnished', 'parking', 'elevator', 'security', 'generator',
+                'airConditioning', 'internet', 'kitchen', 'fireSystem',
+                'reception', 'waitingArea', 'archive', 'library',
+                'serverRoom', 'accessControl', 'fiberInternet', 'soundproof'
+            ],
+            'TICARI': [
+                'furnished', 'parking', 'elevator', 'security', 'generator',
+                'airConditioning', 'internet', 'kitchen', 'toilet',
+                'showcase', 'warehouse', 'loadingDock', 'cashRegister',
+                'outdoorSeating', 'waitingArea', 'changingRoom'
+            ],
+            'ENDUSTRIYEL': [
+                'parking', 'security', 'generator', 'compressedAir', 'steamLine',
+                'railwayAccess', 'dockAccess', 'officeArea', 'changeRoom',
+                'threephaseElectricity', 'naturalGasLine', 'waterSystem', 'wasteWaterSystem',
+                'craneSystem', 'ventilationSystem', 'airConditioning', 'wideOpenArea',
+                'machineMountingSuitable', 'loadingRamp', 'truckEntrance', 'forkliftTraffic',
+                'rackingSystem', 'coldStorage', 'fireExtinguishingSystem', 'securityCameras',
+                'alarmSystem', 'fencedArea'
+            ],
+            'ARSA': [
+                'electricity', 'water', 'naturalGas', 'roadAccess', 'seaView',
+                'forestView', 'cityView', 'southFacing', 'sewerage', 'cornerLot',
+                'mountainView', 'flat', 'slope', 'fenced', 'agricultural',
+                'buildingPermit', 'vineyard', 'orchard', 'oliveTrees', 'greenhouse', 'well'
+            ],
+            'HIZMET': [
+                'furnished', 'parking', 'elevator', 'security', 'generator',
+                'airConditioning', 'kitchen', 'restroom', 'disabledAccess',
+                'lighting', 'cctv', 'internet', 'reception', 'restRoom',
+                'washingArea', 'maintenanceArea', 'ventilationSystem',
+                'storage', 'officeArea', 'customerParking'
+            ]
+        };
+
+        const booleans: Record<string, boolean> = {};
+        const keys = booleanMap[propertyType] || [];
+        keys.forEach(key => booleans[key] = false);
+        return booleans;
     };
 
-    // Component mapping objesi (component dosyalarının başında tanımla
-
-    const booleans: Record<string, boolean> = {};
-    const keys = booleanMap[propertyType] || [];
-    keys.forEach(key => booleans[key] = false);
-    return booleans;
-    };
-
-        // Ortak props objesi
     const stepSixProps = {
         listingType,
         propertyType,
@@ -380,7 +263,6 @@ export default function Advert() {
         longitude,
     };
 
-    // useEffect kısmı
     useEffect(() => {
         if (propertyType && subtype) {
             const currentDetails = getCurrentDetails();
@@ -397,31 +279,27 @@ export default function Advert() {
     }, [propertyType, subtype]);
     
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            position: 'relative',
+        }}>
+            <Box sx={{
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                borderRadius: '12px',
+                border: '1px solid #d3d3d3',
                 alignItems: 'center',
+                width: '1200px',
+                height: "auto",
+                marginTop: '1%',
+                marginBottom: '1%',
+                padding: '1%',
+                display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-            }}
-        >
-            <Box
-                sx={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                    borderRadius: '12px',
-                    border: '1px solid #d3d3d3',
-                    alignItems: 'center',
-                    width: '1200px',
-                    height: "auto",
-                    marginTop: '1%',
-                    marginBottom: '1%',
-                    padding: '1%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                }}    
-            >
+            }}>
                 <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 1 }}>
                     <Stepper activeStep={activeStep} sx={{ 
                         width: '90%',
@@ -438,28 +316,26 @@ export default function Advert() {
                     }}>
                         {steps.map((label, index) => (
                             <Step key={label}>
-                                <StepLabel
-                                    sx={{
-                                        '& .MuiStepLabel-label': {
-                                            color: activeStep === index ? '#1e293b' : '#64748b',
-                                            fontWeight: activeStep === index ? 700 : 500,
-                                            fontSize: '0.9rem',
-                                            transition: 'all 0.3s ease'
+                                <StepLabel sx={{
+                                    '& .MuiStepLabel-label': {
+                                        color: activeStep === index ? '#1e293b' : '#64748b',
+                                        fontWeight: activeStep === index ? 700 : 500,
+                                        fontSize: '0.9rem',
+                                        transition: 'all 0.3s ease'
+                                    },
+                                    '& .MuiStepIcon-root': {
+                                        color: activeStep >= index ? '#475569' : '#cbd5e1',
+                                        fontSize: '1.8rem',
+                                        transition: 'all 0.3s ease',
+                                        '&.Mui-active': {
+                                            color: '#1e293b',
+                                            transform: 'scale(1.1)'
                                         },
-                                        '& .MuiStepIcon-root': {
-                                            color: activeStep >= index ? '#475569' : '#cbd5e1',
-                                            fontSize: '1.8rem',
-                                            transition: 'all 0.3s ease',
-                                            '&.Mui-active': {
-                                                color: '#1e293b',
-                                                transform: 'scale(1.1)'
-                                            },
-                                            '&.Mui-completed': {
-                                                color: '#1e293b',
-                                            }
+                                        '&.Mui-completed': {
+                                            color: '#1e293b',
                                         }
-                                    }}
-                                >
+                                    }
+                                }}>
                                     {label}
                                 </StepLabel>
                             </Step>
@@ -526,8 +402,8 @@ export default function Advert() {
                     )}
                     
                     {activeStep === 5 && (() => {
-                    const StepComponent = StepSixComponents[propertyType as keyof typeof StepSixComponents];
-                    return StepComponent ? <StepComponent {...stepSixProps} /> : null;
+                        const StepComponent = StepSixComponents[propertyType as keyof typeof StepSixComponents];
+                        return StepComponent ? <StepComponent {...stepSixProps} /> : null;
                     })()}
                 </Box>
 
@@ -591,7 +467,6 @@ export default function Advert() {
                 </Box>
             </Box>
 
-            {/* Başarı Pop-up Backdrop */}
             <Backdrop
                 sx={{
                     color: '#fff',
@@ -601,73 +476,60 @@ export default function Advert() {
                 open={showSuccess}
             >
                 <Fade in={showSuccess}>
-                    <Box
-                        sx={{
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        padding: '40px',
+                        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+                        position: 'relative',
+                        minWidth: '350px',
+                        maxWidth: '500px',
+                    }}>
+                        <Box sx={{
                             display: 'flex',
-                            flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backgroundColor: 'white',
-                            borderRadius: '8px',
-                            padding: '40px',
-                            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-                            position: 'relative',
-                            minWidth: '350px',
-                            maxWidth: '500px',
-                        }}
-                    >
-
-                        {/* Başarı İkonu */}
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '80px',
-                                height: '80px',
-                                borderRadius: '50%',
-                                backgroundColor: '#dcfce7',
-                                marginBottom: '20px',
-                                animation: 'pulse 2s ease-in-out infinite',
-                                '@keyframes pulse': {
-                                    '0%': {
-                                        transform: 'scale(1)',
-                                        boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.7)',
-                                    },
-                                    '70%': {
-                                        transform: 'scale(1.05)',
-                                        boxShadow: '0 0 0 10px rgba(16, 185, 129, 0)',
-                                    },
-                                    '100%': {
-                                        transform: 'scale(1)',
-                                        boxShadow: '0 0 0 0 rgba(16, 185, 129, 0)',
-                                    },
-                                }
-                            }}
-                        >
-                            <CheckCircle
-                                sx={{
-                                    fontSize: '45px',
-                                    color: '#059669',
-                                }}
-                            />
+                            width: '80px',
+                            height: '80px',
+                            borderRadius: '50%',
+                            backgroundColor: '#dcfce7',
+                            marginBottom: '20px',
+                            animation: 'pulse 2s ease-in-out infinite',
+                            '@keyframes pulse': {
+                                '0%': {
+                                    transform: 'scale(1)',
+                                    boxShadow: '0 0 0 0 rgba(16, 185, 129, 0.7)',
+                                },
+                                '70%': {
+                                    transform: 'scale(1.05)',
+                                    boxShadow: '0 0 0 10px rgba(16, 185, 129, 0)',
+                                },
+                                '100%': {
+                                    transform: 'scale(1)',
+                                    boxShadow: '0 0 0 0 rgba(16, 185, 129, 0)',
+                                },
+                            }
+                        }}>
+                            <CheckCircle sx={{
+                                fontSize: '45px',
+                                color: '#059669',
+                            }} />
                         </Box>
 
-                        {/* Başarı Mesajı */}
-                        <Typography
-                            variant="h5"
-                            sx={{
-                                fontWeight: 'bold',
-                                color: '#1f2937',
-                                marginBottom: '10px',
-                                textAlign: 'center',
-                                mb: 2
-                            }}
-                        >
+                        <Typography variant="h5" sx={{
+                            fontWeight: 'bold',
+                            color: '#1f2937',
+                            marginBottom: '10px',
+                            textAlign: 'center',
+                            mb: 2
+                        }}>
                             İlan Başarıyla Oluşturuldu!
                         </Typography>
 
-                        {/* Alt Butonlar */}
                         <Box sx={{ display: 'flex', gap: '10px' }}>
                             <Button
                                 variant="contained"
@@ -687,7 +549,6 @@ export default function Advert() {
                 </Fade>
             </Backdrop>
 
-            {/* Hata Snackbar */}
             <Snackbar
                 open={showError}
                 onClose={() => setShowError(false)}

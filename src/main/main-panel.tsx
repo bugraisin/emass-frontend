@@ -4,6 +4,7 @@ import { Card, CardContent, Typography, Box, Grid, CardMedia, IconButton, Pagina
 import ImageIcon from '@mui/icons-material/Image';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import { addToRecentListings } from './pinned-panel.tsx';
+import { PinnedListingService } from "./services/PinnedListing.ts";
 
 interface MainPanelProps {
     searchResults?: any[];
@@ -13,47 +14,19 @@ interface MainPanelProps {
     pinnedListings?: any[];
 }
 
-export default function MainPanel({ searchResults = [], isLoading = false }: MainPanelProps) {
+export default function MainPanel({ searchResults = [], isLoading = false, pinnedListings = [] }: MainPanelProps) {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
-    const [pinnedListings, setPinnedListings] = useState<any[]>([]);
     const itemsPerPage = 24;
 
-    // SearchResults'ı tarihe göre sırala (yeni -> eski)
     const sortedResults = useMemo(() => {
         return [...searchResults].sort((a, b) => {
             const dateA = new Date(a.createdAt || 0).getTime();
             const dateB = new Date(b.createdAt || 0).getTime();
-            return dateB - dateA; // Yeni tarihler üstte
+            return dateB - dateA;
         });
     }, [searchResults]);
 
-    // localStorage'dan pinned listings'i yükle ve güncellemeleri dinle
-    useEffect(() => {
-        const loadPinnedListings = () => {
-            try {
-                const saved = localStorage.getItem('pinnedListings');
-                setPinnedListings(saved ? JSON.parse(saved) : []);
-            } catch {
-                setPinnedListings([]);
-            }
-        };
-
-        loadPinnedListings();
-
-        // Pin değişikliklerini dinle
-        const handlePinnedChange = () => {
-            loadPinnedListings();
-        };
-
-        window.addEventListener('pinnedListingsChanged', handlePinnedChange);
-        window.addEventListener('storage', handlePinnedChange);
-
-        return () => {
-            window.removeEventListener('pinnedListingsChanged', handlePinnedChange);
-            window.removeEventListener('storage', handlePinnedChange);
-        };
-    }, []);
 
     // Skeleton loading animasyonu
     const SkeletonLoadingCards = () => (
@@ -179,9 +152,7 @@ export default function MainPanel({ searchResults = [], isLoading = false }: Mai
     const currentProperties = sortedResults.slice(startIndex, endIndex);
 
     const handleCardClick = (property: any) => {
-        // Recent'e ekle
         addToRecentListings(property);
-        // İlan detayına git
         navigate(`/ilan/${property.id}`);
     };
 
@@ -189,47 +160,11 @@ export default function MainPanel({ searchResults = [], isLoading = false }: Mai
         setCurrentPage(value);
     };
 
-    // PIN TOGGLE HANDLER - listing-details ile aynı mantık
     const handlePinToggle = (e: React.MouseEvent, property: any) => {
         e.stopPropagation();
-        
-        try {
-            const current = JSON.parse(localStorage.getItem('pinnedListings') || '[]');
-            const listingId = String(property.id);
-            const isAlreadyPinned = current.some((item: any) => String(item.id) === listingId);
-            
-            let updated;
-            if (isAlreadyPinned) {
-                // Unpin
-                updated = current.filter((item: any) => String(item.id) !== listingId);
-            } else {
-                // Pin - fotoğraf verilerini de dahil et
-                const pinnedItem = {
-                    id: listingId,
-                    title: property.title,
-                    price: property.price,
-                    district: property.district,
-                    neighborhood: property.neighborhood,
-                    thumbnailUrl: property.thumbnailUrl || property.imageUrl || property.image || '',
-                    imageUrl: property.thumbnailUrl || property.imageUrl || property.image || '',
-                    image: property.thumbnailUrl || property.imageUrl || property.image || '',
-                    createdAt: property.createdAt
-                };
-                updated = [...current, pinnedItem];
-            }
-            
-            localStorage.setItem('pinnedListings', JSON.stringify(updated));
-            setPinnedListings(updated);
-            
-            // Diğer componentları bilgilendir
-            window.dispatchEvent(new Event('pinnedListingsChanged'));
-            
-        } catch (error) {
-            console.error('Pin işlemi hatası:', error);
-        }
+        PinnedListingService.togglePinListing(property);
     };
 
-    // İlanın pinned olup olmadığını kontrol et
     const isListingPinned = (propertyId: string): boolean => {
         return pinnedListings.some(p => String(p.id) === String(propertyId));
     };

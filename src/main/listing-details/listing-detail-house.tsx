@@ -37,7 +37,6 @@ interface ListingDetailHouseProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 const getImportantDetailsForKonut = (details: any, createdAt: string) => {
@@ -272,8 +271,7 @@ export default function ListingDetailHouse({
   isPinned, 
   onPinToggle,
   isFavorited,
-  onFavoriteToggle,
-  favoriteCount
+  onFavoriteToggle
 }: ListingDetailHouseProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -285,7 +283,6 @@ export default function ListingDetailHouse({
         onPinToggle={onPinToggle}
         isFavorited={isFavorited}
         onFavoriteToggle={onFavoriteToggle}
-        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>

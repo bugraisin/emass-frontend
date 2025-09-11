@@ -37,7 +37,6 @@ interface ListingDetailOfficeProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 const getImportantDetailsForOffice = (details: any, createdAt: string) => {
@@ -231,8 +230,7 @@ export default function ListingDetailOffice({
   isPinned, 
   onPinToggle,
   isFavorited,
-  onFavoriteToggle,
-  favoriteCount
+  onFavoriteToggle
 }: ListingDetailOfficeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -244,7 +242,6 @@ export default function ListingDetailOffice({
         onPinToggle={onPinToggle}
         isFavorited={isFavorited}
         onFavoriteToggle={onFavoriteToggle}
-        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>

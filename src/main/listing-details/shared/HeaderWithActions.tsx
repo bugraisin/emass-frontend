@@ -8,7 +8,6 @@ interface HeaderWithActionsProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 export default function HeaderWithActions({ 
@@ -16,8 +15,7 @@ export default function HeaderWithActions({
   isPinned, 
   onPinToggle, 
   isFavorited, 
-  onFavoriteToggle, 
-  favoriteCount 
+  onFavoriteToggle
 }: HeaderWithActionsProps) {
   return (
     <>

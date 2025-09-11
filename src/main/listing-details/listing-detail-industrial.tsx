@@ -37,7 +37,6 @@ interface ListingDetailIndustrialProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
@@ -207,8 +206,7 @@ export default function ListingDetailIndustrial({
   isPinned, 
   onPinToggle,
   isFavorited,
-  onFavoriteToggle,
-  favoriteCount
+  onFavoriteToggle
 }: ListingDetailIndustrialProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -220,7 +218,6 @@ export default function ListingDetailIndustrial({
         onPinToggle={onPinToggle}
         isFavorited={isFavorited}
         onFavoriteToggle={onFavoriteToggle}
-        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>

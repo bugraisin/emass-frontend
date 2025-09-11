@@ -9,8 +9,12 @@ import ListingDetailHouse from './listing-details/listing-detail-house.tsx';
 import ListingDetailCommercial from './listing-details/listing-detail-commercial.tsx';
 import ListingDetailIndustrial from './listing-details/listing-detail-industrial.tsx';
 import ListingDetailOffice from './listing-details/listing-detail-office.tsx';
-import ListingDetailService from './listing-details/listing-detail-service.tsx';
 import ListingDetailLand from './listing-details/listing-detail-land.tsx';
+import ListingDetailService from './listing-details/listing-detail-service.tsx';
+import { PinnedListingService } from './services/PinnedListing.ts';
+import { ListingService } from './services/ListingService.ts';
+import { FavoritesService } from './services/FavoritesService.ts';
+
 
 interface ListingData {
   id: string;
@@ -38,40 +42,11 @@ export default function ListingDetails() {
   const [error, setError] = useState<string | null>(null);
   const [pinnedListings, setPinnedListings] = useState<any[]>([]);
   const [isFavorited, setIsFavorited] = useState(false);
-  const [favoriteCount, setFavoriteCount] = useState(0);
   const [currentUserId] = useState<number>(1);
 
+  // İlan detaylarını yükle
   useEffect(() => {
-    const checkFavoriteStatus = async () => {
-      if(!listing?.id) return;
-      
-      try {
-        const favoriteResponse = await fetch(
-          `http://localhost:8080/api/favorites/${listing.id}/check?userId=${currentUserId}`
-        );
-        if (favoriteResponse.ok) {
-          const isFav = await favoriteResponse.json();
-          setIsFavorited(isFav);
-        }
-
-        const countResponse = await fetch(
-          `http://localhost:8080/api/favorites/count/${listing.id}`
-        );
-
-        if(countResponse.ok) {
-          const count = await countResponse.json();
-          setFavoriteCount(count);
-        }
-      } catch(error) {
-        console.error("Favorite durumu kontrol edilirken hata", error);
-      }
-    };
-
-    checkFavoriteStatus();
-  }, [listing?.id, currentUserId]);
-
-  useEffect(() => {
-    const fetchListing = async () => {
+    const loadListingDetails = async () => {
       if (!id) {
         setError('İlan ID bulunamadı');
         setLoading(false);
@@ -79,56 +54,44 @@ export default function ListingDetails() {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/listings/${id}`);
-        
-        if (!response.ok) {
-          throw new Error('İlan yüklenirken hata oluştu');
-        }
-        
-        const backendData = await response.json();
-        
-        const mappedListing: ListingData = {
-          id: backendData.id.toString(),
-          listingType: backendData.listingType,
-          propertyType: backendData.propertyType,
-          subtype: backendData.details?.subtype || '',
-          title: backendData.title,
-          description: backendData.description,
-          price: backendData.price.toString(),
-          city: backendData.city,
-          district: backendData.district,
-          neighborhood: backendData.neighborhood,
-          details: backendData.details || {},
-          photos: backendData.photoUrls ? backendData.photoUrls.map((photo: any) => ({
-            id: photo.id.toString(),
-            url: photo.imageUrl,
-            isMain: photo.seqNumber === 1
-          })) : [],
-          latitude: backendData.latitude,
-          longitude: backendData.longitude,
-          createdAt: backendData.createdAt
-        };
-        
-        setListing(mappedListing);
-      } catch (error) {
-        console.error('İlan detayları yüklenirken hata:', error);
-        setError('İlan detayları yüklenirken bir hata oluştu');
+        const listingData = await ListingService.getListingById(id);
+        setListing(listingData);
+      } catch (error: any) {
+        setError(error.message || 'İlan detayları yüklenirken bir hata oluştu');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchListing();
+    loadListingDetails();
   }, [id]);
 
-  // localStorage'dan pinned listings'i yükle
+  // Favori durumunu kontrol et
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('pinnedListings');
-      setPinnedListings(saved ? JSON.parse(saved) : []);
-    } catch {
-      setPinnedListings([]);
-    }
+    const loadFavoriteInfo = async () => {
+      if (!listing?.id) return;
+      
+      try {
+        const isFavorited = await FavoritesService.checkFavoriteStatus(listing.id, currentUserId);
+        setIsFavorited(isFavorited);
+      } catch (error) {
+        console.error("Favori bilgileri yüklenemedi:", error);
+      }
+    };
+
+    loadFavoriteInfo();
+  }, [listing?.id, currentUserId]);
+
+  // Pinned listings yükle
+  useEffect(() => {
+    const initialPinnedListings = PinnedListingService.getPinnedListings();
+    setPinnedListings(initialPinnedListings);
+
+    const cleanup = PinnedListingService.subscribeToPinnedListings((updatedListings) => {
+      setPinnedListings(updatedListings);
+    });
+
+    return cleanup;
   }, []);
 
   const handleBack = () => {
@@ -139,73 +102,21 @@ export default function ListingDetails() {
     if (!listing) return;
 
     try {
-      if (isFavorited) {
-        // Favoriden çıkar
-        const response = await fetch(
-          `http://localhost:8080/api/favorites/${listing.id}`,
-          { 
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUserId })
-          }
-        );
-
-        if (response.ok) {
-          setIsFavorited(false);
-          setFavoriteCount(prev => prev - 1);
-          window.dispatchEvent(new Event('favoritesChanged'));
-        }
-      } else {
-        // Favoriye ekle
-        const response = await fetch(
-          `http://localhost:8080/api/favorites/${listing.id}`,
-          { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUserId })
-          }
-        );
-
-        if (response.ok) {
-          setIsFavorited(true);
-          setFavoriteCount(prev => prev + 1);
-          window.dispatchEvent(new Event('favoritesChanged'));
-        }
-      }
+      const newStatus = await FavoritesService.toggleFavorite(listing.id, currentUserId);
+      
+      setIsFavorited(newStatus);
+      
+      window.dispatchEvent(new Event('favoritesChanged'));
     } catch (error) {
       console.error("Favori işlemi hatası:", error);
     }
   };
 
-
   const handlePinToggle = () => {
     if (!listing) return;
     
     try {
-      const current = JSON.parse(localStorage.getItem('pinnedListings') || '[]');
-      const isAlreadyPinned = current.some((item: any) => String(item.id) === String(listing.id));
-      
-      let updated;
-      if (isAlreadyPinned) {
-        // Unpin
-        updated = current.filter((item: any) => String(item.id) !== String(listing.id));
-      } else {
-        // Pin
-        const pinnedItem = {
-          id: String(listing.id),
-          title: listing.title,
-          price: listing.price,
-          district: listing.district,
-          neighborhood: listing.neighborhood,
-          thumbnailUrl: listing.photos?.[0]?.url || '',
-          createdAt: listing.createdAt
-        };
-        updated = [...current, pinnedItem];
-      }
-      
-      localStorage.setItem('pinnedListings', JSON.stringify(updated));
-      setPinnedListings(updated);
-      window.dispatchEvent(new Event('pinnedListingsChanged'));
+      PinnedListingService.togglePinListing(listing);
     } catch (error) {
       console.error('Pin işlemi hatası:', error);
     }
@@ -213,10 +124,7 @@ export default function ListingDetails() {
 
   const handleUnpinListing = (listingId: string) => {
     try {
-      const updated = pinnedListings.filter(p => String(p.id) !== String(listingId));
-      localStorage.setItem('pinnedListings', JSON.stringify(updated));
-      setPinnedListings(updated);
-      window.dispatchEvent(new Event('pinnedListingsChanged'));
+      PinnedListingService.unpinListing(listingId);
     } catch (error) {
       console.error('Unpin işlemi hatası:', error);
     }
@@ -224,18 +132,16 @@ export default function ListingDetails() {
 
   const renderListingDetail = () => {
     if (!listing) return null;
-
-    // PIN DURUMUNU HESAPLA
-    const isPinned = pinnedListings.some(p => String(p.id) === String(listing.id));
+    const isPinned = PinnedListingService.isListingPinned(listing.id);
     
     const commonProps = {
       listing,
       isPinned,
       onPinToggle: handlePinToggle,
       isFavorited,
-      onFavoriteToggle: handleFavoriteToggle,
-      favoriteCount
+      onFavoriteToggle: handleFavoriteToggle
     };
+
 
     switch (listing.propertyType) {
       case 'KONUT':

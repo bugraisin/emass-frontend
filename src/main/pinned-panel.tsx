@@ -1,3 +1,5 @@
+// pinned-panel.tsx - Service'ler ile güncellenmiş hali
+
 import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, CardMedia, Typography, IconButton, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -6,129 +8,56 @@ import ImageIcon from '@mui/icons-material/Image';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import HistoryIcon from '@mui/icons-material/History';
+import { PinnedListingService } from './services/PinnedListing.ts';
+import { RecentListingsService, RecentListingItem } from './services/RecentListingsService.ts';
+import { FavoritesService, FavoriteListingItem } from './services/FavoritesService.ts';
 
 interface PinnedPanelProps {
     pinnedListings: any[];
     onUnpinListing: (listingId: string) => void;
 }
 
-// DÜZELTILMIŞ Recent listings utility fonksiyonlar
-const getRecentListings = (): any[] => {
-    try {
-        const recent = localStorage.getItem('recentListings');
-        return recent ? JSON.parse(recent) : [];
-    } catch (error) {
-        console.error('Recent listings alınırken hata:', error);
-        return [];
-    }
+// Export for other components
+export const addToRecentListings = (listing: any) => {
+    RecentListingsService.addToRecentListings(listing);
 };
-
-const addToRecentListings = (listing: any) => {
-    try {
-        let recentListings = getRecentListings();
-        const listingId = String(listing.id); // ID'yi string'e çevir
-        
-        // GÜÇLÜ ID KARŞILAŞTIRMASI - Aynı ilan zaten varsa çıkar
-        recentListings = recentListings.filter(item => String(item.id) !== listingId);
-        
-        // Yeni ilanı başa ekle
-        const recentItem = {
-            id: listingId, // String olarak kaydet
-            title: listing.title || '',
-            price: String(listing.price || ''),
-            district: listing.district || '',
-            neighborhood: listing.neighborhood || '',
-            thumbnailUrl: listing.thumbnailUrl || listing.imageUrl || listing.image || listing.photos?.[0]?.url || '',
-            createdAt: listing.createdAt || new Date().toISOString(),
-            viewedAt: new Date().toISOString()
-        };
-        
-        recentListings.unshift(recentItem);
-        
-        // Maksimum 10 ilan tut
-        if (recentListings.length > 10) {
-            recentListings = recentListings.slice(0, 10);
-        }
-        
-        localStorage.setItem('recentListings', JSON.stringify(recentListings));
-        
-        // Custom event dispatch et ki diğer componentler güncellensin
-        window.dispatchEvent(new Event('recentListingsChanged'));
-        
-    } catch (error) {
-        console.error('Recent listings kaydedilirken hata:', error);
-    }
-};
-
-const removeFromRecentListings = (listingId: string) => {
-    try {
-        const recentListings = getRecentListings();
-        const id = String(listingId);
-        const updated = recentListings.filter(item => String(item.id) !== id);
-        localStorage.setItem('recentListings', JSON.stringify(updated));
-        window.dispatchEvent(new Event('recentListingsChanged'));
-        return updated;
-    } catch (error) {
-        console.error('Recent listings silme hatası:', error);
-        return getRecentListings();
-    }
-};
-
-export { addToRecentListings }; // Export ediyoruz
 
 export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPanelProps) {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'pinned' | 'liked' | 'recent'>('pinned');
-    const [recentListings, setRecentListings] = useState<any[]>([]);
-    const [likedListings, setLikedListings] = useState<any[]>([]);
+    const [recentListings, setRecentListings] = useState<RecentListingItem[]>([]);
+    const [likedListings, setLikedListings] = useState<FavoriteListingItem[]>([]);
     const [currentUserId] = useState<number>(1);
     
-    // Favorileri yükleme fonksiyonu
-    const fetchLikedListings = async () => {
-        try {
-            // URL'i düzelt - /api/favorites?userId= şeklinde olacak
-            const response = await fetch(`http://localhost:8080/api/favorites?userId=${currentUserId}`);
-            if (response.ok) {
-                const favorites = await response.json();
-                setLikedListings(favorites);
-            }
-        } catch (error) {
-            console.error('Favori ilanlar yüklenirken hata:', error);
-            setLikedListings([]);
-        }
-    };
-    
-    // Component mount olduğunda recent listings'i ve favorileri yükle
+    // İlk yükleme - tüm verileri al
     useEffect(() => {
-        setRecentListings(getRecentListings());
-        fetchLikedListings();
+        const loadInitialData = async () => {
+            // Recent listings'leri yükle
+            const recentData = RecentListingsService.getRecentListings();
+            setRecentListings(recentData);
+            
+            // Favori listings'leri yükle
+            const favoriteData = await FavoritesService.getFavoriteListings(currentUserId);
+            setLikedListings(favoriteData);
+        };
+        
+        loadInitialData();
     }, [currentUserId]);
-    
-    // localStorage ve custom event değişikliklerini dinle
+
+    // Recent listings değişikliklerini dinle
     useEffect(() => {
-        const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === 'recentListings') {
-                setRecentListings(getRecentListings());
-            }
-        };
-        
-        const handleRecentChange = () => {
-            setRecentListings(getRecentListings());
-        };
-        
-        window.addEventListener('storage', handleStorageChange);
-        window.addEventListener('recentListingsChanged', handleRecentChange);
-        
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-            window.removeEventListener('recentListingsChanged', handleRecentChange);
-        };
+        const cleanup = RecentListingsService.subscribeToRecentListings((updatedListings) => {
+            setRecentListings(updatedListings);
+        });
+
+        return cleanup;
     }, []);
 
-    // Favoriler değişikliklerini dinle
+    // Favorite listings değişikliklerini dinle
     useEffect(() => {
-        const handleFavoriteChange = () => {
-            fetchLikedListings();
+        const handleFavoriteChange = async () => {
+            const favoriteData = await FavoritesService.getFavoriteListings(currentUserId);
+            setLikedListings(favoriteData);
         };
 
         window.addEventListener('favoritesChanged', handleFavoriteChange);
@@ -138,7 +67,6 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
         };
     }, [currentUserId]);
     
-    // Aktif sekmeye göre gösterilecek veriyi belirle
     const getCurrentListings = () => {
         switch (activeTab) {
             case 'pinned':
@@ -154,36 +82,30 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
 
     const currentListings = getCurrentListings();
     
-    // Hiç veri yoksa paneli gösterme
     if (pinnedListings.length === 0 && likedListings.length === 0 && recentListings.length === 0) {
         return null;
     }
 
     const handleCardClick = (listing: any) => {
-        // İlan detayına gitme işlemi
         navigate(`/ilan/${listing.id}`);
-        
-        // Eğer recent sekmesinde değilsek, bu ilanı recent'e ekle
         if (activeTab !== 'recent') {
-            addToRecentListings(listing);
+            RecentListingsService.addToRecentListings(listing);
         }
     };
 
     const handleUnpin = (e: React.MouseEvent, listingId: string) => {
         e.stopPropagation();
         if (activeTab === 'pinned') {
-            onUnpinListing(listingId);
+            PinnedListingService.unpinListing(listingId);
         }
     };
 
-    // DÜZELTILMIŞ Recent listeden ilan silme fonksiyonu
     const handleRemoveFromRecent = (e: React.MouseEvent, listingId: string) => {
         e.stopPropagation();
-        const updated = removeFromRecentListings(listingId);
-        setRecentListings(updated);
+        RecentListingsService.removeFromRecentListings(listingId);
+        // State otomatik güncellenecek subscribe sayesinde
     };
 
-    // Tab içeriği ve sayıları
     const getTabInfo = (tab: 'pinned' | 'liked' | 'recent') => {
         switch (tab) {
             case 'pinned':

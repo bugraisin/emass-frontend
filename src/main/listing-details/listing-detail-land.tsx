@@ -37,7 +37,6 @@ interface ListingDetailLandProps {
   onPinToggle: () => void;
   isFavorited: boolean;
   onFavoriteToggle: () => void;
-  favoriteCount: number;
 }
 
 const getImportantDetailsForLand = (details: any, createdAt: string) => {
@@ -217,8 +216,7 @@ export default function ListingDetailLand({
   isPinned, 
   onPinToggle,
   isFavorited,
-  onFavoriteToggle,
-  favoriteCount
+  onFavoriteToggle
 }: ListingDetailLandProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -230,7 +228,6 @@ export default function ListingDetailLand({
         onPinToggle={onPinToggle}
         isFavorited={isFavorited}
         onFavoriteToggle={onFavoriteToggle}
-        favoriteCount={favoriteCount}
       />
 
       <Grid container spacing={2}>

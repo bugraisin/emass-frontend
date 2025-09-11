@@ -19,8 +19,7 @@ function App() {
           <TopPanel/>
         </Box>
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/search/*" element={<Main />} />
+        <Route path="/*" element={<Main />} />
         <Route path="/ilan/:id" element={<ListingDetails />} />
         <Route path="/ilan-ver" element={<Advert />} />
         <Route path="/giris-yap" element={<Login />} />
