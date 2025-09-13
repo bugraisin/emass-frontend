@@ -1,17 +1,7 @@
-// listing-details/listing-detail-commercial.tsx
-import React, { useState } from "react";
-import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from '../shared/PhotoGallery.tsx';
-import HeaderWithActions from '../shared/HeaderWithActions.tsx';
-import DescriptionBox from '../shared/DescriptionBox.tsx';
-import TabbedPanel from '../shared/TabbedPanel.tsx';
+// listing-details/listing-detail-commercial.tsx - Simplified version
+import React from "react";
+import { Box, Typography, Divider } from "@mui/material";
 import { formatPrice } from '../shared/utils.ts';
-
-interface Photo {
-  id: string;
-  url: string;
-  isMain: boolean;
-}
 
 interface ListingData {
   id: string;
@@ -25,7 +15,7 @@ interface ListingData {
   district: string;
   neighborhood: string;
   details: any;
-  photos: Photo[];
+  photos: any[];
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
@@ -33,10 +23,6 @@ interface ListingData {
 
 interface ListingDetailCommercialProps {
   listing: ListingData;
-  isPinned: boolean;
-  onPinToggle: () => void;
-  isFavorited: boolean;
-  onFavoriteToggle: () => void;
 }
 
 const getImportantDetailsForCommercial = (details: any, createdAt: string) => {
@@ -96,73 +82,24 @@ const getImportantDetailsForCommercial = (details: any, createdAt: string) => {
   };
 };
 
-const COMMERCIAL_FEATURE_CATEGORIES = [
-  {
-    title: 'Temel Özellikler',
-    features: [
-      { key: 'furnished', label: 'Eşyalı' },
-      { key: 'parking', label: 'Otopark' },
-      { key: 'security', label: 'Güvenlik' },
-      { key: 'elevator', label: 'Asansör' },
-      { key: 'generator', label: 'Jeneratör' },
-    ]
-  },
-  {
-    title: 'Konfor & Sistem',
-    features: [
-      { key: 'airConditioning', label: 'Klima' },
-      { key: 'internet', label: 'İnternet' },
-      { key: 'kitchen', label: 'Mutfak' },
-      { key: 'toilet', label: 'Tuvalet' },
-    ]
-  },
-  {
-    title: 'Ticari Özel Alanlar',
-    features: [
-      { key: 'showcase', label: 'Vitrin' },
-      { key: 'warehouse', label: 'Depo Alanı' },
-      { key: 'loadingDock', label: 'Yükleme Rampası' },
-      { key: 'cashRegister', label: 'Kasa Alanı' },
-    ]
-  },
-  {
-    title: 'Müşteri Alanları',
-    features: [
-      { key: 'outdoorSeating', label: 'Dış Mekan Oturma' },
-      { key: 'waitingArea', label: 'Bekleme Alanı' },
-      { key: 'changingRoom', label: 'Soyunma Odası' },
-    ]
-  }
-];
+const getSubtypeLabel = (value: string) => {
+  const subtypeOptions = [
+    { value: "DUKKAN", label: "Dükkan" },
+    { value: "MAGAZA", label: "Mağaza" },
+    { value: "MARKET", label: "Market" },
+    { value: "RESTAURANT", label: "Restaurant" },
+    { value: "KAFE", label: "Kafe" },
+    { value: "BAR", label: "Bar" },
+    { value: "PASTANE", label: "Pastane" },
+    { value: "BERBER_KUAFOR", label: "Berber & Kuaför" },
+    { value: "GuZELLIK_SALONU", label: "Güzellik Salonu" },
+    { value: "ECZANE", label: "Eczane" }
+  ];
+  return subtypeOptions.find(s => s.value === value)?.label || value;
+};
 
-const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
-  createdAt: string;
-  listingType: string;
-  subtype: string;
-  title: string;
-  price: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  details: any;
-}) => {
-  const importantDetails = getImportantDetailsForCommercial(details, createdAt);
-
-  const getSubtypeLabel = (value: string) => {
-    const subtypeOptions = [
-      { value: "DUKKAN", label: "Dükkan" },
-      { value: "MAGAZA", label: "Mağaza" },
-      { value: "MARKET", label: "Market" },
-      { value: "RESTAURANT", label: "Restaurant" },
-      { value: "KAFE", label: "Kafe" },
-      { value: "BAR", label: "Bar" },
-      { value: "PASTANE", label: "Pastane" },
-      { value: "BERBER_KUAFOR", label: "Berber & Kuaför" },
-      { value: "GuZELLIK_SALONU", label: "Güzellik Salonu" },
-      { value: "ECZANE", label: "Eczane" }
-    ];
-    return subtypeOptions.find(s => s.value === value)?.label || value;
-  };
+export default function ListingDetailCommercial({ listing }: ListingDetailCommercialProps) {
+  const importantDetails = getImportantDetailsForCommercial(listing.details, listing.createdAt);
 
   return (
     <Box sx={{
@@ -175,8 +112,8 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
       height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
-        {formatPrice(price)} ₺
-        {listingType === "RENT" && (
+        {formatPrice(listing.price)} ₺
+        {listing.listingType === "RENT" && (
           <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
             /ay
           </Typography>
@@ -185,7 +122,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-          {neighborhood && `${neighborhood}, `} {district}, {city}
+          {listing.neighborhood && `${listing.neighborhood}, `} {listing.district}, {listing.city}
         </Typography>
       </Box>
 
@@ -193,7 +130,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          {getSubtypeLabel(subtype)} Özellikleri
+          {getSubtypeLabel(listing.subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -221,62 +158,5 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
         </Box>
       </Box>
     </Box>
-  );
-};
-
-export default function ListingDetailCommercial({
-  listing, 
-  isPinned, 
-  onPinToggle,
-  isFavorited,
-  onFavoriteToggle
-}: ListingDetailCommercialProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  return (
-    <>
-      <HeaderWithActions 
-        title={listing.title}
-        isPinned={isPinned}
-        onPinToggle={onPinToggle}
-        isFavorited={isFavorited}
-        onFavoriteToggle={onFavoriteToggle}
-      />
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <PhotoGallery 
-            photos={listing.photos || []} 
-            currentIndex={currentIndex} 
-            setCurrentIndex={setCurrentIndex} 
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <PropertyInfoPanel
-            createdAt={listing.createdAt}
-            listingType={listing.listingType}
-            subtype={listing.subtype}
-            title={listing.title}
-            price={listing.price}
-            city={listing.city}
-            district={listing.district}
-            neighborhood={listing.neighborhood}
-            details={listing.details}
-          />
-        </Grid>
-      </Grid>
-
-      <DescriptionBox description={listing.description} />
-
-      <TabbedPanel
-        details={listing.details}
-        latitude={listing.latitude}
-        longitude={listing.longitude}
-        city={listing.city}
-        district={listing.district}
-        neighborhood={listing.neighborhood}
-        featureCategories={COMMERCIAL_FEATURE_CATEGORIES}
-      />
-    </>
   );
 }

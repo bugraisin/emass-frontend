@@ -1,17 +1,7 @@
-// listing-details/listing-detail-industrial.tsx
-import React, { useState } from "react";
-import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from '../shared/PhotoGallery.tsx';
-import HeaderWithActions from '../shared/HeaderWithActions.tsx';
-import DescriptionBox from '../shared/DescriptionBox.tsx';
-import TabbedPanel from '../shared/TabbedPanel.tsx';
+// listing-details/listing-detail-industrial.tsx - Simplified version
+import React from "react";
+import { Box, Typography, Divider } from "@mui/material";
 import { formatPrice } from '../shared/utils.ts';
-
-interface Photo {
-  id: string;
-  url: string;
-  isMain: boolean;
-}
 
 interface ListingData {
   id: string;
@@ -25,7 +15,7 @@ interface ListingData {
   district: string;
   neighborhood: string;
   details: any;
-  photos: Photo[];
+  photos: any[];
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
@@ -33,10 +23,6 @@ interface ListingData {
 
 interface ListingDetailIndustrialProps {
   listing: ListingData;
-  isPinned: boolean;
-  onPinToggle: () => void;
-  isFavorited: boolean;
-  onFavoriteToggle: () => void;
 }
 
 const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
@@ -71,75 +57,22 @@ const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
   };
 };
 
-const INDUSTRIAL_FEATURE_CATEGORIES = [
-  {
-    title: 'Altyapı & Enerji',
-    features: [
-      { key: 'threephaseElectricity', label: 'Üç Fazlı Elektrik' },
-      { key: 'naturalGasLine', label: 'Doğalgaz Hattı' },
-      { key: 'steamLine', label: 'Buhar Hattı' },
-      { key: 'waterSystem', label: 'Su Sistemi' },
-      { key: 'wasteWaterSystem', label: 'Atık Su Sistemi' },
-    ]
-  },
-  {
-    title: 'Üretim & İmalat',
-    features: [
-      { key: 'craneSystem', label: 'Vinç Sistemi' },
-      { key: 'ventilationSystem', label: 'Havalandırma Sistemi' },
-      { key: 'airConditioning', label: 'Klima Sistemi' },
-      { key: 'wideOpenArea', label: 'Geniş Açık Alan' },
-      { key: 'machineMountingSuitable', label: 'Makine Montajı Uygun' },
-    ]
-  },
-  {
-    title: 'Depolama & Lojistik',
-    features: [
-      { key: 'loadingRamp', label: 'Yükleme Rampası' },
-      { key: 'truckEntrance', label: 'TIR Girişi' },
-      { key: 'forkliftTraffic', label: 'Forklift Trafiği' },
-      { key: 'rackingSystem', label: 'Raf Sistemi' },
-      { key: 'coldStorage', label: 'Soğuk Depolama' },
-    ]
-  },
-  {
-    title: 'Güvenlik & Sistem',
-    features: [
-      { key: 'fireExtinguishingSystem', label: 'Yangın Söndürme Sistemi' },
-      { key: 'securityCameras', label: 'Güvenlik Kameraları' },
-      { key: 'alarmSystem', label: 'Alarm Sistemi' },
-      { key: 'fencedArea', label: 'Çitli/Bariyerli Alan' },
-      { key: 'security', label: 'Güvenlik' },
-    ]
-  }
-];
+const getSubtypeLabel = (value: string) => {
+  const subtypeOptions = [
+    { value: "FABRIKA", label: "Fabrika" },
+    { value: "ATOLYE", label: "Atölye" },
+    { value: "IMALATHANE", label: "İmalathane" },
+    { value: "DEPO", label: "Depo" },
+    { value: "SOGUK_HAVA_DEPOSU", label: "Soğuk Hava Deposu" },
+    { value: "ANTREPO", label: "Antrepo" },
+    { value: "LABORATUVAR", label: "Laboratuvar" },
+    { value: "URETIM_TESISI", label: "Üretim Tesisi" }
+  ];
+  return subtypeOptions.find(s => s.value === value)?.label || value;
+};
 
-const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
-  createdAt: string;
-  listingType: string;
-  subtype: string;
-  title: string;
-  price: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  details: any;
-}) => {
-  const importantDetails = getImportantDetailsForIndustrial(details, createdAt);
-
-  const getSubtypeLabel = (value: string) => {
-    const subtypeOptions = [
-      { value: "FABRIKA", label: "Fabrika" },
-      { value: "ATOLYE", label: "Atölye" },
-      { value: "IMALATHANE", label: "İmalathane" },
-      { value: "DEPO", label: "Depo" },
-      { value: "SOGUK_HAVA_DEPOSU", label: "Soğuk Hava Deposu" },
-      { value: "ANTREPO", label: "Antrepo" },
-      { value: "LABORATUVAR", label: "Laboratuvar" },
-      { value: "URETIM_TESISI", label: "Üretim Tesisi" }
-    ];
-    return subtypeOptions.find(s => s.value === value)?.label || value;
-  };
+export default function ListingDetailIndustrial({ listing }: ListingDetailIndustrialProps) {
+  const importantDetails = getImportantDetailsForIndustrial(listing.details, listing.createdAt);
 
   return (
     <Box sx={{
@@ -152,8 +85,8 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
       height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
-        {formatPrice(price)} ₺
-        {listingType === "RENT" && (
+        {formatPrice(listing.price)} ₺
+        {listing.listingType === "RENT" && (
           <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
             /ay
           </Typography>
@@ -162,7 +95,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-          {neighborhood && `${neighborhood}, `} {district}, {city}
+          {listing.neighborhood && `${listing.neighborhood}, `} {listing.district}, {listing.city}
         </Typography>
       </Box>
 
@@ -170,7 +103,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          {getSubtypeLabel(subtype)} Özellikleri
+          {getSubtypeLabel(listing.subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -198,62 +131,5 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
         </Box>
       </Box>
     </Box>
-  );
-};
-
-export default function ListingDetailIndustrial({
-  listing, 
-  isPinned, 
-  onPinToggle,
-  isFavorited,
-  onFavoriteToggle
-}: ListingDetailIndustrialProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  return (
-    <>
-      <HeaderWithActions 
-        title={listing.title}
-        isPinned={isPinned}
-        onPinToggle={onPinToggle}
-        isFavorited={isFavorited}
-        onFavoriteToggle={onFavoriteToggle}
-      />
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <PhotoGallery 
-            photos={listing.photos || []} 
-            currentIndex={currentIndex} 
-            setCurrentIndex={setCurrentIndex} 
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <PropertyInfoPanel
-            createdAt={listing.createdAt}
-            listingType={listing.listingType}
-            subtype={listing.subtype}
-            title={listing.title}
-            price={listing.price}
-            city={listing.city}
-            district={listing.district}
-            neighborhood={listing.neighborhood}
-            details={listing.details}
-          />
-        </Grid>
-      </Grid>
-
-      <DescriptionBox description={listing.description} />
-
-      <TabbedPanel
-        details={listing.details}
-        latitude={listing.latitude}
-        longitude={listing.longitude}
-        city={listing.city}
-        district={listing.district}
-        neighborhood={listing.neighborhood}
-        featureCategories={INDUSTRIAL_FEATURE_CATEGORIES}
-      />
-    </>
   );
 }

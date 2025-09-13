@@ -1,8 +1,8 @@
 import { Box, Button, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff, ErrorOutline, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { UserService } from "../services/UserService.ts";
 
 export default function Register() {   
     
@@ -11,23 +11,30 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleClickShowPassword = () => {
         setShowPassword((prev) => !prev);
     };
 
     const handleRegister = async () => {
-        const userData = {
-            email: email,
-            password: password,
-            username: username,
-        };
+        if (!email || !password || !username) {
+            setError('Tüm alanlar zorunludur');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
 
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', userData);
+
+            await UserService.performRegister(username, email, password);
             navigate('/giris-yap');
-        } catch (error) {
-            console.error('Kayıt işlemi sırasında bir hata oluştu:', error);
+
+        } catch (error: any) {
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -39,65 +46,95 @@ export default function Register() {
                 alignItems: 'flex-start',
                 height: '92vh',
                 backgroundColor: '#e8e8e8',
-                padding: 2,
-                paddingTop: '10vh',
-                overflow: 'hidden',
             }}
         >
             <Box
                 sx={{
                     backgroundColor: 'white',
-                    borderRadius: 3,
-                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+                    borderRadius: 2,
+                    marginTop: "8vh",
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
                     width: '100%',
-                    maxWidth: '380px',
-                    padding: 3,
-                    border: '1px solid rgba(0, 0, 0, 0.12)',
-                    maxHeight: '85vh',
-                    overflow: 'auto',
+                    maxWidth: '500px',
+                    padding: 5,
+                    border: '1px solid rgba(0, 0, 0, 0.08)',
                 }}    
             >
                 <Typography
                     variant="h4"
                     sx={{
                         fontWeight: 600,
-                        marginBottom: 1,
+                        marginBottom: 2,
                         color: '#1a1a1a',
                         textAlign: 'center',
-                        fontSize: '28px',
+                        fontSize: '32px',
                     }}
                 >
                     Hesap Oluştur
                 </Typography>
                 
                 <Typography
-                    variant="body2"
+                    variant="body1"
                     sx={{
                         color: '#666',
                         textAlign: 'center',
-                        marginBottom: 3,
-                        fontSize: '14px',
+                        marginBottom: 4,
+                        fontSize: '16px',
                     }}
                 >
                     Emlak ilanlarına erişim için ücretsiz hesap oluşturun
                 </Typography>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {/* Hata Mesajı */}
+                    {error && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                padding: '16px',
+                                backgroundColor: '#fef2f2',
+                                border: '1px solid #fecaca',
+                                borderRadius: 1,
+                            }}
+                        >
+                            <ErrorOutline sx={{ color: '#dc2626', fontSize: 20 }} />
+                            <Typography
+                                sx={{
+                                    color: '#dc2626',
+                                    fontSize: '14px',
+                                    flex: 1
+                                }}
+                            >
+                                {error}
+                            </Typography>
+                            <IconButton
+                                size="small"
+                                onClick={() => setError('')}
+                                sx={{ color: '#dc2626' }}
+                            >
+                                <Close sx={{ fontSize: 18 }} />
+                            </IconButton>
+                        </Box>
+                    )}
+
                     <TextField
                         label="Ad - Soyad"
                         variant="outlined"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         fullWidth
-                        size="medium"
+                        disabled={loading}
                         sx={{
                             '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                fontSize: '14px',
+                                borderRadius: 1,
+                                fontSize: '16px',
+                                height: '56px'
                             },
                             '& .MuiInputLabel-root': {
-                                fontSize: '14px',
-                            },
+                                fontSize: '16px',
+                            }
                         }}
                     />
 
@@ -108,15 +145,16 @@ export default function Register() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         fullWidth
-                        size="medium"
+                        disabled={loading}
                         sx={{
                             '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                fontSize: '14px',
+                                borderRadius: 1,
+                                fontSize: '16px',
+                                height: '56px'
                             },
                             '& .MuiInputLabel-root': {
-                                fontSize: '14px',
-                            },
+                                fontSize: '16px',
+                            }
                         }}
                     />
 
@@ -127,15 +165,16 @@ export default function Register() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         fullWidth
-                        size="medium"
+                        disabled={loading}
                         sx={{
                             '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                fontSize: '14px',
+                                borderRadius: 1,
+                                fontSize: '16px',
+                                height: '56px'
                             },
                             '& .MuiInputLabel-root': {
-                                fontSize: '14px',
-                            },
+                                fontSize: '16px',
+                            }
                         }}
                         InputProps={{
                             endAdornment: (
@@ -143,9 +182,10 @@ export default function Register() {
                                     <IconButton
                                         onClick={handleClickShowPassword}
                                         edge="end"
-                                        size="small"
+                                        disabled={loading}
+                                        sx={{ color: '#666' }}
                                     >
-                                        {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             ),
@@ -157,48 +197,46 @@ export default function Register() {
                         onClick={handleRegister}
                         fullWidth
                         size="large"
+                        disabled={loading}
                         sx={{
                             backgroundColor: '#ed9517',
                             color: 'white',
-                            '&:hover': { 
-                                backgroundColor: '#d68415',
-                                transform: 'translateY(-1px)',
-                                boxShadow: '0 4px 12px rgba(237, 149, 23, 0.3)',
-                            },
-                            marginTop: 1,
-                            padding: '12px',
-                            borderRadius: 2,
-                            textTransform: 'none',
+                            height: '56px',
                             fontSize: '16px',
                             fontWeight: 600,
-                            transition: 'all 0.2s ease-in-out',
+                            borderRadius: 1,
+                            textTransform: 'none',
+                            '&:hover': { 
+                                backgroundColor: '#d68415',
+                            },
+                            '&:disabled': {
+                                backgroundColor: '#e0e0e0',
+                                color: '#999'
+                            }
                         }}
                     >
-                        Üye Ol
+                        {loading ? 'Hesap oluşturuluyor...' : 'Hesap Oluştur'}
                     </Button>
 
                     <Typography
-                        variant="body2"
+                        variant="body1"
                         sx={{
                             textAlign: 'center',
-                            marginTop: 2,
-                            fontSize: '14px',
+                            fontSize: '16px',
                             color: '#666',
+                            marginTop: 1
                         }}
                     >
-                        Zaten üye misiniz?{" "}
+                        Zaten hesabınız var mı?{" "}
                         <Typography
-                            variant="body2"
+                            variant="body1"
                             component="span"
-                            onClick={() => navigate('/giris-yap')}
+                            onClick={() => !loading && navigate('/giris-yap')}
                             sx={{
                                 color: '#ed9517',
-                                cursor: 'pointer',
-                                fontWeight: 500,
-                                '&:hover': {
-                                    textDecoration: 'underline',
-                                },
-                                transition: 'all 0.2s ease-in-out',
+                                cursor: loading ? 'default' : 'pointer',
+                                fontWeight: 600,
+                                textDecoration: 'underline'
                             }}
                         >
                             Giriş yap

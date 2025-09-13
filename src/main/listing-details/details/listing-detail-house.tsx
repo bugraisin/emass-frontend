@@ -1,17 +1,7 @@
-// listing-details/listing-detail-house.tsx
-import React, { useState } from "react";
-import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from '../shared/PhotoGallery.tsx';
-import HeaderWithActions from '../shared/HeaderWithActions.tsx';
-import DescriptionBox from '../shared/DescriptionBox.tsx';
-import TabbedPanel from '../shared/TabbedPanel.tsx';
+// listing-details/listing-detail-house.tsx - Simplified version
+import React from "react";
+import { Box, Typography, Divider } from "@mui/material";
 import { formatPrice } from '../shared/utils.ts';
-
-interface Photo {
-  id: string;
-  url: string;
-  isMain: boolean;
-}
 
 interface ListingData {
   id: string;
@@ -25,7 +15,7 @@ interface ListingData {
   district: string;
   neighborhood: string;
   details: any;
-  photos: Photo[];
+  photos: any[];
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
@@ -33,16 +23,12 @@ interface ListingData {
 
 interface ListingDetailHouseProps {
   listing: ListingData;
-  isPinned: boolean;
-  onPinToggle: () => void;
-  isFavorited: boolean;
-  onFavoriteToggle: () => void;
 }
 
 const getImportantDetailsForKonut = (details: any, createdAt: string) => {
   const safeDetails = details || {};
 
-    const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('tr-TR', {
@@ -54,6 +40,7 @@ const getImportantDetailsForKonut = (details: any, createdAt: string) => {
       return 'Belirtilmemiş';
     }
   };
+
   // Enum dönüşüm fonksiyonları
   const getHeatingTypeLabel = (value: string) => {
     const heatingOptions = [
@@ -126,86 +113,20 @@ const getImportantDetailsForKonut = (details: any, createdAt: string) => {
   };
 };
 
-const HOUSE_FEATURE_CATEGORIES = [
-  {
-    title: 'Temel Özellikler',
-    features: [
-      { key: 'furnished', label: 'Eşyalı' },
-      { key: 'balcony', label: 'Balkon' },
-      { key: 'terrace', label: 'Teras' },
-      { key: 'garden', label: 'Bahçe' },
-      { key: 'withinSite', label: 'Site İçerisinde' },
-    ]
-  },
-  {
-    title: 'Otopark',
-    features: [
-      { key: 'openPark', label: 'Açık Otopark' },
-      { key: 'closedPark', label: 'Kapalı Otopark' },
-      { key: 'garagePark', label: 'Garaj' },
-    ]
-  },
-  {
-    title: 'Bina & Güvenlik',
-    features: [
-      { key: 'elevator', label: 'Asansör' },
-      { key: 'security', label: 'Güvenlik' },
-      { key: 'concierge', label: 'Kapıcı' },
-      { key: 'generator', label: 'Jeneratör' },
-    ]
-  },
-  {
-    title: 'Konfor & Isıtma',
-    features: [
-      { key: 'airConditioning', label: 'Klima' },
-      { key: 'floorHeating', label: 'Yerden Isıtma' },
-      { key: 'fireplace', label: 'Şömine' },
-    ]
-  },
-  {
-    title: 'Mutfak & İç Mekan',
-    features: [
-      { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
-      { key: 'separateKitchen', label: 'Ayrı Mutfak' },
-      { key: 'americanKitchen', label: 'Amerikan Mutfak' },
-      { key: 'laundryRoom', label: 'Çamaşır Odası' },
-    ]
-  },
-  {
-    title: 'Site İmkanları',
-    features: [
-      { key: 'pool', label: 'Havuz' },
-      { key: 'gym', label: 'Spor Salonu' },
-      { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
-      { key: 'sportsArea', label: 'Spor Alanları' },
-    ]
-  }
-];
+const getSubtypeLabel = (value: string) => {
+  const subtypeOptions = [
+    { value: "DAIRE", label: "Daire" },
+    { value: "MUSTAKIL_EV", label: "Müstakil Ev" },
+    { value: "VILLA", label: "Villa" },
+    { value: "REZIDANS", label: "Rezidans" },
+    { value: "YAZLIK", label: "Yazlık" }
+  ];
+  return subtypeOptions.find(s => s.value === value)?.label || value;
+};
 
-const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
-  createdAt: string;
-  listingType: string;
-  subtype: string;
-  title: string;
-  price: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  details: any;
-}) => {
-  const importantDetails = getImportantDetailsForKonut(details, createdAt);
+export default function ListingDetailHouse({ listing }: ListingDetailHouseProps) {
+  const importantDetails = getImportantDetailsForKonut(listing.details, listing.createdAt);
   
-  const getSubtypeLabel = (value: string) => {
-    const subtypeOptions = [
-      { value: "DAIRE", label: "Daire" },
-      { value: "MUSTAKIL_EV", label: "Müstakil Ev" },
-      { value: "VILLA", label: "Villa" },
-      { value: "REZIDANS", label: "Rezidans" },
-      { value: "YAZLIK", label: "Yazlık" }
-    ];
-    return subtypeOptions.find(s => s.value === value)?.label || value;
-  };
-
   return (
     <Box sx={{
       p: 1,
@@ -217,8 +138,8 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
       height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
-        {formatPrice(price)} ₺
-        {listingType === "RENT" && (
+        {formatPrice(listing.price)} ₺
+        {listing.listingType === "RENT" && (
           <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
             /ay
           </Typography>
@@ -227,7 +148,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-          {neighborhood && `${neighborhood}, `} {district}, {city}
+          {listing.neighborhood && `${listing.neighborhood}, `} {listing.district}, {listing.city}
         </Typography>
       </Box>
 
@@ -235,7 +156,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-            {getSubtypeLabel(subtype)} Özellikleri
+          {getSubtypeLabel(listing.subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -263,62 +184,5 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
         </Box>
       </Box>
     </Box>
-  );
-};
-
-export default function ListingDetailHouse({
-  listing, 
-  isPinned, 
-  onPinToggle,
-  isFavorited,
-  onFavoriteToggle
-}: ListingDetailHouseProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  return (
-    <>
-      <HeaderWithActions 
-        title={listing.title}
-        isPinned={isPinned}
-        onPinToggle={onPinToggle}
-        isFavorited={isFavorited}
-        onFavoriteToggle={onFavoriteToggle}
-      />
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <PhotoGallery 
-            photos={listing.photos || []} 
-            currentIndex={currentIndex} 
-            setCurrentIndex={setCurrentIndex} 
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <PropertyInfoPanel
-            createdAt={listing.createdAt}
-            listingType={listing.listingType}
-            subtype = {listing.subtype}
-            title={listing.title}
-            price={listing.price}
-            city={listing.city}
-            district={listing.district}
-            neighborhood={listing.neighborhood}
-            details={listing.details}
-          />
-        </Grid>
-      </Grid>
-
-      <DescriptionBox description={listing.description} />
-
-      <TabbedPanel
-        details={listing.details}
-        latitude={listing.latitude}
-        longitude={listing.longitude}
-        city={listing.city}
-        district={listing.district}
-        neighborhood={listing.neighborhood}
-        featureCategories={HOUSE_FEATURE_CATEGORIES}
-      />
-    </>
   );
 }

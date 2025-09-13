@@ -1,17 +1,7 @@
-// listing-details/listing-detail-service.tsx
-import React, { useState } from "react";
-import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from '../shared/PhotoGallery.tsx';
-import HeaderWithActions from '../shared/HeaderWithActions.tsx';
-import DescriptionBox from '../shared/DescriptionBox.tsx';
-import TabbedPanel from '../shared/TabbedPanel.tsx';
+// listing-details/listing-detail-service.tsx - Simplified version
+import React from "react";
+import { Box, Typography, Divider } from "@mui/material";
 import { formatPrice } from '../shared/utils.ts';
-
-interface Photo {
-  id: string;
-  url: string;
-  isMain: boolean;
-}
 
 interface ListingData {
   id: string;
@@ -25,7 +15,7 @@ interface ListingData {
   district: string;
   neighborhood: string;
   details: any;
-  photos: Photo[];
+  photos: any[];
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
@@ -33,10 +23,6 @@ interface ListingData {
 
 interface ListingDetailServiceProps {
   listing: ListingData;
-  isPinned: boolean;
-  onPinToggle: () => void;
-  isFavorited: boolean;
-  onFavoriteToggle: () => void;
 }
 
 const getImportantDetailsForService = (details: any, createdAt: string) => {
@@ -70,67 +56,21 @@ const getImportantDetailsForService = (details: any, createdAt: string) => {
   };
 };
 
-const SERVICE_FEATURE_CATEGORIES = [
-  {
-    title: 'Temel Altyapı',
-    features: [
-      { key: 'security', label: 'Güvenlik' },
-      { key: 'lighting', label: 'Aydınlatma' },
-      { key: 'cctv', label: 'Güvenlik Kamerası' },
-      { key: 'internet', label: 'İnternet' },
-    ]
-  },
-  {
-    title: 'Hizmet Alanları',
-    features: [
-      { key: 'reception', label: 'Resepsiyon' },
-      { key: 'restRoom', label: 'Tuvalet' },
-      { key: 'kitchen', label: 'Mutfak' },
-    ]
-  },
-  {
-    title: 'Teknik Donanım',
-    features: [
-      { key: 'washingArea', label: 'Yıkama Sistemi' },
-      { key: 'maintenanceArea', label: 'Bakım/Onarım Alanı' },
-      { key: 'airConditioning', label: 'Klima Sistemi' },
-      { key: 'ventilationSystem', label: 'Havalandırma' },
-    ]
-  },
-  {
-    title: 'Ek Hizmetler',
-    features: [
-      { key: 'storage', label: 'Depolama Alanı' },
-      { key: 'officeArea', label: 'Ofis Alanı' },
-      { key: 'customerParking', label: 'Müşteri Otoparkı' },
-    ]
-  }
-];
+const getSubtypeLabel = (value: string) => {
+  const subtypeOptions = [
+    { value: "OTOPARK", label: "Otopark" },
+    { value: "SPOR_SALONU", label: "Spor Salonu" },
+    { value: "YIKAMA", label: "Yıkama" },
+    { value: "OTO_SERVIS", label: "Oto Servis" },
+    { value: "BENZIN_ISTASYONU", label: "Benzin İstasyonu" },
+    { value: "KARGO_MERKEZI", label: "Kargo Merkezi" },
+    { value: "TEMIZLIK_MERKEZI", label: "Temizlik Merkezi" }
+  ];
+  return subtypeOptions.find(s => s.value === value)?.label || value;
+};
 
-const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
-  createdAt: string;
-  listingType: string;
-  subtype: string;
-  price: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  details: any;
-}) => {
-  const importantDetails = getImportantDetailsForService(details, createdAt);
-
-  const getSubtypeLabel = (value: string) => {
-    const subtypeOptions = [
-      { value: "OTOPARK", label: "Otopark" },
-      { value: "SPOR_SALONU", label: "Spor Salonu" },
-      { value: "YIKAMA", label: "Yıkama" },
-      { value: "OTO_SERVIS", label: "Oto Servis" },
-      { value: "BENZIN_ISTASYONU", label: "Benzin İstasyonu" },
-      { value: "KARGO_MERKEZI", label: "Kargo Merkezi" },
-      { value: "TEMIZLIK_MERKEZI", label: "Temizlik Merkezi" }
-    ];
-    return subtypeOptions.find(s => s.value === value)?.label || value;
-  };
+export default function ListingDetailService({ listing }: ListingDetailServiceProps) {
+  const importantDetails = getImportantDetailsForService(listing.details, listing.createdAt);
 
   return (
     <Box sx={{
@@ -143,8 +83,8 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
       height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
-        {formatPrice(price)} ₺
-        {listingType === "RENT" && (
+        {formatPrice(listing.price)} ₺
+        {listing.listingType === "RENT" && (
           <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
             /ay
           </Typography>
@@ -153,7 +93,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-          {neighborhood && `${neighborhood}, `} {district}, {city}
+          {listing.neighborhood && `${listing.neighborhood}, `} {listing.district}, {listing.city}
         </Typography>
       </Box>
 
@@ -161,7 +101,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          {getSubtypeLabel(subtype)} Özellikleri
+          {getSubtypeLabel(listing.subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -189,61 +129,5 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
         </Box>
       </Box>
     </Box>
-  );
-};
-
-export default function ListingDetailService({
-  listing, 
-  isPinned, 
-  onPinToggle,
-  isFavorited,
-  onFavoriteToggle
-}: ListingDetailServiceProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  return (
-    <>
-      <HeaderWithActions 
-        title={listing.title}
-        isPinned={isPinned}
-        onPinToggle={onPinToggle}
-        isFavorited={isFavorited}
-        onFavoriteToggle={onFavoriteToggle}
-      />
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <PhotoGallery 
-            photos={listing.photos || []} 
-            currentIndex={currentIndex} 
-            setCurrentIndex={setCurrentIndex} 
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <PropertyInfoPanel
-            createdAt={listing.createdAt}
-            listingType={listing.listingType}
-            subtype={listing.subtype}
-            price={listing.price}
-            city={listing.city}
-            district={listing.district}
-            neighborhood={listing.neighborhood}
-            details={listing.details}
-          />
-        </Grid>
-      </Grid>
-
-      <DescriptionBox description={listing.description} />
-
-      <TabbedPanel
-        details={listing.details}
-        latitude={listing.latitude}
-        longitude={listing.longitude}
-        city={listing.city}
-        district={listing.district}
-        neighborhood={listing.neighborhood}
-        featureCategories={SERVICE_FEATURE_CATEGORIES}
-      />
-    </>
   );
 }

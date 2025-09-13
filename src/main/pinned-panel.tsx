@@ -118,7 +118,6 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                         fontWeight: 500,
                         color: isActive ? '#1e293b' : '#64748b',
                         backgroundColor: isActive ? 'rgba(30, 41, 59, 0.2)' : 'transparent',
-                        padding: '6px 8px',
                         minWidth: 0,
                         textTransform: 'none',
                         boxShadow: 'none',
@@ -129,7 +128,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '3px',
+                        gap: '2px',
                         fontSize: '10px',
                     }}
                     >
@@ -137,6 +136,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                         sx={{
                         display: 'flex',
                         alignItems: 'center',
+                        gap: '2px',
                         fontSize: '10px',
                         }}
                     >

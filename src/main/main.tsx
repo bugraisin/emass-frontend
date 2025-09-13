@@ -73,7 +73,7 @@ export default function Main() {
                 <Box
                     display="flex"
                     flex="1"
-                    sx={{ minHeight: 'calc(100vh - 40px)' }}
+                    sx={{ minHeight: '93vh' }}
                 >
                     {/* Sol Panel - Left Panel */}
                     <Box

@@ -1,17 +1,7 @@
-// listing-details/listing-detail-land.tsx
-import React, { useState } from "react";
-import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from '../shared/PhotoGallery.tsx';
-import HeaderWithActions from '../shared/HeaderWithActions.tsx';
-import DescriptionBox from '../shared/DescriptionBox.tsx';
-import TabbedPanel from '../shared/TabbedPanel.tsx';
+// listing-details/listing-detail-land.tsx - Simplified version
+import React from "react";
+import { Box, Typography, Divider } from "@mui/material";
 import { formatPrice } from '../shared/utils.ts';
-
-interface Photo {
-  id: string;
-  url: string;
-  isMain: boolean;
-}
 
 interface ListingData {
   id: string;
@@ -25,7 +15,7 @@ interface ListingData {
   district: string;
   neighborhood: string;
   details: any;
-  photos: Photo[];
+  photos: any[];
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
@@ -33,10 +23,6 @@ interface ListingData {
 
 interface ListingDetailLandProps {
   listing: ListingData;
-  isPinned: boolean;
-  onPinToggle: () => void;
-  isFavorited: boolean;
-  onFavoriteToggle: () => void;
 }
 
 const getImportantDetailsForLand = (details: any, createdAt: string) => {
@@ -83,7 +69,7 @@ const getImportantDetailsForLand = (details: any, createdAt: string) => {
     "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "İmar Durumu": safeDetails.zoningStatus ? getZoningStatus(safeDetails.zoningStatus) : 'Belirtilmemiş',
-    "Tapu Durumu": safeDetails.titleDeedStatus ? getTitleLandDeedStatus(safeDetails.titleLandDeedStatus) : 'Belirtilmemiş',
+    "Tapu Durumu": safeDetails.titleLandDeedStatus ? getTitleLandDeedStatus(safeDetails.titleLandDeedStatus) : 'Belirtilmemiş',
     "Ada No": safeDetails.adaNo || "Belirtilmemiş",
     "Parsel No": safeDetails.parcelNo || "Belirtilmemiş",
     "Pafta No": safeDetails.paftaNo || "Belirtilmemiş",
@@ -96,60 +82,8 @@ const getImportantDetailsForLand = (details: any, createdAt: string) => {
   };
 };
 
-const LAND_FEATURE_CATEGORIES = [
-  {
-    title: 'Altyapı',
-    features: [
-      { key: 'electricity', label: 'Elektrik' },
-      { key: 'water', label: 'Su' },
-      { key: 'naturalGas', label: 'Doğalgaz' },
-      { key: 'sewerage', label: 'Kanalizasyon' },
-      { key: 'roadAccess', label: 'Yol Erişimi' },
-    ]
-  },
-  {
-    title: 'Konum & Manzara',
-    features: [
-      { key: 'cornerLot', label: 'Köşe Parsel' },
-      { key: 'seaView', label: 'Deniz Manzarası' },
-      { key: 'cityView', label: 'Şehir Manzarası' },
-      { key: 'forestView', label: 'Orman Manzarası' },
-      { key: 'mountainView', label: 'Dağ Manzarası' },
-    ]
-  },
-  {
-    title: 'Arazi Özellikler',
-    features: [
-      { key: 'flat', label: 'Düz Arazi' },
-      { key: 'slope', label: 'Eğimli Arazi' },
-      { key: 'fenced', label: 'Çevrili/Çitli' },
-      { key: 'agricultural', label: 'Tarımsal Faaliyet' },
-      { key: 'buildingPermit', label: 'Yapı İzni Var' },
-    ]
-  },
-  {
-    title: 'Tarım & Bahçe',
-    features: [
-      { key: 'vineyard', label: 'Bağ/Üzüm' },
-      { key: 'orchard', label: 'Meyve Bahçesi' },
-      { key: 'oliveTrees', label: 'Zeytin Ağaçları' },
-      { key: 'greenhouse', label: 'Sera' },
-      { key: 'well', label: 'Su Kuyusu' },
-    ]
-  }
-];
-
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, createdAt, details }: {
-  listingType: string;
-  title: string;
-  price: string;
-  city: string;
-  district: string;
-  neighborhood: string;
-  createdAt: string;
-  details: any;
-}) => {
-  const importantDetails = getImportantDetailsForLand(details, createdAt);
+export default function ListingDetailLand({ listing }: ListingDetailLandProps) {
+  const importantDetails = getImportantDetailsForLand(listing.details, listing.createdAt);
 
   return (
     <Box sx={{
@@ -162,8 +96,8 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
       height: 'auto',
     }}>
       <Typography variant="h5" sx={{ fontWeight: 700, color: "#ed9517ff", mb: 0.5 }}>
-        {formatPrice(price)} ₺
-        {listingType === "RENT" && (
+        {formatPrice(listing.price)} ₺
+        {listing.listingType === "RENT" && (
           <Typography component="span" sx={{ fontSize: 16, ml: 0.5, color: "#64748b" }}>
             /ay
           </Typography>
@@ -172,7 +106,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="body2" sx={{ color: "#64748b", fontSize: '13px' }}>
-          {neighborhood && `${neighborhood}, `} {district}, {city}
+          {listing.neighborhood && `${listing.neighborhood}, `} {listing.district}, {listing.city}
         </Typography>
       </Box>
 
@@ -208,61 +142,5 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
         </Box>
       </Box>
     </Box>
-  );
-};
-
-export default function ListingDetailLand({
-  listing, 
-  isPinned, 
-  onPinToggle,
-  isFavorited,
-  onFavoriteToggle
-}: ListingDetailLandProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  return (
-    <>
-      <HeaderWithActions 
-        title={listing.title}
-        isPinned={isPinned}
-        onPinToggle={onPinToggle}
-        isFavorited={isFavorited}
-        onFavoriteToggle={onFavoriteToggle}
-      />
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <PhotoGallery 
-            photos={listing.photos || []} 
-            currentIndex={currentIndex} 
-            setCurrentIndex={setCurrentIndex} 
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <PropertyInfoPanel
-            listingType={listing.listingType}
-            title={listing.title}
-            price={listing.price}
-            city={listing.city}
-            district={listing.district}
-            neighborhood={listing.neighborhood}
-            createdAt={listing.createdAt}
-            details={listing.details}
-          />
-        </Grid>
-      </Grid>
-
-      <DescriptionBox description={listing.description} />
-
-      <TabbedPanel
-        details={listing.details}
-        latitude={listing.latitude}
-        longitude={listing.longitude}
-        city={listing.city}
-        district={listing.district}
-        neighborhood={listing.neighborhood}
-        featureCategories={LAND_FEATURE_CATEGORIES}
-      />
-    </>
   );
 }

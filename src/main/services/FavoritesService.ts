@@ -77,7 +77,7 @@ export class FavoritesService {
     /**
      * Kullanıcının belirli bir ilanı favorilediğini kontrol eder
      */
-    public static async checkFavoriteStatus(listingId: string, userId: number): Promise<boolean> {
+    public static async isFavorited(listingId: string, userId: number): Promise<boolean> {
         try {
             const response = await fetch(
                 `${this.BASE_URL}/favorites/${listingId}/check?userId=${userId}`
@@ -124,7 +124,7 @@ export class FavoritesService {
      */
     public static async toggleFavorite(listingId: string, userId: number): Promise<boolean> {
         try {
-            const currentStatus = await this.checkFavoriteStatus(listingId, userId);
+            const currentStatus = await this.isFavorited(listingId, userId);
             
             let success: boolean;
             if (currentStatus) {

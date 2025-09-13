@@ -74,6 +74,23 @@ export class UserService {
         return userData;
     }
 
+    // Register işlemi
+    public static async performRegister(username: string, email: string, password: string) {
+        const registerData = {
+            username: username,
+            email: email,
+            password: password
+        }
+
+        try {
+            const response = await axios.post(`${this.BASE_URL}/auth/register`, registerData);
+            return response.data;
+        } catch(error) {
+            throw error;
+        }
+
+    }
+
     // Logout işlemi
     public static logout(): void {
         localStorage.removeItem('user');
