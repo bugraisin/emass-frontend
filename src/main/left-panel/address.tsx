@@ -8,6 +8,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { UserService } from "../services/UserService.ts";
 
 const BASE_URL = "http://localhost:8080/api/location";
 
@@ -81,10 +82,17 @@ export default function Address({ onLocationChange }: AddressProps) {
 
   // 1) load provinces once
   useEffect(() => {
-    fetch(`${BASE_URL}/provinces`)
-      .then(r => r.json())
-      .then((data: Province[]) => setCities(data))
-      .catch(console.error);
+    const loadProvinces = async () => {
+      try {
+        const axiosInstance = UserService.getAxiosInstance();
+        const response = await axiosInstance.get('/location/provinces');
+        setCities(response.data);
+      } catch (error) {
+        console.error('Provinces yüklenemedi:', error);
+      }
+    };
+    
+    loadProvinces();
   }, []);
 
   // 2) when selected provinces change, fetch & merge districts

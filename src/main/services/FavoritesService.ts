@@ -1,4 +1,5 @@
 // services/FavoritesService.ts
+import { UserService } from './UserService.ts';
 
 export interface FavoriteListingItem {
     id: string;
@@ -11,21 +12,15 @@ export interface FavoriteListingItem {
 }
 
 export class FavoritesService {
-    private static readonly BASE_URL = 'http://localhost:8080/api';
 
     /**
-     * Kullanıcının favori ilanlarını getirir
+     * Kullanıcının favori ilanlarını getirir (korumalı endpoint)
      */
     public static async getFavoriteListings(userId: number): Promise<FavoriteListingItem[]> {
         try {
-            const response = await fetch(`${this.BASE_URL}/favorites?userId=${userId}`);
-            
-            if (response.ok) {
-                const favorites = await response.json();
-                return favorites;
-            }
-            
-            return [];
+            const axios = UserService.getAxiosInstance();
+            const response = await axios.get(`/favorites?userId=${userId}`);
+            return response.data;
         } catch (error) {
             console.error('Favori ilanlar yüklenirken hata:', error);
             return [];
@@ -33,20 +28,16 @@ export class FavoritesService {
     }
 
     /**
-     * İlanı favoriye ekler
+     * İlanı favoriye ekler (korumalı endpoint)
      */
     public static async addToFavorites(listingId: string, userId: number): Promise<boolean> {
+        console.log('listingId:', listingId, 'type:', typeof listingId);
+        console.log('userId:', userId, 'type:', typeof userId);
+        
         try {
-            const response = await fetch(
-                `${this.BASE_URL}/favorites/${listingId}`,
-                { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId })
-                }
-            );
-
-            return response.ok;
+            const axios = UserService.getAxiosInstance();
+            await axios.post(`/favorites/${listingId}`, { userId });
+            return true;
         } catch (error) {
             console.error("Favoriye ekleme hatası:", error);
             return false;
@@ -54,20 +45,15 @@ export class FavoritesService {
     }
 
     /**
-     * İlanı favoriden çıkarır
+     * İlanı favoriden çıkarır (korumalı endpoint)
      */
     public static async removeFromFavorites(listingId: string, userId: number): Promise<boolean> {
         try {
-            const response = await fetch(
-                `${this.BASE_URL}/favorites/${listingId}`,
-                { 
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId })
-                }
-            );
-
-            return response.ok;
+            const axios = UserService.getAxiosInstance();
+            await axios.delete(`/favorites/${listingId}`, { 
+                data: { userId }
+            });
+            return true;
         } catch (error) {
             console.error("Favoriden çıkarma hatası:", error);
             return false;
@@ -75,19 +61,13 @@ export class FavoritesService {
     }
 
     /**
-     * Kullanıcının belirli bir ilanı favorilediğini kontrol eder
+     * Kullanıcının belirli bir ilanı favorilediğini kontrol eder (korumalı endpoint)
      */
     public static async isFavorited(listingId: string, userId: number): Promise<boolean> {
         try {
-            const response = await fetch(
-                `${this.BASE_URL}/favorites/${listingId}/check?userId=${userId}`
-            );
-            
-            if (response.ok) {
-                return await response.json();
-            }
-            
-            return false;
+            const axios = UserService.getAxiosInstance();
+            const response = await axios.get(`/favorites/${listingId}/check?userId=${userId}`);
+            return response.data;
         } catch (error) {
             console.error("Favorite durumu kontrol edilirken hata", error);
             return false;
@@ -95,11 +75,12 @@ export class FavoritesService {
     }
 
     /**
-     * Belirli bir ilanın toplam favori sayısını getirir
+     * Belirli bir ilanın toplam favori sayısını getirir (public endpoint)
      */
     public static async getFavoriteCount(listingId: string): Promise<number> {
         try {
-            const response = await fetch(`${this.BASE_URL}/favorites/count/${listingId}`);
+            // Public endpoint olduğu için normal fetch kullan
+            const response = await fetch(`${UserService['BASE_URL']}/favorites/count/${listingId}`);
             
             if (response.ok) {
                 return await response.json();
@@ -120,7 +101,7 @@ export class FavoritesService {
     }
 
     /**
-     * Favori toggle işlemi - ekli ise çıkarır, değilse ekler
+     * Favori toggle işlemi - ekli ise çıkarır, değilse ekler (korumalı endpoint)
      */
     public static async toggleFavorite(listingId: string, userId: number): Promise<boolean> {
         try {

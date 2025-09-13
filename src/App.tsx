@@ -24,6 +24,7 @@ function App() {
         <Route path="/" element={<Main />} />
         <Route path="/ilan/:id" element={<ListingDetails />} />
         <Route path="/ilan-ver" element={<Advert />} />
+        <Route path="/ilan-duzenle/:id" element={<Advert />} />
         <Route path="/giris-yap" element={<Login />} />
         <Route path="/kayit-ol" element={<Register />} />
         <Route path="/favorilerim" element={<Favorites />} />

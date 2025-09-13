@@ -8,7 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import MessageIcon from '@mui/icons-material/Message';
-import { getUserId, getCurrentUser, isUserLoggedIn } from "./util.ts";
+import { UserService } from "./services/UserService.ts";
 
 export default function TopPanel() {
     const navigate = useNavigate();
@@ -19,9 +19,20 @@ export default function TopPanel() {
     const [messageCount, setMessageCount] = useState(2);
     const [refreshKey, setRefreshKey] = useState(0);
     
-    const currentUser = getCurrentUser();
-    const isLoggedIn = isUserLoggedIn();
+    const currentUser = UserService.getCurrentUser();
+    const isLoggedIn = UserService.isLoggedIn();
     const showSearchAndUser = true;
+
+    useEffect(() => {
+        const handleLoginStateChange = () => {
+            forceRefresh();
+        };
+
+        window.addEventListener('loginStateChange', handleLoginStateChange);
+        return () => {
+            window.removeEventListener('loginStateChange', handleLoginStateChange);
+        };
+    }, []);
 
     const forceRefresh = () => {
         setRefreshKey(prev => prev + 1);
@@ -41,8 +52,7 @@ export default function TopPanel() {
     };
 
     const confirmLogout = () => {
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken');
+        UserService.logout();
         setLogoutDialogOpen(false);
         forceRefresh();
         navigate('/');

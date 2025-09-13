@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Visibility, VisibilityOff, ErrorOutline, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { UserService } from "../services/UserService.ts";
 
 export default function Login() {   
     
@@ -23,29 +24,12 @@ export default function Login() {
             return;
         }
 
-        const loginData = {
-            email: email,
-            password: password,
-        };
-
         setLoading(true);
         setError('');
 
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', loginData);
-            
-            const { token, user } = response.data;
-
-            localStorage.setItem('authToken', token);
-
-            const userData = {
-                id: user.userId,
-                email: user.email,
-                username: user.username,
-                isLoggedIn: true
-            };
-            
-            localStorage.setItem('user', JSON.stringify(userData));
+            // UserService metodunu kullan
+            await UserService.performLogin(email, password);
             navigate('/');
         } catch (error: any) {
             console.error('Giriş işlemi sırasında bir hata oluştu:', error);
@@ -54,8 +38,6 @@ export default function Login() {
                 setError(error.response.data.message);
             } else if (error.response?.status === 401) {
                 setError('E-posta veya şifre yanlış');
-            } else if (error.response?.status === 500) {
-                setError('Sunucu hatası. Lütfen daha sonra tekrar deneyin');
             } else {
                 setError('Bağlantı hatası. İnternet bağlantınızı kontrol edin');
             }

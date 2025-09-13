@@ -1,3 +1,5 @@
+import { UserService } from "./UserService.ts";
+
 interface ListingData {
   id: string;
   listingType: string;
@@ -67,15 +69,11 @@ export class ListingService {
   
   public static async getUserListings(id: number): Promise<ListingData[]> {
     try {
-      const response = await fetch(`${this.BASE_URL}/listings/user/${id}`);
-
-      if (!response.ok) {
-        throw new Error("İlanlar Yüklenemedi");
-      }
-      
-      return response.json();
+      const axios = UserService.getAxiosInstance();
+      const response = await axios.get(`/listings/user/${id}`);
+      return response.data;
     } catch (error) {
-      console.error('Tüm ilanlar yüklenirken hata:', error);
+      console.error('Kullanıcı ilanları yüklenirken hata:', error);
       throw error;
     }
   }
@@ -146,23 +144,13 @@ export class ListingService {
    */
   public static async createListing(listingData: CreateListingPayload): Promise<any> {
     try {
-      const response = await fetch(`${this.BASE_URL}/listings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(listingData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Bilinmeyen hata' }));
-        throw new Error(errorData.message || 'İlan oluşturulamadı');
-      }
-      
-      return response.json();
-    } catch (error) {
+      const axios = UserService.getAxiosInstance();
+      const response = await axios.post('/listings', listingData);
+      return response.data;
+    } catch (error: any) {
       console.error('İlan oluşturma hatası:', error);
-      throw error;
+      const errorMessage = error.response?.data?.message || error.message || 'İlan oluşturulamadı';
+      throw new Error(errorMessage);
     }
   }
 
@@ -189,15 +177,31 @@ export class ListingService {
       formData.append('photos', photo.file);
     });
 
-    const response = await fetch(`${this.BASE_URL}/listings/${listingId}/photos`, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      const photoErrorData = await response.text().catch(() => 'Bilinmeyen hata');
+    try {
+      const axios = UserService.getAxiosInstance();
+      await axios.post(`/listings/${listingId}/photos`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } catch (error: any) {
+      console.error('Fotoğraf yükleme hatası:', error);
       throw new Error("İlan oluşturuldu ancak fotoğraflar yüklenirken hata oluştu. Lütfen fotoğraflarınızı kontrol edin.");
     }
-    
   }
+
+    /**
+   * İlan silme (korumalı endpoint)
+   */
+  public static async deleteListing(listingId: string): Promise<void> {
+    try {
+      const axios = UserService.getAxiosInstance();
+      await axios.delete(`/listings/${listingId}`);
+    } catch (error: any) {
+      console.error('İlan silme hatası:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'İlan silinemedi';
+      throw new Error(errorMessage);
+    }
+  }
+
 }

@@ -8,7 +8,6 @@ import { FavoritesService } from './services/FavoritesService.ts';
 import { addToRecentListings } from './pinned-panel.tsx';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { getUserId } from './util.ts';
 
 interface FavoriteListing {
     id: string;
@@ -25,7 +24,7 @@ export default function Favorites() {
     const navigate = useNavigate();
     const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
     const [loading, setLoading] = useState(true);
-    const currentUserId = getUserId();
+    const currentUserId = JSON.parse(localStorage.getItem('user') || '{}')?.userId || null;
     const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
     const [sortBy, setSortBy] = useState<'date' | 'price'>('date');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');

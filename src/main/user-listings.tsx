@@ -10,7 +10,6 @@ import { ListingService } from './services/ListingService.ts';
 import { addToRecentListings } from './pinned-panel.tsx';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { getUserId } from './util.ts';
 
 interface UserListing {
     id: string;
@@ -30,7 +29,7 @@ export default function UserListings() {
     const navigate = useNavigate();
     const [listings, setListings] = useState<UserListing[]>([]);
     const [loading, setLoading] = useState(true);
-    const currentUserId = getUserId();
+    const currentUserId = JSON.parse(localStorage.getItem('user') || '{}')?.userId || null;
     const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
     const [sortBy, setSortBy] = useState<'date' | 'price' | 'views' | 'favorites'>('date');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');

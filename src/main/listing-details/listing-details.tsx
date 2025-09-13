@@ -18,6 +18,7 @@ import TabbedPanel from './shared/TabbedPanel.tsx';
 import { PinnedListingService } from '../services/PinnedListing.ts';
 import { ListingService } from '../services/ListingService.ts';
 import { FavoritesService } from '../services/FavoritesService.ts';
+import { getUserId } from '../util.ts';
 
 interface ListingData {
   id: string;
@@ -47,7 +48,7 @@ export default function ListingDetails() {
   
   const [isFavorited, setIsFavorited] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const currentUserId = JSON.parse(localStorage.getItem('user') || '{}')?.id || null;
+  const currentUserId = getUserId();
 
   // İlan detaylarını yükle
   useEffect(() => {

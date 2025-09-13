@@ -22,7 +22,9 @@ export const addToRecentListings = (listing: any) => {
 
 export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPanelProps) {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'pinned' | 'recent'>('pinned');
+    const [activeTab, setActiveTab] = useState<'pinned' | 'recent'>(() => {
+        return (localStorage.getItem('activeTab') as 'pinned' | 'recent') || 'pinned';
+    });
     const [recentListings, setRecentListings] = useState<RecentListingItem[]>([]);
     
     // İlk yükleme - recent listings'leri al
@@ -39,16 +41,17 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
 
         return cleanup;
     }, []);
+
+    const handleTabChange = (tab: 'pinned' | 'recent') => {
+        setActiveTab(tab);
+        localStorage.setItem('activeTab', tab);
+    };
     
     const getCurrentListings = () => {
         return activeTab === 'pinned' ? pinnedListings : recentListings;
     };
 
     const currentListings = getCurrentListings();
-    
-    if (pinnedListings.length === 0 && recentListings.length === 0) {
-        return null;
-    }
 
     const handleCardClick = (listing: any) => {
         navigate(`/ilan/${listing.id}`);
@@ -111,7 +114,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                 return (
                 <Button
                         key={tab}
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => handleTabChange(tab)}
                         sx={{
                         flex: 1,
                         fontSize: '10px',

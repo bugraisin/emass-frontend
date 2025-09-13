@@ -3,7 +3,7 @@ export const getUserId = () => {
 
     if(userString) {
         const user = JSON.parse(userString);
-        return user.id;
+        return user.userId;
     }
 
     return null;

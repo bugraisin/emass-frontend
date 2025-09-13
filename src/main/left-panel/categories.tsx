@@ -222,7 +222,9 @@ export default function Categories({ onCategoryChange }: CategoriesProps) {
                         </Typography>
                         {selectedSubtype && (
                             <Typography sx={{ fontSize: '11px', color: 'primary.main', fontWeight: 'bold' }}>
-                                {PROPERTY_TYPES[selectedPropertyType]?.subtypes.find(s => s.key === selectedSubtype)?.name}
+                                {(selectedPropertyType && selectedPropertyType in PROPERTY_TYPES)
+                                    ? (PROPERTY_TYPES[selectedPropertyType as keyof typeof PROPERTY_TYPES].subtypes.find(s => s.key === selectedSubtype)?.name)
+                                    : null}
                             </Typography>
                         )}
                     </Box>

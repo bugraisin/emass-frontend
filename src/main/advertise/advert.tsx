@@ -21,6 +21,7 @@ import StepSixIndustrial from "./step-six/step-six-industrial.tsx";
 import StepSixLand from "./step-six/step-six-land.tsx";
 import StepSixService from "./step-six/step-six-service.tsx";
 import { ListingService } from "../services/ListingService.ts";
+import { useParams } from "react-router-dom";
 
 interface Photo {
     id: string;
@@ -70,6 +71,9 @@ export default function Advert() {
     const [industrialDetails, setIndustrialDetails] = useState<IndustrialDetails| {}>({});
     const [landDetails, setLandDetails] = useState<LandDetails| {}>({});
     const [serviceDetails, setServiceDetails] = useState<ServiceDetails| {}>({});
+
+    const { id } = useParams<{ id?: string }>();
+    const isEditMode = !!id;
     
     // Fotoğraflar state'i
     const [photos, setPhotos] = useState<Photo[]>([]);
@@ -115,8 +119,16 @@ export default function Advert() {
     };
 
     const submitListing = async () => {
+        const userId = JSON.parse(localStorage.getItem('user') || '{}')?.userId;
+        
+        if (!userId) {
+            setErrorMessage('Kullanıcı bilgisi bulunamadı. Lütfen giriş yapın.');
+            setShowError(true);
+            return;
+        }
+        
         const listingData = {
-            ownerId: 1,
+            ownerId: userId,
             title,
             description,
             listingType,
@@ -151,14 +163,24 @@ export default function Advert() {
         try {
             setIsLoading(true);
             
-            const listingResult = await ListingService.createListing(listingData);
+            let listingResult;
             
-            if (photos.length > 0) {
+            if (isEditMode && id) {
+                // Düzenleme modu - mevcut ilanı güncelle
+                listingResult = await ListingService.getAllListings();
+            } else {
+                // Yeni ilan oluştur
+                listingResult = await ListingService.createListing(listingData);
+            }
+            
+            // Fotoğraf upload'u sadece yeni ilan için (edit modunda ayrı yapılabilir)
+            if (!isEditMode && photos.length > 0) {
                 try {
                     await ListingService.uploadListingPhotos(listingResult.id, photos);
                 } catch (photoError) {
                     setErrorMessage("İlan oluşturuldu ancak fotoğraflar yüklenirken hata oluştu. Lütfen fotoğraflarınızı kontrol edin.");
                     setShowError(true);
+                    return;
                 }
             }
             
@@ -166,7 +188,8 @@ export default function Advert() {
             
         } catch (error) {
             const errorMsg = error instanceof Error ? error.message : 'Bilinmeyen bir hata oluştu';
-            setErrorMessage(`İlan oluşturulurken hata oluştu: ${errorMsg}`);
+            const operation = isEditMode ? 'güncellenirken' : 'oluşturulurken';
+            setErrorMessage(`İlan ${operation} hata oluştu: ${errorMsg}`);
             setShowError(true);
         } finally {
             setIsLoading(false);
@@ -277,6 +300,50 @@ export default function Advert() {
             }
         }
     }, [propertyType, subtype]);
+
+    useEffect(() => {
+        if (isEditMode && id) {
+            loadExistingListing(id);
+        }
+    }, [isEditMode, id]);
+
+    const loadExistingListing = async (listingId: string) => {
+        setIsLoading(true);
+        try {
+            const existingListing = await ListingService.getListingById(listingId);
+            
+            // Tüm form alanlarını doldur
+            setListingType(existingListing.listingType);
+            setPropertyType(existingListing.propertyType);
+            setSubtype(existingListing.subtype);
+            setTitle(existingListing.title);
+            setDescription(existingListing.description);
+            setPrice(existingListing.price);
+            setCity(existingListing.city);
+            setDistrict(existingListing.district);
+            setNeighborhood(existingListing.neighborhood);
+            setLatitude(existingListing.latitude);
+            setLongitude(existingListing.longitude);
+            
+            // Property-specific details'i set et
+            if (existingListing.details) {
+                const setter = getCurrentDetailsSetter();
+                setter(existingListing.details);
+            }
+            
+        } catch (error) {
+            setErrorMessage('İlan bilgileri yüklenemedi');
+            setShowError(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleStepClick = (stepIndex: number) => {
+        if (stepIndex <= activeStep) {
+            setActiveStep(stepIndex);
+        }
+    };
     
     return (
         <Box sx={{
@@ -301,32 +368,44 @@ export default function Advert() {
                 position: 'relative',
             }}>
                 <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 1 }}>
-                    <Stepper activeStep={activeStep} sx={{ 
-                        width: '90%',
-                        '& .MuiStepConnector-line': {
-                            borderTopWidth: 3,
-                            borderColor: '#e2e8f0'
-                        },
-                        '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': {
-                            borderColor: '#475569'
-                        },
-                        '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
-                            borderColor: '#1e293b'
-                        }
-                    }}>
-                        {steps.map((label, index) => (
-                            <Step key={label}>
-                                <StepLabel sx={{
+                <Stepper activeStep={activeStep} sx={{ 
+                    width: '90%',
+                    '& .MuiStepConnector-line': {
+                        borderTopWidth: 3,
+                        borderColor: '#e2e8f0'
+                    },
+                    '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': {
+                        borderColor: '#475569'
+                    },
+                    '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
+                        borderColor: '#1e293b'
+                    }
+                }}>
+                    {steps.map((label, index) => (
+                        <Step key={label}>
+                            <StepLabel 
+                                onClick={() => handleStepClick(index)} // Tıklama handler'ı ekle
+                                sx={{
+                                    cursor: 'pointer', // Cursor değiştir
                                     '& .MuiStepLabel-label': {
                                         color: activeStep === index ? '#1e293b' : '#64748b',
                                         fontWeight: activeStep === index ? 700 : 500,
                                         fontSize: '0.9rem',
-                                        transition: 'all 0.3s ease'
+                                        transition: 'all 0.3s ease',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            color: '#1e293b'
+                                        }
                                     },
                                     '& .MuiStepIcon-root': {
                                         color: activeStep >= index ? '#475569' : '#cbd5e1',
                                         fontSize: '1.8rem',
                                         transition: 'all 0.3s ease',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            transform: 'scale(1.05)', // Hover efekti
+                                            color: '#1e293b'
+                                        },
                                         '&.Mui-active': {
                                             color: '#1e293b',
                                             transform: 'scale(1.1)'
@@ -335,12 +414,13 @@ export default function Advert() {
                                             color: '#1e293b',
                                         }
                                     }
-                                }}>
-                                    {label}
-                                </StepLabel>
-                            </Step>
-                        ))}
-                    </Stepper>
+                                }}
+                            >
+                                {label}
+                            </StepLabel>
+                        </Step>
+                    ))}
+                </Stepper>
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', flex: 1, minHeight: '500px' }}>

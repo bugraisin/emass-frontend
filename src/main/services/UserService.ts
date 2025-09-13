@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 export interface UserData {
+    userId: number;
     email: string;
     username: string;
     isLoggedIn: boolean;
@@ -47,8 +48,7 @@ export class UserService {
         }
         return this.axiosInstance;
     }
-
-    // Login işlemi
+    // UserService.ts'de performLogin methodunda
     public static async performLogin(email: string, password: string): Promise<UserData> {
         const loginData = {
             email: email,
@@ -57,19 +57,20 @@ export class UserService {
 
         const response = await axios.post(`${this.BASE_URL}/auth/login`, loginData);
         
+        console.log('Backend response:', response.data); // ← Bunu ekle
+        
         const userData: UserData = {
+            userId: response.data.user.userId,
             email: email,
             username: response.data.name || email.split('@')[0],
             isLoggedIn: true,
             token: response.data.token || response.data.accessToken || ''
         };
         
-        // Kullanıcı bilgilerini ve token'ı localStorage'a kaydet
+        console.log('UserData:', userData); // ← Bunu da ekle
+        
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', userData.token);
-
-        // TopPanel'in güncellenmesi için event tetikle
-        window.dispatchEvent(new Event('loginStateChange'));
 
         return userData;
     }
@@ -93,8 +94,7 @@ export class UserService {
 
     // Logout işlemi
     public static logout(): void {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        localStorage.clear();
         window.dispatchEvent(new Event('loginStateChange'));
     }
 
