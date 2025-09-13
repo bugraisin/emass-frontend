@@ -49,7 +49,7 @@ export class ListingService {
   /**
    * Tüm ilanları getirir
    */
-  public static async getAllListings(): Promise<any[]> {
+  public static async getAllListings(): Promise<ListingData[]> {
     try {
       const response = await fetch(`${this.BASE_URL}/listings/get-all`);
 
@@ -63,6 +63,23 @@ export class ListingService {
       throw error;
     }
   }
+
+  
+  public static async getUserListings(id: number): Promise<ListingData[]> {
+    try {
+      const response = await fetch(`${this.BASE_URL}/listings/user/${id}`);
+
+      if (!response.ok) {
+        throw new Error("İlanlar Yüklenemedi");
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Tüm ilanlar yüklenirken hata:', error);
+      throw error;
+    }
+  }
+
 
   /**
    * Belirli bir ilanın detaylarını getirir
@@ -105,7 +122,6 @@ export class ListingService {
       throw new Error('İlan detayları yüklenirken bir hata oluştu');
     }
   }
-
   /**
    * İlan arama işlemi
    */

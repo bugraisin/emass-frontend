@@ -1,11 +1,11 @@
-// listing-details/listing-detail-service.tsx
+// listing-details/listing-detail-industrial.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from './shared/PhotoGallery.tsx';
-import HeaderWithActions from './shared/HeaderWithActions.tsx';
-import DescriptionBox from './shared/DescriptionBox.tsx';
-import TabbedPanel from './shared/TabbedPanel.tsx';
-import { formatPrice } from './shared/utils.ts';
+import PhotoGallery from '../shared/PhotoGallery.tsx';
+import HeaderWithActions from '../shared/HeaderWithActions.tsx';
+import DescriptionBox from '../shared/DescriptionBox.tsx';
+import TabbedPanel from '../shared/TabbedPanel.tsx';
+import { formatPrice } from '../shared/utils.ts';
 
 interface Photo {
   id: string;
@@ -31,7 +31,7 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailServiceProps {
+interface ListingDetailIndustrialProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
@@ -39,7 +39,7 @@ interface ListingDetailServiceProps {
   onFavoriteToggle: () => void;
 }
 
-const getImportantDetailsForService = (details: any, createdAt: string) => {
+const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
   const safeDetails = details || {};
 
   const formatDate = (dateString: string) => {
@@ -58,51 +58,58 @@ const getImportantDetailsForService = (details: any, createdAt: string) => {
   return {
     "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
-    "Kapasite": safeDetails.capacity || 'Belirtilmemiş',
-    "Kapalılık Durumu": safeDetails.spaceType || 'Belirtilmemiş',
-    "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
+    "Tavan Yüksekliği (m)": safeDetails.ceilingHeight || 'Belirtilmemiş',
+    "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
+    "Bölüm Sayısı": safeDetails.roomCount || "Belirtilmemiş",
+    "Kat Sayısı": safeDetails.floorCount || "Belirtilmemiş",
+    "Üç Fazlı Elektrik": safeDetails.threephaseElectricity ? 'Var' : 'Yok',
+    "Doğalgaz Hattı": safeDetails.naturalGasLine ? 'Var' : 'Yok',
+    "Havalandırma Sistemi": safeDetails.ventilationSystem ? 'Var' : 'Yok',
+    "Yangın Sistemi": safeDetails.fireExtinguishingSystem ? 'Var' : 'Yok',
+    "Alarm Sistemi": safeDetails.alarmSystem ? "Var" : "Yok",
     "Güvenlik": safeDetails.security ? 'Var' : 'Yok',
-    "Aydınlatma": safeDetails.lighting ? 'Var' : 'Yok',
-    "Güvenlik Kamerası": safeDetails.cctv ? 'Var' : 'Yok',
-    "İnternet": safeDetails.internet ? 'Var' : 'Yok',
-    "Resepsiyon": safeDetails.reception ? 'Var' : 'Yok',
-    "Müşteri Otoparkı": safeDetails.customerParking ? 'Var' : 'Yok',
   };
 };
 
-const SERVICE_FEATURE_CATEGORIES = [
+const INDUSTRIAL_FEATURE_CATEGORIES = [
   {
-    title: 'Temel Altyapı',
+    title: 'Altyapı & Enerji',
     features: [
-      { key: 'security', label: 'Güvenlik' },
-      { key: 'lighting', label: 'Aydınlatma' },
-      { key: 'cctv', label: 'Güvenlik Kamerası' },
-      { key: 'internet', label: 'İnternet' },
+      { key: 'threephaseElectricity', label: 'Üç Fazlı Elektrik' },
+      { key: 'naturalGasLine', label: 'Doğalgaz Hattı' },
+      { key: 'steamLine', label: 'Buhar Hattı' },
+      { key: 'waterSystem', label: 'Su Sistemi' },
+      { key: 'wasteWaterSystem', label: 'Atık Su Sistemi' },
     ]
   },
   {
-    title: 'Hizmet Alanları',
+    title: 'Üretim & İmalat',
     features: [
-      { key: 'reception', label: 'Resepsiyon' },
-      { key: 'restRoom', label: 'Tuvalet' },
-      { key: 'kitchen', label: 'Mutfak' },
-    ]
-  },
-  {
-    title: 'Teknik Donanım',
-    features: [
-      { key: 'washingArea', label: 'Yıkama Sistemi' },
-      { key: 'maintenanceArea', label: 'Bakım/Onarım Alanı' },
+      { key: 'craneSystem', label: 'Vinç Sistemi' },
+      { key: 'ventilationSystem', label: 'Havalandırma Sistemi' },
       { key: 'airConditioning', label: 'Klima Sistemi' },
-      { key: 'ventilationSystem', label: 'Havalandırma' },
+      { key: 'wideOpenArea', label: 'Geniş Açık Alan' },
+      { key: 'machineMountingSuitable', label: 'Makine Montajı Uygun' },
     ]
   },
   {
-    title: 'Ek Hizmetler',
+    title: 'Depolama & Lojistik',
     features: [
-      { key: 'storage', label: 'Depolama Alanı' },
-      { key: 'officeArea', label: 'Ofis Alanı' },
-      { key: 'customerParking', label: 'Müşteri Otoparkı' },
+      { key: 'loadingRamp', label: 'Yükleme Rampası' },
+      { key: 'truckEntrance', label: 'TIR Girişi' },
+      { key: 'forkliftTraffic', label: 'Forklift Trafiği' },
+      { key: 'rackingSystem', label: 'Raf Sistemi' },
+      { key: 'coldStorage', label: 'Soğuk Depolama' },
+    ]
+  },
+  {
+    title: 'Güvenlik & Sistem',
+    features: [
+      { key: 'fireExtinguishingSystem', label: 'Yangın Söndürme Sistemi' },
+      { key: 'securityCameras', label: 'Güvenlik Kameraları' },
+      { key: 'alarmSystem', label: 'Alarm Sistemi' },
+      { key: 'fencedArea', label: 'Çitli/Bariyerli Alan' },
+      { key: 'security', label: 'Güvenlik' },
     ]
   }
 ];
@@ -111,23 +118,25 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
   createdAt: string;
   listingType: string;
   subtype: string;
+  title: string;
   price: string;
   city: string;
   district: string;
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForService(details, createdAt);
+  const importantDetails = getImportantDetailsForIndustrial(details, createdAt);
 
   const getSubtypeLabel = (value: string) => {
     const subtypeOptions = [
-      { value: "OTOPARK", label: "Otopark" },
-      { value: "SPOR_SALONU", label: "Spor Salonu" },
-      { value: "YIKAMA", label: "Yıkama" },
-      { value: "OTO_SERVIS", label: "Oto Servis" },
-      { value: "BENZIN_ISTASYONU", label: "Benzin İstasyonu" },
-      { value: "KARGO_MERKEZI", label: "Kargo Merkezi" },
-      { value: "TEMIZLIK_MERKEZI", label: "Temizlik Merkezi" }
+      { value: "FABRIKA", label: "Fabrika" },
+      { value: "ATOLYE", label: "Atölye" },
+      { value: "IMALATHANE", label: "İmalathane" },
+      { value: "DEPO", label: "Depo" },
+      { value: "SOGUK_HAVA_DEPOSU", label: "Soğuk Hava Deposu" },
+      { value: "ANTREPO", label: "Antrepo" },
+      { value: "LABORATUVAR", label: "Laboratuvar" },
+      { value: "URETIM_TESISI", label: "Üretim Tesisi" }
     ];
     return subtypeOptions.find(s => s.value === value)?.label || value;
   };
@@ -192,13 +201,13 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
   );
 };
 
-export default function ListingDetailService({
+export default function ListingDetailIndustrial({
   listing, 
   isPinned, 
   onPinToggle,
   isFavorited,
   onFavoriteToggle
-}: ListingDetailServiceProps) {
+}: ListingDetailIndustrialProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
@@ -224,6 +233,7 @@ export default function ListingDetailService({
             createdAt={listing.createdAt}
             listingType={listing.listingType}
             subtype={listing.subtype}
+            title={listing.title}
             price={listing.price}
             city={listing.city}
             district={listing.district}
@@ -242,7 +252,7 @@ export default function ListingDetailService({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={SERVICE_FEATURE_CATEGORIES}
+        featureCategories={INDUSTRIAL_FEATURE_CATEGORIES}
       />
     </>
   );

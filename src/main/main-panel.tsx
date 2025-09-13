@@ -130,6 +130,7 @@ export default function MainPanel({ searchResults = [], isLoading = false, pinne
     );
 
     if (isLoading) {
+        
         return <SkeletonLoadingCards />;
     }
 
@@ -196,36 +197,44 @@ export default function MainPanel({ searchResults = [], isLoading = false, pinne
                                 transition: 'box-shadow 0.15s ease',
                                 position: 'relative',
                                 "&:hover": {
-                                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                    border: '1px solid #1e293b',
                                 },
                             }}
                             onClick={() => handleCardClick(property)}
                         >
-                            {property.thumbnailUrl || property.imageUrl || property.image ? (
-                                <CardMedia
-                                    component="img"
-                                    sx={{ 
-                                        width: 130, 
-                                        height: '100%', 
-                                        objectFit: 'cover',
-                                        flexShrink: 0
-                                    }}
-                                    image={property.thumbnailUrl || property.imageUrl || property.image}
-                                    alt={property.title}
-                                />
-                            ) : (
-                                <Box sx={{
-                                    width: 130,
-                                    height: '100%',
-                                    backgroundColor: '#f3f4f6',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                        {property.thumbnailUrl || property.imageUrl || property.image ? (
+                            <CardMedia
+                                component="img"
+                                sx={{ 
+                                    width: 130, 
+                                    height: '100%', 
+                                    objectFit: 'cover',
                                     flexShrink: 0
-                                }}>
-                                    <ImageIcon sx={{ fontSize: 40, color: '#9ca3af' }} />
-                                </Box>
-                            )}
+                                }}
+                                image={property.thumbnailUrl || property.imageUrl || property.image}
+                                alt={property.title}
+                            />
+                        ) : (
+                            <Box sx={{
+                                width: 130,
+                                height: '100%',
+                                backgroundColor: '#f3f4f6',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                            }}>
+                                <img 
+                                    src="https://via.placeholder.com/130x120/f3f4f6/9ca3af?text=No+Image" 
+                                    alt="Fotoğraf yok" 
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '100%', 
+                                        objectFit: 'cover' 
+                                    }} 
+                                />
+                            </Box>
+                        )}
                               
                             <CardContent sx={{ 
                                 padding: '6px 8px', 

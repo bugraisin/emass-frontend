@@ -1,11 +1,11 @@
-// listing-details/listing-detail-office.tsx
+// listing-details/listing-detail-house.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from './shared/PhotoGallery.tsx';
-import HeaderWithActions from './shared/HeaderWithActions.tsx';
-import DescriptionBox from './shared/DescriptionBox.tsx';
-import TabbedPanel from './shared/TabbedPanel.tsx';
-import { formatPrice } from './shared/utils.ts';
+import PhotoGallery from '../shared/PhotoGallery.tsx';
+import HeaderWithActions from '../shared/HeaderWithActions.tsx';
+import DescriptionBox from '../shared/DescriptionBox.tsx';
+import TabbedPanel from '../shared/TabbedPanel.tsx';
+import { formatPrice } from '../shared/utils.ts';
 
 interface Photo {
   id: string;
@@ -31,7 +31,7 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailOfficeProps {
+interface ListingDetailHouseProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
@@ -39,10 +39,10 @@ interface ListingDetailOfficeProps {
   onFavoriteToggle: () => void;
 }
 
-const getImportantDetailsForOffice = (details: any, createdAt: string) => {
+const getImportantDetailsForKonut = (details: any, createdAt: string) => {
   const safeDetails = details || {};
 
-  const formatDate = (dateString: string) => {
+    const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('tr-TR', {
@@ -54,7 +54,7 @@ const getImportantDetailsForOffice = (details: any, createdAt: string) => {
       return 'Belirtilmemiş';
     }
   };
-
+  // Enum dönüşüm fonksiyonları
   const getHeatingTypeLabel = (value: string) => {
     const heatingOptions = [
       { value: "DOGALGAZ", label: "Doğalgaz" },
@@ -68,72 +68,116 @@ const getImportantDetailsForOffice = (details: any, createdAt: string) => {
     return heatingOptions.find(h => h.value === value)?.label || value;
   };
 
-  const getBuildingTypeDetails = (value: string) => {
-    const buildingOptions = [
-      { value: "APARTMAN", label: "Apartman"},
-      { value: "PLAZA", label: "Plaza"},
-      { value: "MUSTAKIL", label: "Müstakil"},
-      { value: "PASAJ", label: "Pasaj"},
-      { value: "AVM", label: "AVM"},
+  const getFacadeLabel = (value: string) => {
+    const facadeOptions = [
+      { value: "KUZEY", label: "Kuzey" },
+      { value: "GUNEY", label: "Güney" },
+      { value: "DOGU", label: "Doğu" },
+      { value: "BATI", label: "Batı" },
+      { value: "KUZEY_DOGU", label: "Kuzey-Doğu" },
+      { value: "KUZEY_BATI", label: "Kuzey-Batı" },
+      { value: "GUNEY_DOGU", label: "Güney-Doğu" },
+      { value: "GUNEY_BATI", label: "Güney-Batı" }
     ];
-    return buildingOptions.find(h => h.value === value)?.label || value;
+    return facadeOptions.find(f => f.value === value)?.label || value;
   };
-  
+
+  const getUsageStatusLabel = (value: string) => {
+    const usageOptions = [
+      { value: "BOS", label: "Boş" },
+      { value: "KIRACI_VAR", label: "Kiracı Var" },
+      { value: "MAL_SAHIBI_OTURUYOR", label: "Mal Sahibi Oturuyor" }
+    ];
+    return usageOptions.find(u => u.value === value)?.label || value;
+  };
+
+  const getTitleDeedLabel = (value: string) => {
+    const titleOptions = [
+      { value: "KAT_MULKIYETLI", label: "Kat Mülkiyetli" },
+      { value: "KAT_IRTIFAKLI", label: "Kat İrtifaklı" },
+      { value: "ARSA_PAYLI", label: "Arsa Paylı" },
+      { value: "MUSTERI_UZERINDE", label: "Müşteri Üzerinde" }
+    ];
+    return titleOptions.find(t => t.value === value)?.label || value;
+  };
+
   return {
     "İlan Tarihi": formatDate(createdAt),
-    "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "Oda Sayısı": safeDetails.roomCount || 'Belirtilmemiş',
-    "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
-    "Toplam Kat": safeDetails.floorCount || "Belirtilmemiş",
+    "Brüt Alan (m²)": safeDetails.grossArea || 'Belirtilmemiş',
+    "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
     "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Isıtma Tipi": safeDetails.heatingType ? getHeatingTypeLabel(safeDetails.heatingType) : 'Belirtilmemiş',
-    "Bina Tipi": safeDetails.buildingType ? getBuildingTypeDetails(safeDetails.buildingType) : "Belirtilmemiş",
+    "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
+    "Toplam Kat Sayısı": safeDetails.totalFloors || 'Belirtilmemiş',
+    "Banyo Sayısı": safeDetails.bathroomCount || 'Belirtilmemiş',
+    "Site/Apartman Adı": safeDetails.siteName || 'Belirtilmemiş',
     "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
     "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
-    "Mutfak": safeDetails.kitchen ? "Var" : "Yok",
-    "Klima": safeDetails.airConditioning ? "Var" : "Yok",
-    "Tuvalet": safeDetails.toilet ? "Var" : "Yok",
-    "İnternet": safeDetails.internet ? "Var" : "Yok",
+    "Eşyalı": safeDetails.furnished ? 'Var' : 'Yok',
+    "Cephe": safeDetails.facadeDirection ? getFacadeLabel(safeDetails.facadeDirection) : 'Belirtilmemiş',
+    "Otopark": [
+      safeDetails.openPark ? "Açık Otopark" : null,
+      safeDetails.closedPark ? "Kapalı Otopark" : null,
+      safeDetails.garagePark ? "Garaj" : null
+    ].filter(Boolean).join(" & ") || 'Belirtilmemiş',
+    "Isıtma Tipi": safeDetails.heatingType ? getHeatingTypeLabel(safeDetails.heatingType) : 'Belirtilmemiş',
+    "Kullanım Durumu": safeDetails.usageStatus ? getUsageStatusLabel(safeDetails.usageStatus) : 'Belirtilmemiş',
+    "Tapu Durumu": safeDetails.titleDeedStatus ? getTitleDeedLabel(safeDetails.titleDeedStatus) : 'Belirtilmemiş',
   };
 };
 
-const OFFICE_FEATURE_CATEGORIES = [
+const HOUSE_FEATURE_CATEGORIES = [
   {
     title: 'Temel Özellikler',
     features: [
       { key: 'furnished', label: 'Eşyalı' },
-      { key: 'parking', label: 'Otopark' },
+      { key: 'balcony', label: 'Balkon' },
+      { key: 'terrace', label: 'Teras' },
+      { key: 'garden', label: 'Bahçe' },
+      { key: 'withinSite', label: 'Site İçerisinde' },
+    ]
+  },
+  {
+    title: 'Otopark',
+    features: [
+      { key: 'openPark', label: 'Açık Otopark' },
+      { key: 'closedPark', label: 'Kapalı Otopark' },
+      { key: 'garagePark', label: 'Garaj' },
+    ]
+  },
+  {
+    title: 'Bina & Güvenlik',
+    features: [
       { key: 'elevator', label: 'Asansör' },
       { key: 'security', label: 'Güvenlik' },
+      { key: 'concierge', label: 'Kapıcı' },
       { key: 'generator', label: 'Jeneratör' },
     ]
   },
   {
-    title: 'Ofis Konfor',
+    title: 'Konfor & Isıtma',
     features: [
       { key: 'airConditioning', label: 'Klima' },
-      { key: 'internet', label: 'İnternet' },
-      { key: 'kitchen', label: 'Mutfak/Çay Ocağı' },
-      { key: 'fireSystem', label: 'Yangın Sistemi' },
+      { key: 'floorHeating', label: 'Yerden Isıtma' },
+      { key: 'fireplace', label: 'Şömine' },
     ]
   },
   {
-    title: 'Çalışma Alanları',
+    title: 'Mutfak & İç Mekan',
     features: [
-      { key: 'reception', label: 'Resepsiyon Alanı' },
-      { key: 'meetingRoom', label: 'Toplantı Odası' },
-      { key: 'waitingArea', label: 'Bekleme Salonu' },
-      { key: 'archive', label: 'Arşiv Odası' },
-      { key: 'library', label: 'Kütüphane/Dosya Odası' },
+      { key: 'builtinKitchen', label: 'Ankastre Mutfak' },
+      { key: 'separateKitchen', label: 'Ayrı Mutfak' },
+      { key: 'americanKitchen', label: 'Amerikan Mutfak' },
+      { key: 'laundryRoom', label: 'Çamaşır Odası' },
     ]
   },
   {
-    title: 'Teknik Altyapı',
+    title: 'Site İmkanları',
     features: [
-      { key: 'serverRoom', label: 'Sunucu Odası' },
-      { key: 'accessControl', label: 'Kartlı Giriş Sistemi' },
-      { key: 'fiberInternet', label: 'Fiber İnternet Altyapısı' },
-      { key: 'soundproof', label: 'Ses Yalıtımı' },
+      { key: 'pool', label: 'Havuz' },
+      { key: 'gym', label: 'Spor Salonu' },
+      { key: 'childrenPlayground', label: 'Çocuk Oyun Alanı' },
+      { key: 'sportsArea', label: 'Spor Alanları' },
     ]
   }
 ];
@@ -149,18 +193,15 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
   neighborhood: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForOffice(details, createdAt);
-
+  const importantDetails = getImportantDetailsForKonut(details, createdAt);
+  
   const getSubtypeLabel = (value: string) => {
     const subtypeOptions = [
-      { value: "OFIS", label: "Ofis" },
-      { value: "BÜRO", label: "Büro" },
-      { value: "COWORKING", label: "Coworking" },
-      { value: "CALL_CENTER", label: "Call Center" },
-      { value: "TOPLANTI_SALONU", label: "Toplantı Salonu" },
-      { value: "MUAYENEHANE", label: "Muayenehane" },
-      { value: "AVUKATLIK_BÜROSU", label: "Avukatlık Bürosu" },
-      { value: "MUHASEBE_OFISI", label: "Muhasebe Ofisi" },
+      { value: "DAIRE", label: "Daire" },
+      { value: "MUSTAKIL_EV", label: "Müstakil Ev" },
+      { value: "VILLA", label: "Villa" },
+      { value: "REZIDANS", label: "Rezidans" },
+      { value: "YAZLIK", label: "Yazlık" }
     ];
     return subtypeOptions.find(s => s.value === value)?.label || value;
   };
@@ -194,7 +235,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-           {getSubtypeLabel(subtype)} Özellikleri
+            {getSubtypeLabel(subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -225,13 +266,13 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
   );
 };
 
-export default function ListingDetailOffice({
+export default function ListingDetailHouse({
   listing, 
   isPinned, 
   onPinToggle,
   isFavorited,
   onFavoriteToggle
-}: ListingDetailOfficeProps) {
+}: ListingDetailHouseProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
@@ -256,7 +297,7 @@ export default function ListingDetailOffice({
           <PropertyInfoPanel
             createdAt={listing.createdAt}
             listingType={listing.listingType}
-            subtype={listing.subtype}
+            subtype = {listing.subtype}
             title={listing.title}
             price={listing.price}
             city={listing.city}
@@ -276,7 +317,7 @@ export default function ListingDetailOffice({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={OFFICE_FEATURE_CATEGORIES}
+        featureCategories={HOUSE_FEATURE_CATEGORIES}
       />
     </>
   );

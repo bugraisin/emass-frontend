@@ -1,6 +1,8 @@
 import React from "react";
 import { Box, Typography, IconButton, Divider, Button } from "@mui/material";
 import { PushPin, Favorite } from "@mui/icons-material";
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 interface HeaderWithActionsProps {
   title: string;
@@ -17,6 +19,7 @@ export default function HeaderWithActions({
   isFavorited, 
   onFavoriteToggle
 }: HeaderWithActionsProps) {
+  const navigate = useNavigate();
   return (
     <>
       <Box sx={{
@@ -25,6 +28,12 @@ export default function HeaderWithActions({
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
+        <Button 
+            onClick={() => navigate('/')} 
+            sx={{ minWidth: 'auto', color: "#1e293b", mr: 1 }}
+        >
+            <ArrowBackIcon />
+        </Button>
         <Typography variant="h5" sx={{
           fontWeight: 600,
           color: "#1e293b",

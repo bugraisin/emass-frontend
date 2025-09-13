@@ -1,11 +1,11 @@
-// listing-details/listing-detail-land.tsx
+// listing-details/listing-detail-office.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from './shared/PhotoGallery.tsx';
-import HeaderWithActions from './shared/HeaderWithActions.tsx';
-import DescriptionBox from './shared/DescriptionBox.tsx';
-import TabbedPanel from './shared/TabbedPanel.tsx';
-import { formatPrice } from './shared/utils.ts';
+import PhotoGallery from '../shared/PhotoGallery.tsx';
+import HeaderWithActions from '../shared/HeaderWithActions.tsx';
+import DescriptionBox from '../shared/DescriptionBox.tsx';
+import TabbedPanel from '../shared/TabbedPanel.tsx';
+import { formatPrice } from '../shared/utils.ts';
 
 interface Photo {
   id: string;
@@ -31,7 +31,7 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailLandProps {
+interface ListingDetailOfficeProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
@@ -39,7 +39,7 @@ interface ListingDetailLandProps {
   onFavoriteToggle: () => void;
 }
 
-const getImportantDetailsForLand = (details: any, createdAt: string) => {
+const getImportantDetailsForOffice = (details: any, createdAt: string) => {
   const safeDetails = details || {};
 
   const formatDate = (dateString: string) => {
@@ -55,101 +55,115 @@ const getImportantDetailsForLand = (details: any, createdAt: string) => {
     }
   };
 
-  const getZoningStatus = (value: string) => {
-    const zoningOptions = [
-      { value: "IMARLI", label: "İmarlı" },
-      { value: "IMARSIZ", label: "İmarsız" },
-      { value: "TARLA", label: "Tarla" },
-      { value: "BAHCE", label: "Bahçe" },
-      { value: "KONUT_IMARLI", label: "Konut İmarlı" },
-      { value: "TICARI_IMARLI", label: "Ticari İmarlı" },
-      { value: "SANAYI_IMARLI", label: "Sanayi İmarlı" },
-      { value: "DIGER", label: "Diğer" }
+  const getHeatingTypeLabel = (value: string) => {
+    const heatingOptions = [
+      { value: "DOGALGAZ", label: "Doğalgaz" },
+      { value: "MERKEZI", label: "Merkezi" },
+      { value: "KALORIFER", label: "Kalorifer" },
+      { value: "KLIMA", label: "Klima" },
+      { value: "ELEKTRIKLI", label: "Elektrikli" },
+      { value: "SOBALI", label: "Sobali" },
+      { value: "YOK", label: "Yok" }
     ];
-    return zoningOptions.find(s => s.value === value)?.label || value;
+    return heatingOptions.find(h => h.value === value)?.label || value;
   };
 
-  const getTitleLandDeedStatus = (value: string) => {
-    const zoningOptions = [
-      { value: "ARSA_PAYI", label: "Arsa Payı" },
-      { value: "MUSTAKIL_TAPULU", label: "Müstakil Tapulu" },
-      { value: "HISSELI_TAPULU", label: "Hisseli Tapulu" },
-      { value: "TARLA_TAPULU", label: "Tarla Tapulu" }
+  const getBuildingTypeDetails = (value: string) => {
+    const buildingOptions = [
+      { value: "APARTMAN", label: "Apartman"},
+      { value: "PLAZA", label: "Plaza"},
+      { value: "MUSTAKIL", label: "Müstakil"},
+      { value: "PASAJ", label: "Pasaj"},
+      { value: "AVM", label: "AVM"},
     ];
-    return zoningOptions.find(s => s.value === value)?.label || value;
+    return buildingOptions.find(h => h.value === value)?.label || value;
   };
   
   return {
     "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
-    "İmar Durumu": safeDetails.zoningStatus ? getZoningStatus(safeDetails.zoningStatus) : 'Belirtilmemiş',
-    "Tapu Durumu": safeDetails.titleDeedStatus ? getTitleLandDeedStatus(safeDetails.titleLandDeedStatus) : 'Belirtilmemiş',
-    "Ada No": safeDetails.adaNo || "Belirtilmemiş",
-    "Parsel No": safeDetails.parcelNo || "Belirtilmemiş",
-    "Pafta No": safeDetails.paftaNo || "Belirtilmemiş",
-    "KAKS": safeDetails.kaks || "Belirtilmemiş",
-    "Gabari (m)": safeDetails.gabari || "Belirtilmemiş",
-    "Yol Erişimi": safeDetails.roadAccess ? "Var" : "Yok",
-    "Elektrik": safeDetails.electricity ? "Var" : "Yok",
-    "Su": safeDetails.water ? "Var" : "Yok",
-    "Doğalgaz": safeDetails.naturalGas ? "Var" : "Yok",
+    "Oda Sayısı": safeDetails.roomCount || 'Belirtilmemiş',
+    "Bulunduğu Kat": safeDetails.floorNo || 'Belirtilmemiş',
+    "Toplam Kat": safeDetails.floorCount || "Belirtilmemiş",
+    "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
+    "Isıtma Tipi": safeDetails.heatingType ? getHeatingTypeLabel(safeDetails.heatingType) : 'Belirtilmemiş',
+    "Bina Tipi": safeDetails.buildingType ? getBuildingTypeDetails(safeDetails.buildingType) : "Belirtilmemiş",
+    "Aidat (₺)": safeDetails.siteFee || 'Belirtilmemiş',
+    "Depozito (₺)": safeDetails.deposit || 'Belirtilmemiş',
+    "Mutfak": safeDetails.kitchen ? "Var" : "Yok",
+    "Klima": safeDetails.airConditioning ? "Var" : "Yok",
+    "Tuvalet": safeDetails.toilet ? "Var" : "Yok",
+    "İnternet": safeDetails.internet ? "Var" : "Yok",
   };
 };
 
-const LAND_FEATURE_CATEGORIES = [
+const OFFICE_FEATURE_CATEGORIES = [
   {
-    title: 'Altyapı',
+    title: 'Temel Özellikler',
     features: [
-      { key: 'electricity', label: 'Elektrik' },
-      { key: 'water', label: 'Su' },
-      { key: 'naturalGas', label: 'Doğalgaz' },
-      { key: 'sewerage', label: 'Kanalizasyon' },
-      { key: 'roadAccess', label: 'Yol Erişimi' },
+      { key: 'furnished', label: 'Eşyalı' },
+      { key: 'parking', label: 'Otopark' },
+      { key: 'elevator', label: 'Asansör' },
+      { key: 'security', label: 'Güvenlik' },
+      { key: 'generator', label: 'Jeneratör' },
     ]
   },
   {
-    title: 'Konum & Manzara',
+    title: 'Ofis Konfor',
     features: [
-      { key: 'cornerLot', label: 'Köşe Parsel' },
-      { key: 'seaView', label: 'Deniz Manzarası' },
-      { key: 'cityView', label: 'Şehir Manzarası' },
-      { key: 'forestView', label: 'Orman Manzarası' },
-      { key: 'mountainView', label: 'Dağ Manzarası' },
+      { key: 'airConditioning', label: 'Klima' },
+      { key: 'internet', label: 'İnternet' },
+      { key: 'kitchen', label: 'Mutfak/Çay Ocağı' },
+      { key: 'fireSystem', label: 'Yangın Sistemi' },
     ]
   },
   {
-    title: 'Arazi Özellikler',
+    title: 'Çalışma Alanları',
     features: [
-      { key: 'flat', label: 'Düz Arazi' },
-      { key: 'slope', label: 'Eğimli Arazi' },
-      { key: 'fenced', label: 'Çevrili/Çitli' },
-      { key: 'agricultural', label: 'Tarımsal Faaliyet' },
-      { key: 'buildingPermit', label: 'Yapı İzni Var' },
+      { key: 'reception', label: 'Resepsiyon Alanı' },
+      { key: 'meetingRoom', label: 'Toplantı Odası' },
+      { key: 'waitingArea', label: 'Bekleme Salonu' },
+      { key: 'archive', label: 'Arşiv Odası' },
+      { key: 'library', label: 'Kütüphane/Dosya Odası' },
     ]
   },
   {
-    title: 'Tarım & Bahçe',
+    title: 'Teknik Altyapı',
     features: [
-      { key: 'vineyard', label: 'Bağ/Üzüm' },
-      { key: 'orchard', label: 'Meyve Bahçesi' },
-      { key: 'oliveTrees', label: 'Zeytin Ağaçları' },
-      { key: 'greenhouse', label: 'Sera' },
-      { key: 'well', label: 'Su Kuyusu' },
+      { key: 'serverRoom', label: 'Sunucu Odası' },
+      { key: 'accessControl', label: 'Kartlı Giriş Sistemi' },
+      { key: 'fiberInternet', label: 'Fiber İnternet Altyapısı' },
+      { key: 'soundproof', label: 'Ses Yalıtımı' },
     ]
   }
 ];
 
-const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, createdAt, details }: {
+const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
+  createdAt: string;
   listingType: string;
+  subtype: string;
   title: string;
   price: string;
   city: string;
   district: string;
   neighborhood: string;
-  createdAt: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForLand(details, createdAt);
+  const importantDetails = getImportantDetailsForOffice(details, createdAt);
+
+  const getSubtypeLabel = (value: string) => {
+    const subtypeOptions = [
+      { value: "OFIS", label: "Ofis" },
+      { value: "BÜRO", label: "Büro" },
+      { value: "COWORKING", label: "Coworking" },
+      { value: "CALL_CENTER", label: "Call Center" },
+      { value: "TOPLANTI_SALONU", label: "Toplantı Salonu" },
+      { value: "MUAYENEHANE", label: "Muayenehane" },
+      { value: "AVUKATLIK_BÜROSU", label: "Avukatlık Bürosu" },
+      { value: "MUHASEBE_OFISI", label: "Muhasebe Ofisi" },
+    ];
+    return subtypeOptions.find(s => s.value === value)?.label || value;
+  };
 
   return (
     <Box sx={{
@@ -180,7 +194,7 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          Arsa Özellikleri
+           {getSubtypeLabel(subtype)} Özellikleri
         </Typography>
 
         <Box>
@@ -211,13 +225,13 @@ const PropertyInfoPanel = ({ listingType, title, price, city, district, neighbor
   );
 };
 
-export default function ListingDetailLand({
+export default function ListingDetailOffice({
   listing, 
   isPinned, 
   onPinToggle,
   isFavorited,
   onFavoriteToggle
-}: ListingDetailLandProps) {
+}: ListingDetailOfficeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
@@ -240,13 +254,14 @@ export default function ListingDetailLand({
         </Grid>
         <Grid item xs={12} md={4}>
           <PropertyInfoPanel
+            createdAt={listing.createdAt}
             listingType={listing.listingType}
+            subtype={listing.subtype}
             title={listing.title}
             price={listing.price}
             city={listing.city}
             district={listing.district}
             neighborhood={listing.neighborhood}
-            createdAt={listing.createdAt}
             details={listing.details}
           />
         </Grid>
@@ -261,7 +276,7 @@ export default function ListingDetailLand({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={LAND_FEATURE_CATEGORIES}
+        featureCategories={OFFICE_FEATURE_CATEGORIES}
       />
     </>
   );

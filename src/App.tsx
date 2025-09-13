@@ -6,7 +6,9 @@ import Register from './main/user-service/register.tsx';
 import TopPanel from './main/top-panel.tsx';
 import { Box } from '@mui/material';
 import Login from './main/user-service/login.tsx';
-import ListingDetails from './main/listing-details.tsx';
+import ListingDetails from './main/listing-details/listing-details.tsx';
+import Favorites from './main/favorites.tsx'; // Yeni import
+import UserListings from './main/user-listings.tsx';
 
 function App() {
   return (
@@ -19,11 +21,13 @@ function App() {
           <TopPanel/>
         </Box>
       <Routes>
-        <Route path="/*" element={<Main />} />
+        <Route path="/" element={<Main />} />
         <Route path="/ilan/:id" element={<ListingDetails />} />
         <Route path="/ilan-ver" element={<Advert />} />
         <Route path="/giris-yap" element={<Login />} />
         <Route path="/kayit-ol" element={<Register />} />
+        <Route path="/favorilerim" element={<Favorites />} />
+        <Route path='/ilanlarim' element={<UserListings/>} />
       </Routes>
     </Router>
   );

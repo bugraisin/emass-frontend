@@ -287,7 +287,7 @@ export default function Advert() {
             position: 'relative',
         }}>
             <Box sx={{
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                backgroundColor: 'rgba(30, 41, 59, 0.1)',
                 borderRadius: '12px',
                 border: '1px solid #d3d3d3',
                 alignItems: 'center',

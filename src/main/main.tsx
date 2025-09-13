@@ -26,6 +26,7 @@ export default function Main() {
     useEffect(() => {
         const loadAllListings = async () => {
             try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 const listings = await ListingService.getAllListings();
                 setSearchResults(listings);
             } catch (error) {
@@ -91,7 +92,7 @@ export default function Main() {
                     <Box
                         flex="1"
                         sx={{
-                            background: 'rgba(148, 163, 184, 0.5)',
+                            background: 'rgba(30, 41, 59, 0.2)',
                         }}
                     >
                         <MainPanel 

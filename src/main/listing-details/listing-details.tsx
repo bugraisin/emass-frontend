@@ -2,19 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Alert, IconButton } from '@mui/material';
+import { Box, Typography, Alert, IconButton } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import PinnedPanel from './pinned-panel.tsx';
-import ListingDetailHouse from './listing-details/listing-detail-house.tsx';
-import ListingDetailCommercial from './listing-details/listing-detail-commercial.tsx';
-import ListingDetailIndustrial from './listing-details/listing-detail-industrial.tsx';
-import ListingDetailOffice from './listing-details/listing-detail-office.tsx';
-import ListingDetailLand from './listing-details/listing-detail-land.tsx';
-import ListingDetailService from './listing-details/listing-detail-service.tsx';
-import { PinnedListingService } from './services/PinnedListing.ts';
-import { ListingService } from './services/ListingService.ts';
-import { FavoritesService } from './services/FavoritesService.ts';
-
+import PinnedPanel from '../pinned-panel.tsx';
+import ListingDetailHouse from './details/listing-detail-house.tsx';
+import ListingDetailCommercial from './details/listing-detail-commercial.tsx';
+import ListingDetailIndustrial from './details/listing-detail-industrial.tsx';
+import ListingDetailOffice from './details/listing-detail-office.tsx';
+import ListingDetailLand from './details/listing-detail-land.tsx';
+import ListingDetailService from './details/listing-detail-service.tsx';
+import ListingDetailsSkeleton from './ListingDetailsSkeleton.tsx'; // Yeni skeleton component'i
+import { PinnedListingService } from '../services/PinnedListing.ts';
+import { ListingService } from '../services/ListingService.ts';
+import { FavoritesService } from '../services/FavoritesService.ts';
 
 interface ListingData {
   id: string;
@@ -53,7 +53,15 @@ export default function ListingDetails() {
         return;
       }
 
+      // Her yeni ilan için loading state'ini başlat
+      setLoading(true);
+      setError(null);
+      setListing(null);
+
       try {
+        // Skeleton efektini görmek için 1 saniye gecikme
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const listingData = await ListingService.getListingById(id);
         setListing(listingData);
       } catch (error: any) {
@@ -142,7 +150,6 @@ export default function ListingDetails() {
       onFavoriteToggle: handleFavoriteToggle
     };
 
-
     switch (listing.propertyType) {
       case 'KONUT':
         return <ListingDetailHouse {...commonProps} />;
@@ -171,9 +178,37 @@ export default function ListingDetails() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh" flexDirection="column" gap={2}>
-        <CircularProgress size={40} />
-        <Typography color="textSecondary">İlan yükleniyor...</Typography>
+      <Box display="flex" justifyContent="center" alignItems="flex-start">
+        <Box display="flex" flexDirection="column" width="100%" maxWidth="1440px" 
+             sx={{ border: '1px solid rgba(148, 163, 184, 0.5)' }}>
+          <Box display="flex" flex="1" sx={{ minHeight: 'calc(100vh - 40px)' }}>
+            
+            <Box flex="1" sx={{ 
+              background: 'rgba(148, 163, 184, 0.1)', 
+              overflow: "auto", 
+              display: "flex", 
+              justifyContent: "center" 
+            }}>
+              <Box sx={{ 
+                width: "100%", 
+                maxWidth: "1200px", 
+                fontFamily: "sans-serif", 
+                p: 1, 
+                backgroundColor: 'white', 
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)" 
+              }}>
+                <ListingDetailsSkeleton />
+              </Box>
+            </Box>
+
+            <Box width="20%">
+              <PinnedPanel 
+                pinnedListings={pinnedListings}
+                onUnpinListing={handleUnpinListing}
+              />
+            </Box>
+          </Box>
+        </Box>
       </Box>
     );
   }

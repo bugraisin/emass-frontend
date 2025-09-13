@@ -1,11 +1,11 @@
-// listing-details/listing-detail-industrial.tsx
+// listing-details/listing-detail-land.tsx
 import React, { useState } from "react";
 import { Box, Typography, Grid, Divider } from "@mui/material";
-import PhotoGallery from './shared/PhotoGallery.tsx';
-import HeaderWithActions from './shared/HeaderWithActions.tsx';
-import DescriptionBox from './shared/DescriptionBox.tsx';
-import TabbedPanel from './shared/TabbedPanel.tsx';
-import { formatPrice } from './shared/utils.ts';
+import PhotoGallery from '../shared/PhotoGallery.tsx';
+import HeaderWithActions from '../shared/HeaderWithActions.tsx';
+import DescriptionBox from '../shared/DescriptionBox.tsx';
+import TabbedPanel from '../shared/TabbedPanel.tsx';
+import { formatPrice } from '../shared/utils.ts';
 
 interface Photo {
   id: string;
@@ -31,7 +31,7 @@ interface ListingData {
   createdAt: string;
 }
 
-interface ListingDetailIndustrialProps {
+interface ListingDetailLandProps {
   listing: ListingData;
   isPinned: boolean;
   onPinToggle: () => void;
@@ -39,7 +39,7 @@ interface ListingDetailIndustrialProps {
   onFavoriteToggle: () => void;
 }
 
-const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
+const getImportantDetailsForLand = (details: any, createdAt: string) => {
   const safeDetails = details || {};
 
   const formatDate = (dateString: string) => {
@@ -54,92 +54,102 @@ const getImportantDetailsForIndustrial = (details: any, createdAt: string) => {
       return 'Belirtilmemiş';
     }
   };
+
+  const getZoningStatus = (value: string) => {
+    const zoningOptions = [
+      { value: "IMARLI", label: "İmarlı" },
+      { value: "IMARSIZ", label: "İmarsız" },
+      { value: "TARLA", label: "Tarla" },
+      { value: "BAHCE", label: "Bahçe" },
+      { value: "KONUT_IMARLI", label: "Konut İmarlı" },
+      { value: "TICARI_IMARLI", label: "Ticari İmarlı" },
+      { value: "SANAYI_IMARLI", label: "Sanayi İmarlı" },
+      { value: "DIGER", label: "Diğer" }
+    ];
+    return zoningOptions.find(s => s.value === value)?.label || value;
+  };
+
+  const getTitleLandDeedStatus = (value: string) => {
+    const zoningOptions = [
+      { value: "ARSA_PAYI", label: "Arsa Payı" },
+      { value: "MUSTAKIL_TAPULU", label: "Müstakil Tapulu" },
+      { value: "HISSELI_TAPULU", label: "Hisseli Tapulu" },
+      { value: "TARLA_TAPULU", label: "Tarla Tapulu" }
+    ];
+    return zoningOptions.find(s => s.value === value)?.label || value;
+  };
   
   return {
     "İlan Tarihi": formatDate(createdAt),
     "Net Alan (m²)": safeDetails.netArea || 'Belirtilmemiş',
-    "Tavan Yüksekliği (m)": safeDetails.ceilingHeight || 'Belirtilmemiş',
-    "Bina Yaşı": safeDetails.buildingAge || 'Belirtilmemiş',
-    "Bölüm Sayısı": safeDetails.roomCount || "Belirtilmemiş",
-    "Kat Sayısı": safeDetails.floorCount || "Belirtilmemiş",
-    "Üç Fazlı Elektrik": safeDetails.threephaseElectricity ? 'Var' : 'Yok',
-    "Doğalgaz Hattı": safeDetails.naturalGasLine ? 'Var' : 'Yok',
-    "Havalandırma Sistemi": safeDetails.ventilationSystem ? 'Var' : 'Yok',
-    "Yangın Sistemi": safeDetails.fireExtinguishingSystem ? 'Var' : 'Yok',
-    "Alarm Sistemi": safeDetails.alarmSystem ? "Var" : "Yok",
-    "Güvenlik": safeDetails.security ? 'Var' : 'Yok',
+    "İmar Durumu": safeDetails.zoningStatus ? getZoningStatus(safeDetails.zoningStatus) : 'Belirtilmemiş',
+    "Tapu Durumu": safeDetails.titleDeedStatus ? getTitleLandDeedStatus(safeDetails.titleLandDeedStatus) : 'Belirtilmemiş',
+    "Ada No": safeDetails.adaNo || "Belirtilmemiş",
+    "Parsel No": safeDetails.parcelNo || "Belirtilmemiş",
+    "Pafta No": safeDetails.paftaNo || "Belirtilmemiş",
+    "KAKS": safeDetails.kaks || "Belirtilmemiş",
+    "Gabari (m)": safeDetails.gabari || "Belirtilmemiş",
+    "Yol Erişimi": safeDetails.roadAccess ? "Var" : "Yok",
+    "Elektrik": safeDetails.electricity ? "Var" : "Yok",
+    "Su": safeDetails.water ? "Var" : "Yok",
+    "Doğalgaz": safeDetails.naturalGas ? "Var" : "Yok",
   };
 };
 
-const INDUSTRIAL_FEATURE_CATEGORIES = [
+const LAND_FEATURE_CATEGORIES = [
   {
-    title: 'Altyapı & Enerji',
+    title: 'Altyapı',
     features: [
-      { key: 'threephaseElectricity', label: 'Üç Fazlı Elektrik' },
-      { key: 'naturalGasLine', label: 'Doğalgaz Hattı' },
-      { key: 'steamLine', label: 'Buhar Hattı' },
-      { key: 'waterSystem', label: 'Su Sistemi' },
-      { key: 'wasteWaterSystem', label: 'Atık Su Sistemi' },
+      { key: 'electricity', label: 'Elektrik' },
+      { key: 'water', label: 'Su' },
+      { key: 'naturalGas', label: 'Doğalgaz' },
+      { key: 'sewerage', label: 'Kanalizasyon' },
+      { key: 'roadAccess', label: 'Yol Erişimi' },
     ]
   },
   {
-    title: 'Üretim & İmalat',
+    title: 'Konum & Manzara',
     features: [
-      { key: 'craneSystem', label: 'Vinç Sistemi' },
-      { key: 'ventilationSystem', label: 'Havalandırma Sistemi' },
-      { key: 'airConditioning', label: 'Klima Sistemi' },
-      { key: 'wideOpenArea', label: 'Geniş Açık Alan' },
-      { key: 'machineMountingSuitable', label: 'Makine Montajı Uygun' },
+      { key: 'cornerLot', label: 'Köşe Parsel' },
+      { key: 'seaView', label: 'Deniz Manzarası' },
+      { key: 'cityView', label: 'Şehir Manzarası' },
+      { key: 'forestView', label: 'Orman Manzarası' },
+      { key: 'mountainView', label: 'Dağ Manzarası' },
     ]
   },
   {
-    title: 'Depolama & Lojistik',
+    title: 'Arazi Özellikler',
     features: [
-      { key: 'loadingRamp', label: 'Yükleme Rampası' },
-      { key: 'truckEntrance', label: 'TIR Girişi' },
-      { key: 'forkliftTraffic', label: 'Forklift Trafiği' },
-      { key: 'rackingSystem', label: 'Raf Sistemi' },
-      { key: 'coldStorage', label: 'Soğuk Depolama' },
+      { key: 'flat', label: 'Düz Arazi' },
+      { key: 'slope', label: 'Eğimli Arazi' },
+      { key: 'fenced', label: 'Çevrili/Çitli' },
+      { key: 'agricultural', label: 'Tarımsal Faaliyet' },
+      { key: 'buildingPermit', label: 'Yapı İzni Var' },
     ]
   },
   {
-    title: 'Güvenlik & Sistem',
+    title: 'Tarım & Bahçe',
     features: [
-      { key: 'fireExtinguishingSystem', label: 'Yangın Söndürme Sistemi' },
-      { key: 'securityCameras', label: 'Güvenlik Kameraları' },
-      { key: 'alarmSystem', label: 'Alarm Sistemi' },
-      { key: 'fencedArea', label: 'Çitli/Bariyerli Alan' },
-      { key: 'security', label: 'Güvenlik' },
+      { key: 'vineyard', label: 'Bağ/Üzüm' },
+      { key: 'orchard', label: 'Meyve Bahçesi' },
+      { key: 'oliveTrees', label: 'Zeytin Ağaçları' },
+      { key: 'greenhouse', label: 'Sera' },
+      { key: 'well', label: 'Su Kuyusu' },
     ]
   }
 ];
 
-const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, district, neighborhood, details }: {
-  createdAt: string;
+const PropertyInfoPanel = ({ listingType, title, price, city, district, neighborhood, createdAt, details }: {
   listingType: string;
-  subtype: string;
   title: string;
   price: string;
   city: string;
   district: string;
   neighborhood: string;
+  createdAt: string;
   details: any;
 }) => {
-  const importantDetails = getImportantDetailsForIndustrial(details, createdAt);
-
-  const getSubtypeLabel = (value: string) => {
-    const subtypeOptions = [
-      { value: "FABRIKA", label: "Fabrika" },
-      { value: "ATOLYE", label: "Atölye" },
-      { value: "IMALATHANE", label: "İmalathane" },
-      { value: "DEPO", label: "Depo" },
-      { value: "SOGUK_HAVA_DEPOSU", label: "Soğuk Hava Deposu" },
-      { value: "ANTREPO", label: "Antrepo" },
-      { value: "LABORATUVAR", label: "Laboratuvar" },
-      { value: "URETIM_TESISI", label: "Üretim Tesisi" }
-    ];
-    return subtypeOptions.find(s => s.value === value)?.label || value;
-  };
+  const importantDetails = getImportantDetailsForLand(details, createdAt);
 
   return (
     <Box sx={{
@@ -170,7 +180,7 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
 
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: "#334155", fontSize: '13px' }}>
-          {getSubtypeLabel(subtype)} Özellikleri
+          Arsa Özellikleri
         </Typography>
 
         <Box>
@@ -201,13 +211,13 @@ const PropertyInfoPanel = ({ createdAt, listingType, subtype, price, city, distr
   );
 };
 
-export default function ListingDetailIndustrial({
+export default function ListingDetailLand({
   listing, 
   isPinned, 
   onPinToggle,
   isFavorited,
   onFavoriteToggle
-}: ListingDetailIndustrialProps) {
+}: ListingDetailLandProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
@@ -230,14 +240,13 @@ export default function ListingDetailIndustrial({
         </Grid>
         <Grid item xs={12} md={4}>
           <PropertyInfoPanel
-            createdAt={listing.createdAt}
             listingType={listing.listingType}
-            subtype={listing.subtype}
             title={listing.title}
             price={listing.price}
             city={listing.city}
             district={listing.district}
             neighborhood={listing.neighborhood}
+            createdAt={listing.createdAt}
             details={listing.details}
           />
         </Grid>
@@ -252,7 +261,7 @@ export default function ListingDetailIndustrial({
         city={listing.city}
         district={listing.district}
         neighborhood={listing.neighborhood}
-        featureCategories={INDUSTRIAL_FEATURE_CATEGORIES}
+        featureCategories={LAND_FEATURE_CATEGORIES}
       />
     </>
   );

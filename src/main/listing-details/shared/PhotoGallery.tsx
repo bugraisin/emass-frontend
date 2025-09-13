@@ -480,7 +480,7 @@ export default function PhotoGallery({ photos, currentIndex, setCurrentIndex }: 
             <img
               src={currentPhoto.url}
               alt={`Fotoğraf ${safeCurrentIndex + 1}`}
-              key={`modal-${currentPhoto.id}`} // Modal için ayrı key
+              key={`modal-${currentPhoto.id}`} 
               style={{
                 maxWidth: '100%',
                 maxHeight: '100%',

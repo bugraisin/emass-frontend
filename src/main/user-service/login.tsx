@@ -1,6 +1,6 @@
-import { Box, Button, IconButton, InputAdornment, TextField, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import { Box, Button, IconButton, InputAdornment, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff, ErrorOutline, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -10,32 +10,57 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [stayLoggedIn, setStayLoggedIn] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleClickShowPassword = () => {
         setShowPassword((prev) => !prev);
     };
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            setError('E-posta ve şifre alanları zorunludur');
+            return;
+        }
+
         const loginData = {
             email: email,
             password: password,
         };
-    
+
+        setLoading(true);
+        setError('');
+
         try {
             const response = await axios.post('http://localhost:8080/api/auth/login', loginData);
             
-            // Başarılı giriş sonrası kullanıcı bilgilerini localStorage'a kaydet
+            const { token, user } = response.data;
+
+            localStorage.setItem('authToken', token);
+
             const userData = {
-                email: email,
-                name: response.data.name || email.split('@')[0],
+                id: user.userId,
+                email: user.email,
+                username: user.username,
                 isLoggedIn: true
             };
             
             localStorage.setItem('user', JSON.stringify(userData));
             navigate('/');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Giriş işlemi sırasında bir hata oluştu:', error);
+            
+            if (error.response?.data?.message) {
+                setError(error.response.data.message);
+            } else if (error.response?.status === 401) {
+                setError('E-posta veya şifre yanlış');
+            } else if (error.response?.status === 500) {
+                setError('Sunucu hatası. Lütfen daha sonra tekrar deneyin');
+            } else {
+                setError('Bağlantı hatası. İnternet bağlantınızı kontrol edin');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -47,50 +72,79 @@ export default function Login() {
                 alignItems: 'flex-start',
                 height: '92vh',
                 backgroundColor: '#e8e8e8',
-                padding: 2,
-                paddingTop: '10vh',
-                overflow: 'hidden',
             }}
         >
             <Box
                 sx={{
                     backgroundColor: 'white',
-                    borderRadius: 3,
-                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+                    borderRadius: 2,
+                    marginTop: "8vh",
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
                     width: '100%',
-                    maxWidth: '380px',
-                    padding: 3,
-                    border: '1px solid rgba(0, 0, 0, 0.12)',
-                    maxHeight: '85vh',
-                    overflow: 'auto',
+                    maxWidth: '500px',
+                    padding: 5,
+                    border: '1px solid rgba(0, 0, 0, 0.08)',
                 }}    
             >
                 <Typography
                     variant="h4"
                     sx={{
                         fontWeight: 600,
-                        marginBottom: 1,
+                        marginBottom: 2,
                         color: '#1a1a1a',
                         textAlign: 'center',
-                        fontSize: '28px',
+                        fontSize: '32px',
                     }}
                 >
                     Giriş Yap
                 </Typography>
                 
                 <Typography
-                    variant="body2"
+                    variant="body1"
                     sx={{
                         color: '#666',
                         textAlign: 'center',
-                        marginBottom: 3,
-                        fontSize: '14px',
+                        marginBottom: 4,
+                        fontSize: '16px',
                     }}
                 >
                     Hesabınıza giriş yaparak emlak ilanlarına erişin
                 </Typography>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {/* Hata Mesajı */}
+                    {error && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                padding: '16px',
+                                backgroundColor: '#fef2f2',
+                                border: '1px solid #fecaca',
+                                borderRadius: 1,
+                            }}
+                        >
+                            <ErrorOutline sx={{ color: '#dc2626', fontSize: 20 }} />
+                            <Typography
+                                sx={{
+                                    color: '#dc2626',
+                                    fontSize: '14px',
+                                    flex: 1
+                                }}
+                            >
+                                {error}
+                            </Typography>
+                            <IconButton
+                                size="small"
+                                onClick={() => setError('')}
+                                sx={{ color: '#dc2626' }}
+                            >
+                                <Close sx={{ fontSize: 18 }} />
+                            </IconButton>
+                        </Box>
+                    )}
+
                     <TextField  
                         label="E-posta"
                         type="email"
@@ -98,15 +152,16 @@ export default function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         fullWidth
-                        size="medium"
+                        disabled={loading}
                         sx={{
                             '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                fontSize: '14px',
+                                borderRadius: 1,
+                                fontSize: '16px',
+                                height: '56px'
                             },
                             '& .MuiInputLabel-root': {
-                                fontSize: '14px',
-                            },
+                                fontSize: '16px',
+                            }
                         }}
                     />
 
@@ -117,15 +172,16 @@ export default function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         fullWidth
-                        size="medium"
+                        disabled={loading}
                         sx={{
                             '& .MuiOutlinedInput-root': {
-                                borderRadius: 2,
-                                fontSize: '14px',
+                                borderRadius: 1,
+                                fontSize: '16px',
+                                height: '56px'
                             },
                             '& .MuiInputLabel-root': {
-                                fontSize: '14px',
-                            },
+                                fontSize: '16px',
+                            }
                         }}
                         InputProps={{
                             endAdornment: (
@@ -133,100 +189,64 @@ export default function Login() {
                                     <IconButton
                                         onClick={handleClickShowPassword}
                                         edge="end"
-                                        size="small"
+                                        disabled={loading}
+                                        sx={{ color: '#666' }}
                                     >
-                                        {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             ),
                         }}
                     />
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 1 }}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={stayLoggedIn}
-                                    onChange={(e) => setStayLoggedIn(e.target.checked)}
-                                    sx={{
-                                        color: '#ed9517',
-                                        '& .MuiSvgIcon-root': { fontSize: 18 }
-                                    }}
-                                />
-                            }
-                            label={
-                                <Typography sx={{ fontSize: '13px', color: '#666' }}>Oturumum Açık Kalsın</Typography>
-                            }
-                        />
-
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                color: '#ed9517',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                '&:hover': {
-                                    textDecoration: 'underline',
-                                },
-                                transition: 'all 0.2s ease-in-out',
-                            }}
-                            onClick={() => navigate('/sifremi-unuttum')}
-                        >
-                            Şifremi Unuttum
-                        </Typography>
-                    </Box>
-
                     <Button
                         variant="contained"
                         onClick={handleLogin}
                         fullWidth
                         size="large"
+                        disabled={loading}
                         sx={{
                             backgroundColor: '#ed9517',
                             color: 'white',
-                            '&:hover': { 
-                                backgroundColor: '#d68415',
-                                transform: 'translateY(-1px)',
-                                boxShadow: '0 4px 12px rgba(237, 149, 23, 0.3)',
-                            },
-                            marginTop: 1,
-                            padding: '12px',
-                            borderRadius: 2,
-                            textTransform: 'none',
+                            height: '56px',
                             fontSize: '16px',
                             fontWeight: 600,
-                            transition: 'all 0.2s ease-in-out',
+                            borderRadius: 1,
+                            textTransform: 'none',
+                            '&:hover': { 
+                                backgroundColor: '#d68415',
+                            },
+                            '&:disabled': {
+                                backgroundColor: '#e0e0e0',
+                                color: '#999'
+                            }
                         }}
                     >
-                        Giriş Yap
+                        {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
                     </Button>
 
                     <Typography
-                        variant="body2"
+                        variant="body1"
                         sx={{
                             textAlign: 'center',
-                            marginTop: 2,
-                            fontSize: '14px',
+                            fontSize: '16px',
                             color: '#666',
+                            marginTop: 1
                         }}
                     >
-                        Henüz üye değil misiniz?{" "}
+                        Henüz hesabınız yok mu?{" "}
                         <Typography
-                            variant="body2"
+                            variant="body1"
                             component="span"
-                            onClick={() => navigate('/kayit-ol')}
+                            onClick={() => !loading && navigate('/kayit-ol')}
                             sx={{
                                 color: '#ed9517',
-                                cursor: 'pointer',
-                                fontWeight: 500,
-                                '&:hover': {
-                                    textDecoration: 'underline',
-                                },
-                                transition: 'all 0.2s ease-in-out',
+                                cursor: loading ? 'default' : 'pointer',
+                                fontWeight: 600,
+                                textDecoration: 'underline'
                             }}
                         >
-                            Hesap oluştur
+                            Kayıt ol
                         </Typography>
                     </Typography>
                 </Box>

@@ -9,7 +9,7 @@ export default function Register() {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
     const handleClickShowPassword = () => {
@@ -20,7 +20,7 @@ export default function Register() {
         const userData = {
             email: email,
             password: password,
-            name: name,
+            username: username,
         };
 
         try {
@@ -86,8 +86,8 @@ export default function Register() {
                     <TextField
                         label="Ad - Soyad"
                         variant="outlined"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         fullWidth
                         size="medium"
                         sx={{

@@ -1,4 +1,4 @@
-// pinned-panel.tsx - Service'ler ile güncellenmiş hali
+// pinned-panel.tsx - Beğeniler sekmesi kaldırılmış hali
 
 import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, CardMedia, Typography, IconButton, Button } from '@mui/material';
@@ -6,11 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageIcon from '@mui/icons-material/Image';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import HistoryIcon from '@mui/icons-material/History';
 import { PinnedListingService } from './services/PinnedListing.ts';
 import { RecentListingsService, RecentListingItem } from './services/RecentListingsService.ts';
-import { FavoritesService, FavoriteListingItem } from './services/FavoritesService.ts';
 
 interface PinnedPanelProps {
     pinnedListings: any[];
@@ -24,25 +22,14 @@ export const addToRecentListings = (listing: any) => {
 
 export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPanelProps) {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'pinned' | 'liked' | 'recent'>('pinned');
+    const [activeTab, setActiveTab] = useState<'pinned' | 'recent'>('pinned');
     const [recentListings, setRecentListings] = useState<RecentListingItem[]>([]);
-    const [likedListings, setLikedListings] = useState<FavoriteListingItem[]>([]);
-    const [currentUserId] = useState<number>(1);
     
-    // İlk yükleme - tüm verileri al
+    // İlk yükleme - recent listings'leri al
     useEffect(() => {
-        const loadInitialData = async () => {
-            // Recent listings'leri yükle
-            const recentData = RecentListingsService.getRecentListings();
-            setRecentListings(recentData);
-            
-            // Favori listings'leri yükle
-            const favoriteData = await FavoritesService.getFavoriteListings(currentUserId);
-            setLikedListings(favoriteData);
-        };
-        
-        loadInitialData();
-    }, [currentUserId]);
+        const recentData = RecentListingsService.getRecentListings();
+        setRecentListings(recentData);
+    }, []);
 
     // Recent listings değişikliklerini dinle
     useEffect(() => {
@@ -52,37 +39,14 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
 
         return cleanup;
     }, []);
-
-    // Favorite listings değişikliklerini dinle
-    useEffect(() => {
-        const handleFavoriteChange = async () => {
-            const favoriteData = await FavoritesService.getFavoriteListings(currentUserId);
-            setLikedListings(favoriteData);
-        };
-
-        window.addEventListener('favoritesChanged', handleFavoriteChange);
-        
-        return () => {
-            window.removeEventListener('favoritesChanged', handleFavoriteChange);
-        };
-    }, [currentUserId]);
     
     const getCurrentListings = () => {
-        switch (activeTab) {
-            case 'pinned':
-                return pinnedListings;
-            case 'liked':
-                return likedListings;
-            case 'recent':
-                return recentListings;
-            default:
-                return pinnedListings;
-        }
+        return activeTab === 'pinned' ? pinnedListings : recentListings;
     };
 
     const currentListings = getCurrentListings();
     
-    if (pinnedListings.length === 0 && likedListings.length === 0 && recentListings.length === 0) {
+    if (pinnedListings.length === 0 && recentListings.length === 0) {
         return null;
     }
 
@@ -103,22 +67,15 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
     const handleRemoveFromRecent = (e: React.MouseEvent, listingId: string) => {
         e.stopPropagation();
         RecentListingsService.removeFromRecentListings(listingId);
-        // State otomatik güncellenecek subscribe sayesinde
     };
 
-    const getTabInfo = (tab: 'pinned' | 'liked' | 'recent') => {
+    const getTabInfo = (tab: 'pinned' | 'recent') => {
         switch (tab) {
             case 'pinned':
                 return { 
                     label: 'Sabitlendi', 
                     icon: <PushPinIcon sx={{ fontSize: 14 }} />, 
                     count: pinnedListings.length 
-                };
-            case 'liked':
-                return { 
-                    label: 'Beğeniler', 
-                    icon: <FavoriteIcon sx={{ fontSize: 14 }} />, 
-                    count: likedListings.length
                 };
             case 'recent':
                 return { 
@@ -135,7 +92,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                 width: '100%',
                 background: 'rgba(148, 163, 184, 0.1)',
                 border: '1px solid rgba(148, 163, 184, 0.3)',                
-                padding: '4px',
+                padding: '2px',
                 maxHeight: '100%',
                 overflowY: 'auto',
             }}
@@ -144,50 +101,54 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
             <Box sx={{ 
                 display: 'flex', 
                 marginBottom: '8px',
-                borderRadius: '6px',
-                background: 'rgba(255,255,255,0.7)',
-                padding: '2px'
+                borderRadius: '4px',
+                background: 'rgba(255,255,255,0.9)',
             }}>
-                {(['pinned', 'liked', 'recent'] as const).map((tab) => {
+                {(['pinned', 'recent'] as const).map((tab) => {
                     const tabInfo = getTabInfo(tab);
                     const isActive = activeTab === tab;
-                    const hasContent = tab === 'pinned' ? pinnedListings.length > 0 : 
-                                     tab === 'liked' ? likedListings.length > 0 : 
-                                     recentListings.length > 0;
                     
-                    return (
-                        <Button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            sx={{
-                                flex: 1,
-                                fontSize: '9px', 
-                                fontWeight: 600,
-                                color: isActive ? '#ed9517' : '#64748b',
-                                backgroundColor: isActive ? 'rgba(237, 149, 23, 0.1)' : 'transparent',
-                                borderRadius: '4px',
-                                padding: '8px 2px',
-                                minWidth: 0,
-                                textTransform: 'none',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '3px',
-                                '&:hover': {
-                                    backgroundColor: isActive ? 'rgba(237, 149, 23, 0.15)' : 'rgba(100, 116, 139, 0.1)',
-                                },
-                                opacity: hasContent ? 1 : 0.5
-                            }}
-                        >
-                            {tabInfo.icon}
-                            <Box sx={{ fontSize: '9px', lineHeight: 1, textAlign: 'center' }}>
-                                {tabInfo.label}
-                            </Box>
-                            <Box sx={{ fontSize: '8px', lineHeight: 1, color: isActive ? '#ed9517' : '#9ca3af' }}>
-                                ({tabInfo.count})
-                            </Box>
-                        </Button>
-                    );
+                return (
+                <Button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        sx={{
+                        flex: 1,
+                        fontSize: '10px',
+                        fontWeight: 500,
+                        color: isActive ? '#1e293b' : '#64748b',
+                        backgroundColor: isActive ? 'rgba(30, 41, 59, 0.2)' : 'transparent',
+                        padding: '6px 8px',
+                        minWidth: 0,
+                        textTransform: 'none',
+                        boxShadow: 'none',
+                        border: 'none',
+                    }}
+                >
+                    <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        fontSize: '10px',
+                    }}
+                    >
+                    <Box
+                        sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: '10px',
+                        }}
+                    >
+                        {tabInfo.icon}
+                    </Box>
+                    {tabInfo.label}
+                    <Box>
+                        ({tabInfo.count})
+                    </Box>
+                    </Box>
+                </Button>
+                );
                 })}
             </Box>
             
@@ -205,7 +166,6 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                     {getTabInfo(activeTab).icon}
                     <Typography sx={{ fontSize: '11px', marginTop: '4px' }}>
                         {activeTab === 'pinned' && 'Henüz sabitlenmiş ilan yok'}
-                        {activeTab === 'liked' && 'Henüz beğenilen ilan yok'}
                         {activeTab === 'recent' && 'Henüz görüntülenen ilan yok'}
                     </Typography>
                 </Box>
@@ -225,31 +185,29 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             position: 'relative',
                             cursor: 'pointer',
                             "&:hover": {
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                              border: '1px solid #1e293b',
                             },
                         }}
                         onClick={() => handleCardClick(listing)}
                         >
                             {/* Close/Unpin butonu */}
-                            {(activeTab === 'pinned' || activeTab === 'recent') && (
-                                <IconButton
-                                    onClick={(e) => activeTab === 'pinned' ? handleUnpin(e, listing.id) : handleRemoveFromRecent(e, listing.id)}
-                                    sx={{
-                                        position: 'absolute',
-                                        top: '2px',
-                                        right: '2px',
-                                        width: '20px',
-                                        height: '20px',
-                                        zIndex: 10,
-                                        '&:hover': {
-                                            background: '#fee2e2',
-                                            color: '#dc2626',
-                                        }
-                                    }}
-                                >
-                                    <CloseIcon sx={{ fontSize: 12 }} />
-                                </IconButton>
-                            )}
+                            <IconButton
+                                onClick={(e) => activeTab === 'pinned' ? handleUnpin(e, listing.id) : handleRemoveFromRecent(e, listing.id)}
+                                sx={{
+                                    position: 'absolute',
+                                    top: '2px',
+                                    right: '2px',
+                                    width: '20px',
+                                    height: '20px',
+                                    zIndex: 10,
+                                    '&:hover': {
+                                        background: '#fee2e2',
+                                        color: '#dc2626',
+                                    }
+                                }}
+                            >
+                                <CloseIcon sx={{ fontSize: 12 }} />
+                            </IconButton>
                             
                             {/* Resim */}
                             {listing.thumbnailUrl || listing.imageUrl || listing.image ? (

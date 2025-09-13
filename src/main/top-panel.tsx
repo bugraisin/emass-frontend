@@ -1,33 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, InputAdornment, TextField, Menu, MenuItem, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Button, InputAdornment, TextField, Menu, MenuItem, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Badge } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, useLocation } from "react-router-dom";
 import PersonIcon from '@mui/icons-material/Person';
 import AddIcon from '@mui/icons-material/Add';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import MessageIcon from '@mui/icons-material/Message';
+import { getUserId, getCurrentUser, isUserLoggedIn } from "./util.ts";
 
 export default function TopPanel() {
     const navigate = useNavigate();
     const location = useLocation();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userName, setUserName] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+    const [messageCount, setMessageCount] = useState(2);
+    const [refreshKey, setRefreshKey] = useState(0);
+    
+    const currentUser = getCurrentUser();
+    const isLoggedIn = isUserLoggedIn();
+    const showSearchAndUser = true;
 
-    const isHomePage = location.pathname === "/";
-    const isSearchPage = location.pathname.startsWith("/search");
-    const showSearchAndUser = true; // Her sayfada göster
-
-    useEffect(() => {
-        const loggedInUser = localStorage.getItem('user');
-        if (loggedInUser) {
-            const user = JSON.parse(loggedInUser);
-            setIsLoggedIn(true);
-            setUserName(user.name || 'Kullanıcı');
-        }
-    }, []); // location dependency'sini kaldırdık
+    const forceRefresh = () => {
+        setRefreshKey(prev => prev + 1);
+    };
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -44,14 +42,26 @@ export default function TopPanel() {
 
     const confirmLogout = () => {
         localStorage.removeItem('user');
-        setIsLoggedIn(false);
-        setUserName('');
+        localStorage.removeItem('authToken');
         setLogoutDialogOpen(false);
+        forceRefresh();
         navigate('/');
     };
 
     const cancelLogout = () => {
         setLogoutDialogOpen(false);
+    };
+
+    const handleFavoritesClick = () => {
+        navigate('/favorilerim');
+    };
+
+    const handleMessagesClick = () => {
+        navigate('/mesajlarim');
+    };
+
+    const handleCreateListingClick = () => {
+        navigate('/ilan-ver');
     };
 
     return (
@@ -61,7 +71,6 @@ export default function TopPanel() {
             display="flex"
             sx={{
                 background: '#334155',
-                padding: '0 32px',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 16px rgba(0, 0, 0, 0.08)',
@@ -109,7 +118,6 @@ export default function TopPanel() {
                     <Box sx={{
                         flexGrow: 1,
                         maxWidth: '500px',
-                        position: 'relative'
                     }}>
                         <TextField
                             placeholder="Hangi emlakı arıyorsunuz?"
@@ -180,6 +188,7 @@ export default function TopPanel() {
                     flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
+                    gap: '8px',
                     marginRight: '20px'
                 }}>
                     {showSearchAndUser && (
@@ -238,32 +247,124 @@ export default function TopPanel() {
                                     </Typography>
                                 </Box>
                             ) : (
-                                <Typography
-                                    onClick={handleMenuOpen}
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        cursor: "pointer",
-                                        color: "rgba(255, 255, 255, 0.9)",
-                                        fontSize: "13px",
-                                        padding: "8px 12px",
-                                        borderRadius: "6px",
-                                        backgroundColor: "rgba(255, 255, 255, 0.1)",
-                                        border: "1px solid rgba(255, 255, 255, 0.2)",
-                                        height: "28px",
-                                        fontWeight: 500,
-                                        "&:hover": {
-                                            backgroundColor: "rgba(255, 255, 255, 0.15)",
-                                            border: "1px solid rgba(255, 255, 255, 0.3)",
-                                            color: "white",
-                                        },
-                                    }}
-                                >
-                                    <PersonIcon sx={{ fontSize: "16px" }} />
-                                    {userName}
-                                </Typography>
+                                <>
+                                    {/* Favorilerim */}
+                                    <Box
+                                        onClick={handleFavoritesClick}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            width: "32px",
+                                            height: "28px",
+                                            borderRadius: "6px",
+                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                                            "&:hover": {
+                                                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                                                border: "1px solid rgba(255, 255, 255, 0.3)",
+                                            },
+                                        }}
+                                    >
+                                        <FavoriteIcon sx={{ 
+                                            fontSize: "16px", 
+                                            color: "rgba(255, 255, 255, 0.9)" 
+                                        }} />
+                                    </Box>
+
+                                    {/* Mesajlarım */}
+                                    <Badge
+                                        badgeContent={messageCount}
+                                        color="error"
+                                        sx={{
+                                            '& .MuiBadge-badge': {
+                                                fontSize: '10px',
+                                                height: '16px',
+                                                minWidth: '16px',
+                                                backgroundColor: '#dc2626'
+                                            }
+                                        }}
+                                    >
+                                        <Box
+                                            onClick={handleMessagesClick}
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                cursor: "pointer",
+                                                width: "32px",
+                                                height: "28px",
+                                                borderRadius: "6px",
+                                                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                                border: "1px solid rgba(255, 255, 255, 0.2)",
+                                                "&:hover": {
+                                                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                                                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                                                },
+                                            }}
+                                        >
+                                            <MessageIcon sx={{ 
+                                                fontSize: "16px", 
+                                                color: "rgba(255, 255, 255, 0.9)" 
+                                            }} />
+                                        </Box>
+                                    </Badge>
+
+                                    {/* İlan Ver */}
+                                    <Box
+                                        onClick={handleCreateListingClick}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            width: "32px",
+                                            height: "28px",
+                                            borderRadius: "6px",
+                                            backgroundColor: "rgba(34, 197, 94, 0.15)",
+                                            border: "1px solid rgba(34, 197, 94, 0.3)",
+                                            "&:hover": {
+                                                backgroundColor: "rgba(34, 197, 94, 0.25)",
+                                                border: "1px solid rgba(34, 197, 94, 0.4)",
+                                            },
+                                        }}
+                                    >
+                                        <AddIcon sx={{ 
+                                            fontSize: "18px", 
+                                            color: "#22c55e" 
+                                        }} />
+                                    </Box>
+
+                                    {/* Kullanıcı Menüsü */}
+                                    <Typography
+                                        onClick={handleMenuOpen}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                            cursor: "pointer",
+                                            color: "rgba(255, 255, 255, 0.9)",
+                                            fontSize: "13px",
+                                            padding: "8px 12px",
+                                            borderRadius: "6px",
+                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                            border: "1px solid rgba(255, 255, 255, 0.2)",
+                                            height: "28px",
+                                            fontWeight: 500,
+                                            "&:hover": {
+                                                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                                                border: "1px solid rgba(255, 255, 255, 0.3)",
+                                                color: "white",
+                                            },
+                                        }}
+                                    >
+                                        <PersonIcon sx={{ fontSize: "16px" }} />
+                                        {currentUser?.username || currentUser?.email || 'Kullanıcı'}
+                                    </Typography>
+                                </>
                             )}
+
                             <Menu
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
@@ -306,47 +407,27 @@ export default function TopPanel() {
                                 }}
                             >
                                 <MenuItem
-                                    onClick={() => { handleMenuClose(); navigate('/hesabim'); }}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '6px 12px',
-                                        fontSize: '12px',
-                                        color: '#374151',
-                                        minHeight: 'auto',
-                                        transition: 'none !important',
-                                        '&:hover': {
-                                            backgroundColor: '#f9fafb',
-                                            textDecoration: 'underline',
-                                        },
-                                    }}
-                                >
-                                    <PersonIcon sx={{ fontSize: '14px', mr: 1 }} />
-                                    Hesabım
-                                </MenuItem>
-
-                                <MenuItem
-                                    onClick={() => { handleMenuClose(); navigate('/ilan-ver'); }}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '6px 12px',
-                                        fontSize: '12px',
-                                        color: '#374151',
-                                        minHeight: 'auto',
-                                        transition: 'none !important',
-                                        '&:hover': {
-                                            backgroundColor: '#f9fafb',
-                                            textDecoration: 'underline',
-                                        },
-                                    }}
-                                >
-                                    <AddIcon sx={{ fontSize: '14px', mr: 1 }} />
-                                    İlan Ver
-                                </MenuItem>
-
-                                <MenuItem
                                     onClick={() => { handleMenuClose(); navigate('/ilanlarim'); }}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        color: '#374151',
+                                        minHeight: 'auto',
+                                        transition: 'none !important',
+                                        '&:hover': {
+                                            backgroundColor: '#f9fafb',
+                                            textDecoration: 'underline',
+                                        },
+                                    }}
+                                >
+                                    <HomeIcon sx={{ fontSize: '14px', mr: 1 }} />
+                                    İlanlarım
+                                </MenuItem>
+
+                                <MenuItem
+                                    onClick={() => { handleMenuClose(); navigate('/hesabim'); }}
                                     sx={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -362,8 +443,8 @@ export default function TopPanel() {
                                         },
                                     }}
                                 >
-                                    <HomeIcon sx={{ fontSize: '14px', mr: 1 }} />
-                                    İlanlarım
+                                    <PersonIcon sx={{ fontSize: '14px', mr: 1 }} />
+                                    Hesabım
                                 </MenuItem>
 
                                 <MenuItem
