@@ -325,10 +325,27 @@ export default function Advert() {
             setLatitude(existingListing.latitude);
             setLongitude(existingListing.longitude);
             
-            // Property-specific details'i set et
             if (existingListing.details) {
-                const setter = getCurrentDetailsSetter();
-                setter(existingListing.details);
+                switch (existingListing.propertyType) {
+                    case 'KONUT':
+                        setHousingDetails(existingListing.details);
+                        break;
+                    case 'TICARI':
+                        setCommercialDetails(existingListing.details);
+                        break;
+                    case 'OFIS':
+                        setOfficeDetails(existingListing.details);
+                        break;
+                    case 'ENDUSTRIYEL':
+                        setIndustrialDetails(existingListing.details);
+                        break;
+                    case 'ARSA':
+                        setLandDetails(existingListing.details);
+                        break;
+                    case 'HIZMET':
+                        setServiceDetails(existingListing.details);
+                        break;
+                }
             }
             
         } catch (error) {

@@ -7,8 +7,11 @@ import TopPanel from './main/top-panel.tsx';
 import { Box } from '@mui/material';
 import Login from './main/user-service/login.tsx';
 import ListingDetails from './main/listing-details/listing-details.tsx';
-import Favorites from './main/favorites.tsx'; // Yeni import
+import Favorites from './main/favorites.tsx';
 import UserListings from './main/user-listings.tsx';
+import UserAccount from './main/user-details.tsx';
+import UserMessages from './main/messages/user-messages.tsx';
+import MessageDetails from './main/messages/message-details.tsx';
 
 function App() {
   return (
@@ -29,6 +32,9 @@ function App() {
         <Route path="/kayit-ol" element={<Register />} />
         <Route path="/favorilerim" element={<Favorites />} />
         <Route path='/ilanlarim' element={<UserListings/>} />
+        <Route path='/hesabim' element={<UserAccount/>} />
+        <Route path='/mesajlarim' element={<UserMessages/>} />
+        <Route path="/mesaj/:messageId" element={<MessageDetails />} />
       </Routes>
     </Router>
   );

@@ -80,13 +80,10 @@ export class FavoritesService {
     public static async getFavoriteCount(listingId: string): Promise<number> {
         try {
             // Public endpoint olduğu için normal fetch kullan
-            const response = await fetch(`${UserService['BASE_URL']}/favorites/count/${listingId}`);
-            
-            if (response.ok) {
-                return await response.json();
-            }
-            
-            return 0;
+            const axios = UserService.getAxiosInstance();
+            const response = await axios.get(`${UserService['BASE_URL']}/favorites/count/${listingId}`);
+
+            return response.data;
         } catch (error) {
             console.error("Favori sayısı alınırken hata", error);
             return 0;

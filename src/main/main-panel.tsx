@@ -194,11 +194,11 @@ export default function MainPanel({ searchResults = [], isLoading = false, pinne
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                                 overflow: 'hidden',
                                 height: '120px',
-                                transition: 'box-shadow 0.15s ease',
                                 position: 'relative',
                                 "&:hover": {
-                                    border: '1px solid #1e293b',
-                                },
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                                },  
+
                             }}
                             onClick={() => handleCardClick(property)}
                         >

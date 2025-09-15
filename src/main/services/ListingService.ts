@@ -58,7 +58,7 @@ export class ListingService {
       if (!response.ok) {
         throw new Error("İlanlar Yüklenemedi");
       }
-      
+
       return response.json();
     } catch (error) {
       console.error('Tüm ilanlar yüklenirken hata:', error);
@@ -66,7 +66,7 @@ export class ListingService {
     }
   }
 
-  
+
   public static async getUserListings(id: number): Promise<ListingData[]> {
     try {
       const axios = UserService.getAxiosInstance();
@@ -85,13 +85,13 @@ export class ListingService {
   public static async getListingById(id: string): Promise<ListingData> {
     try {
       const response = await fetch(`${this.BASE_URL}/listings/${id}`);
-      
+
       if (!response.ok) {
         throw new Error('İlan yüklenirken hata oluştu');
       }
-      
+
       const backendData = await response.json();
-      
+
       const mappedListing: ListingData = {
         id: backendData.id.toString(),
         listingType: backendData.listingType,
@@ -113,7 +113,7 @@ export class ListingService {
         longitude: backendData.longitude,
         createdAt: backendData.createdAt
       };
-      
+
       return mappedListing;
     } catch (error) {
       console.error('İlan detayları yüklenirken hata:', error);
@@ -127,11 +127,11 @@ export class ListingService {
     try {
       const queryParams = new URLSearchParams(searchParams);
       const response = await fetch(`${this.BASE_URL}/listings/search?${queryParams}`);
-      
+
       if (!response.ok) {
         throw new Error('Arama işlemi başarısız');
       }
-      
+
       return response.json();
     } catch (error) {
       console.error('İlan arama hatası:', error);
@@ -159,9 +159,9 @@ export class ListingService {
    */
   public static async uploadListingPhotos(listingId: string, photos: Photo[]): Promise<void> {
     const validPhotos = photos.filter(photo => {
-      return photo.file.size > 0 && 
-             photo.file.size <= 5 * 1024 * 1024 && 
-             photo.file.type.startsWith('image/');
+      return photo.file.size > 0 &&
+        photo.file.size <= 5 * 1024 * 1024 &&
+        photo.file.type.startsWith('image/');
     });
 
     if (validPhotos.length === 0) {
@@ -179,7 +179,7 @@ export class ListingService {
 
     try {
       const axios = UserService.getAxiosInstance();
-      await axios.post(`/listings/${listingId}/photos`, formData, {
+      await axios.post(`/photos/${listingId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -190,9 +190,9 @@ export class ListingService {
     }
   }
 
-    /**
-   * İlan silme (korumalı endpoint)
-   */
+  /**
+ * İlan silme (korumalı endpoint)
+ */
   public static async deleteListing(listingId: string): Promise<void> {
     try {
       const axios = UserService.getAxiosInstance();
@@ -200,6 +200,35 @@ export class ListingService {
     } catch (error: any) {
       console.error('İlan silme hatası:', error);
       const errorMessage = error.response?.data?.message || error.message || 'İlan silinemedi';
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+ * İlan durumunu güncelleme (yayınla/yayından kaldır)
+ */
+  public static async updateListingStatus(listingId: string, status: 'PUBLISHED' | 'NON_PUBLISHED'): Promise<void> {
+    try {
+      const axios = UserService.getAxiosInstance();
+      const endpoint = status === 'PUBLISHED' ? 'publish' : 'unpublish';
+      await axios.put(`/listings/${listingId}/${endpoint}`);
+    } catch (error: any) {
+      console.error('İlan durumu güncellenirken hata:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'İlan durumu güncellenemedi';
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * İlan durumunu toggle etme
+   */
+  public static async toggleListingStatus(listingId: string): Promise<void> {
+    try {
+      const axios = UserService.getAxiosInstance();
+      await axios.put(`/listings/${listingId}/toggle-status`);
+    } catch (error: any) {
+      console.error('İlan durumu değiştirilirken hata:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'İlan durumu değiştirilemedi';
       throw new Error(errorMessage);
     }
   }

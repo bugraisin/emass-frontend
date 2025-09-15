@@ -1,7 +1,7 @@
 // pinned-panel.tsx - Beğeniler sekmesi kaldırılmış hali
 
 import React, { useEffect, useState } from 'react';
-import { Box, Card, CardContent, CardMedia, Typography, IconButton, Button } from '@mui/material';
+import { Box, Card, CardContent, CardMedia, Typography, IconButton, Button, Tabs, Tab, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageIcon from '@mui/icons-material/Image';
@@ -26,7 +26,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
         return (localStorage.getItem('activeTab') as 'pinned' | 'recent') || 'pinned';
     });
     const [recentListings, setRecentListings] = useState<RecentListingItem[]>([]);
-    
+
     // İlk yükleme - recent listings'leri al
     useEffect(() => {
         const recentData = RecentListingsService.getRecentListings();
@@ -46,7 +46,7 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
         setActiveTab(tab);
         localStorage.setItem('activeTab', tab);
     };
-    
+
     const getCurrentListings = () => {
         return activeTab === 'pinned' ? pinnedListings : recentListings;
     };
@@ -75,16 +75,16 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
     const getTabInfo = (tab: 'pinned' | 'recent') => {
         switch (tab) {
             case 'pinned':
-                return { 
-                    label: 'Sabitlendi', 
-                    icon: <PushPinIcon sx={{ fontSize: 14 }} />, 
-                    count: pinnedListings.length 
+                return {
+                    label: 'Sabitlendi',
+                    icon: <PushPinIcon sx={{ fontSize: 14 }} />,
+                    count: pinnedListings.length
                 };
             case 'recent':
-                return { 
-                    label: 'Son Görüntülenen', 
-                    icon: <HistoryIcon sx={{ fontSize: 14 }} />, 
-                    count: recentListings.length 
+                return {
+                    label: 'Son Görüntülenen',
+                    icon: <HistoryIcon sx={{ fontSize: 14 }} />,
+                    count: recentListings.length
                 };
         }
     };
@@ -94,67 +94,61 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
             sx={{
                 width: '100%',
                 background: 'rgba(148, 163, 184, 0.1)',
-                border: '1px solid rgba(148, 163, 184, 0.3)',                
-                padding: '2px',
                 maxHeight: '100%',
                 overflowY: 'auto',
             }}
         >
             {/* Tab Butonları */}
-            <Box sx={{ 
-                display: 'flex', 
-                marginBottom: '8px',
-                borderRadius: '4px',
-                background: 'rgba(255,255,255,0.9)',
-            }}>
-                {(['pinned', 'recent'] as const).map((tab) => {
-                    const tabInfo = getTabInfo(tab);
-                    const isActive = activeTab === tab;
-                    
-                return (
-                <Button
-                        key={tab}
-                        onClick={() => handleTabChange(tab)}
-                        sx={{
-                        flex: 1,
-                        fontSize: '10px',
-                        fontWeight: 500,
-                        color: isActive ? '#1e293b' : '#64748b',
-                        backgroundColor: isActive ? 'rgba(30, 41, 59, 0.2)' : 'transparent',
-                        minWidth: 0,
-                        textTransform: 'none',
-                        boxShadow: 'none',
-                        border: 'none',
+            <Box
+                sx={{
+                    display: "flex",
+                    marginBottom: "2px",
+                    background: "rgba(255,255,255,0.9)",
+                }}
+            >
+                <ToggleButtonGroup
+                    value={activeTab}
+                    exclusive
+                    onChange={(e, newValue) => {
+                        if (newValue !== null) handleTabChange(newValue);
+                    }}
+                    sx={{
+                        width: "100%",
+                        "& .MuiToggleButton-root": {
+                            flex: 1,
+                            fontSize: "10px",
+                            fontWeight: 500,
+                            textTransform: "none",
+                            minHeight: 32,
+                            border: "none",
+                            borderRadius: 0,
+                            color: "#64748b",
+                            backgroundColor: "rgba(30, 41, 59, 0.2)",
+                            "&.Mui-selected": {
+                                color: "#1e293b",
+                                backgroundColor: "transparent",
+                            },
+                            "&:hover": {
+                                backgroundColor: "rgba(30, 41, 59, 0.3)",
+                            },
+                        },
                     }}
                 >
-                    <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '2px',
-                        fontSize: '10px',
-                    }}
-                    >
-                    <Box
-                        sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '2px',
-                        fontSize: '10px',
-                        }}
-                    >
-                        {tabInfo.icon}
-                    </Box>
-                    {tabInfo.label}
-                    <Box>
-                        ({tabInfo.count})
-                    </Box>
-                    </Box>
-                </Button>
-                );
-                })}
+                    {(["pinned", "recent"] as const).map((tab) => {
+                        const tabInfo = getTabInfo(tab);
+
+                        return (
+                            <ToggleButton key={tab} value={tab}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: "2px" }}>
+                                    {tabInfo.icon}
+                                    {tabInfo.label}
+                                    <Box>({tabInfo.count})</Box>
+                                </Box>
+                            </ToggleButton>
+                        );
+                    })}
+                </ToggleButtonGroup>
             </Box>
-            
             {/* İçerik listesi */}
             {currentListings.length === 0 ? (
                 <Box sx={{
@@ -188,10 +182,10 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             position: 'relative',
                             cursor: 'pointer',
                             "&:hover": {
-                              border: '1px solid #1e293b',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                             },
                         }}
-                        onClick={() => handleCardClick(listing)}
+                            onClick={() => handleCardClick(listing)}
                         >
                             {/* Close/Unpin butonu */}
                             <IconButton
@@ -211,14 +205,14 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                             >
                                 <CloseIcon sx={{ fontSize: 12 }} />
                             </IconButton>
-                            
+
                             {/* Resim */}
                             {listing.thumbnailUrl || listing.imageUrl || listing.image ? (
                                 <CardMedia
                                     component="img"
-                                    sx={{ 
+                                    sx={{
                                         width: 80,
-                                        height: '100%', 
+                                        height: '100%',
                                         objectFit: 'cover',
                                         flexShrink: 0
                                     }}
@@ -238,21 +232,21 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                     <ImageIcon sx={{ fontSize: 28, color: '#9ca3af' }} />
                                 </Box>
                             )}
-                            
+
                             {/* İçerik */}
-                            <CardContent sx={{ 
+                            <CardContent sx={{
                                 padding: '4px 6px',
                                 paddingRight: '6px',
-                                flex: 1, 
-                                display: 'flex', 
-                                flexDirection: 'column', 
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 height: '100%',
                                 '&:last-child': { paddingBottom: '4px' }
                             }}>
                                 {/* Başlık */}
-                                <Typography 
-                                    variant="h6" 
+                                <Typography
+                                    variant="h6"
                                     sx={{
                                         fontWeight: 600,
                                         color: '#1e293b',
@@ -273,15 +267,15 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                 </Typography>
 
                                 {/* Alt bilgiler: Adres ve Fiyat dikey sırada */}
-                                <Box sx={{ 
+                                <Box sx={{
                                     display: 'flex',
                                     flexDirection: 'column',
                                     marginTop: 'auto',
                                     gap: '2px'
                                 }}>
                                     {/* Adres Bilgisi */}
-                                    <Typography 
-                                        variant="caption" 
+                                    <Typography
+                                        variant="caption"
                                         sx={{
                                             color: '#9ca3af',
                                             fontSize: '9px',
@@ -290,15 +284,15 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                             whiteSpace: 'nowrap',
                                         }}
                                     >
-                                        {listing.district && listing.neighborhood 
+                                        {listing.district && listing.neighborhood
                                             ? `${listing.neighborhood}, ${listing.district}`
                                             : listing.district || listing.neighborhood || ''
                                         }
                                     </Typography>
-                                    
+
                                     {/* Fiyat */}
-                                    <Typography 
-                                        variant="h6" 
+                                    <Typography
+                                        variant="h6"
                                         sx={{
                                             color: '#ed9517',
                                             fontWeight: 700,
@@ -306,8 +300,8 @@ export default function PinnedPanel({ pinnedListings, onUnpinListing }: PinnedPa
                                             letterSpacing: '-0.1px',
                                         }}
                                     >
-                                        {listing.price ? 
-                                            `${parseInt(listing.price).toLocaleString('tr-TR')} ₺` : 
+                                        {listing.price ?
+                                            `${parseInt(listing.price).toLocaleString('tr-TR')} ₺` :
                                             'Fiyat yok'
                                         }
                                     </Typography>

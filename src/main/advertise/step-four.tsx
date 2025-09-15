@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Box,
     Card,
@@ -16,6 +16,7 @@ import {
     Close,
     PhotoCamera
 } from '@mui/icons-material';
+import { ListingService } from '../services/ListingService.ts';
 
 interface Photo {
     id: string;
@@ -27,9 +28,11 @@ interface Photo {
 interface StepFourProps {
     photos: Photo[];
     setPhotos: (photos: Photo[]) => void;
+    isEditMode?: boolean;
+    listingId?: string;
 }
 
-export default function StepFour({ photos, setPhotos }: StepFourProps) {
+export default function StepFour({ photos, setPhotos, isEditMode, listingId }: StepFourProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -43,6 +46,32 @@ export default function StepFour({ photos, setPhotos }: StepFourProps) {
             isMain: index === 0
         }));
     };
+
+    // StepFour component'inin başına ekleyin
+    /*
+    useEffect(() => {
+        const loadExistingPhotos = async () => {
+            if (isEditMode && listingId && photos.length === 0) {
+                try {
+                    const existingPhotos = await ListingService.getListingPhotos(listingId);
+                    
+                    const formattedPhotos: Photo[] = existingPhotos.map((photo: any, index: number) => ({
+                        id: photo.id || `existing-${index}`,
+                        file: null as any, // Mevcut fotoğraflar için file objesi yok
+                        url: photo.url || photo.imageUrl,
+                        isMain: index === 0 // İlk fotoğraf ana fotoğraf
+                    }));
+                    
+                    setPhotos(formattedPhotos);
+                } catch (error) {
+                    console.error('Mevcut fotoğraflar yüklenemedi:', error);
+                }
+            }
+        };
+
+        loadExistingPhotos();
+    }, [isEditMode, listingId, photos.length]);
+    */
 
     // Fotoğraf yükleme
     const handleFileSelect = async (files: FileList | null) => {

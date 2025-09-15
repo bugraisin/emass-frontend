@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, Card, CardContent, CardMedia, Button, Skeleton, Menu, MenuItem } from '@mui/material';
+import { Box, Typography, Card, CardContent, CardMedia, Button, Skeleton, Menu, MenuItem, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SortIcon from '@mui/icons-material/Sort';
 import { FavoritesService } from './services/FavoritesService.ts';
 import { addToRecentListings } from './pinned-panel.tsx';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 interface FavoriteListing {
     id: string;
@@ -76,7 +75,6 @@ export default function Favorites() {
         return () => window.removeEventListener('favoritesChanged', handleFavoriteChange);
     }, [currentUserId]);
 
-    // Sıralanmış favoriler
     const sortedFavorites = useMemo(() => {
         return [...favorites].sort((a, b) => {
             if (sortBy === 'date') {
@@ -125,73 +123,42 @@ export default function Favorites() {
         setSortAnchorEl(null);
     };
 
-    // Buton metnini ve ok yönünü belirleyen fonksiyon
-    const getSortButtonContent = () => {
-        const isDescending = sortOrder === 'desc';
-        const sortText = sortBy === 'date' ? 'Tarihe Göre' : 'Fiyata Göre';
-        const ArrowIcon = isDescending ? KeyboardArrowDownIcon : KeyboardArrowUpIcon;
-        
-        return { sortText, ArrowIcon };
+    const getSortText = () => {
+        if (sortBy === 'date') {
+            return sortOrder === 'desc' ? 'Tarihe Göre ↓' : 'Tarihe Göre ↑';
+        } else {
+            return sortOrder === 'desc' ? 'Fiyata Göre ↓' : 'Fiyata Göre ↑';
+        }
     };
 
-    const SkeletonLoadingCards = () => (
-        <Box 
-            sx={{ 
-                backgroundColor: '#f1f5f9',
-                borderRadius: '6px',
-                padding: '16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1 // Daha tutarlı gap
-            }}
-        >
-            {/* Header Skeleton - Gerçek header yapısına uygun */}
+const SkeletonLoadingCards = () => (
+    <Box sx={{ 
+        minHeight: '100vh', 
+        padding: '12px' 
+    }}>
+        <Box sx={{ maxWidth: '900px', borderRadius: "8px", backgroundColor: 'rgba(30, 41, 59, 0.1)', margin: '0 auto', padding: "12px" }}>
+            {/* Header Skeleton */}
             <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'space-between', 
-                mb: 1 // Daha az margin
+                justifyContent: 'space-between',
+                mb: 1,
+                p: 1,
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0'
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    {/* Geri butonu skeleton */}
-                    <Skeleton 
-                        variant="rectangular" 
-                        width={40} 
-                        height={40} 
-                        animation="wave"
-                        sx={{ borderRadius: 1 }}
-                    />
-                    {/* Favoriler başlığı skeleton */}
-                    <Skeleton 
-                        variant="text" 
-                        width={80} 
-                        height={24} 
-                        animation="wave"
-                    />
-                    {/* Sayaç skeleton */}
-                    <Skeleton 
-                        variant="rectangular" 
-                        width={30} 
-                        height={20} 
-                        animation="wave"
-                        sx={{ borderRadius: '6px' }}
-                    />
+                    <Skeleton variant="circular" width={40} height={40} />
+                    <Skeleton variant="text" width={120} height={24} />
                 </Box>
-                {/* Sıralama butonu skeleton */}
-                <Skeleton 
-                    variant="rectangular" 
-                    width={100} 
-                    height={32} 
-                    animation="wave"
-                    sx={{ borderRadius: '6px' }}
-                />
+                <Skeleton variant="rectangular" width={100} height={32} sx={{ borderRadius: '6px' }} />
             </Box>
-            
-            {/* İlan kartları skeleton - MainPanel card yapısına uygun */}
-            {Array.from({ length: 6 }).map((_, index) => (
-                <Card
-                    key={index}
-                    sx={{
+
+            {/* Cards Skeleton */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {Array.from({ length: 8 }).map((_, index) => (
+                    <Card key={index} sx={{
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
@@ -200,139 +167,60 @@ export default function Favorites() {
                         border: '1px solid #e5e7eb',
                         boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                         overflow: 'hidden',
-                        height: '160px' // Gerçek kartlarla aynı yükseklik
-                    }}
-                >
-                    {/* Fotoğraf skeleton */}
-                    <Skeleton 
-                        variant="rectangular" 
-                        width={200} 
-                        height="100%" 
-                        animation="wave"
-                    />
-                    
-                    <CardContent sx={{ 
-                        padding: '12px 16px', // Gerçek padding değerleri
-                        flex: 1, 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        justifyContent: 'space-between',
-                        height: '100%',
-                        '&:last-child': { paddingBottom: '12px' }
+                        height: '120px'
                     }}>
-                        {/* 1. SATIR: Tarih (sol) ve Butonlar (sağ) */}
-                        <Box sx={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center',
-                            height: '28px', // Gerçek yükseklik
-                            marginBottom: '8px'
-                        }}>
-                            {/* Tarih skeleton */}
-                            <Skeleton 
-                                variant="text" 
-                                width="25%" 
-                                height={14} 
-                                animation="wave"
-                            />
-                            
-                            {/* Butonlar skeleton */}
-                            <Box sx={{ display: 'flex', gap: 1.5 }}>
-                                <Skeleton 
-                                    variant="text" 
-                                    width={50} 
-                                    height={14} 
-                                    animation="wave"
-                                />
-                                <Skeleton 
-                                    variant="text" 
-                                    width={80} 
-                                    height={14} 
-                                    animation="wave"
-                                />
-                            </Box>
-                        </Box>
+                        {/* Image Skeleton */}
+                        <Skeleton variant="rectangular" width={140} height="100%" />
                         
-                        {/* 2. SATIR: Başlık */}
-                        <Box sx={{ 
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            marginBottom: '8px'
-                        }}>
-                            <Box sx={{ width: '100%' }}>
-                                <Skeleton 
-                                    variant="text" 
-                                    width="85%" 
-                                    height={20} 
-                                    animation="wave"
-                                    sx={{ mb: 0.5 }}
-                                />
-                                <Skeleton 
-                                    variant="text" 
-                                    width="60%" 
-                                    height={20} 
-                                    animation="wave"
-                                />
-                            </Box>
-                        </Box>
-                        
-                        {/* 3. SATIR: Adres (sol) ve Fiyat (sağ) */}
-                        <Box sx={{ 
+                        <CardContent sx={{ 
+                            padding: '8px 12px', 
+                            flex: 1, 
                             display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center',
-                            height: '24px' // Gerçek yükseklik
+                            flexDirection: 'column', 
+                            justifyContent: 'space-between',
+                            height: '100%',
+                            '&:last-child': { paddingBottom: '8px' }
                         }}>
-                            {/* Adres skeleton */}
-                            <Skeleton 
-                                variant="text" 
-                                width="45%" 
-                                height={16} 
-                                animation="wave"
-                            />
+                            {/* First Row: Date and Button */}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Skeleton variant="text" width={60} height={14} />
+                                <Skeleton variant="rectangular" width={100} height={24} sx={{ borderRadius: '6px' }} />
+                            </Box>
                             
-                            {/* Fiyat skeleton */}
-                            <Skeleton 
-                                variant="text" 
-                                width="35%" 
-                                height={20} 
-                                animation="wave"
-                            />
-                        </Box>
-                    </CardContent>
-                </Card>
-            ))}
+                            {/* Second Row: Title */}
+                            <Skeleton variant="text" width="80%" height={18} />
+                            
+                            {/* Third Row: Location and Price */}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Skeleton variant="text" width="40%" height={16} />
+                                <Skeleton variant="text" width="30%" height={18} />
+                            </Box>
+                        </CardContent>
+                    </Card>
+                ))}
+            </Box>
         </Box>
-    );
+    </Box>
+);
 
     if (loading) {
-        return (
-            <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', padding: '16px' }}>
-                <Box sx={{ maxWidth: '900px', margin: '0 auto' }}>
-                    <SkeletonLoadingCards />
-                </Box>
-            </Box>
-        );
+        return <SkeletonLoadingCards />;
     }
 
     if (favorites.length === 0) {
         return (
             <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', padding: '16px' }}>
                 <Box sx={{ maxWidth: '900px', margin: '0 auto' }}>
-                    <Box 
-                        sx={{ 
-                            backgroundColor: '#f1f5f9',
-                            borderRadius: '6px',
-                            padding: '16px',
-                            display: 'flex',
-                            flexDirection: 'column'
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                            <Button onClick={() => navigate('/')} sx={{ minWidth: 'auto', p: 1 }}>
+                    <Box sx={{
+                        backgroundColor: 'white',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        padding: '24px'
+                    }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
+                            <IconButton onClick={() => navigate('/')} sx={{ color: '#64748b' }}>
                                 <ArrowBackIcon />
-                            </Button>
+                            </IconButton>
                             <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b' }}>
                                 Favoriler
                             </Typography>
@@ -353,7 +241,10 @@ export default function Favorites() {
                                     textTransform: 'none',
                                     fontWeight: 600,
                                     borderRadius: '8px',
-                                    px: 3
+                                    px: 3,
+                                    '&:hover': {
+                                        backgroundColor: '#d97706'
+                                    }
                                 }}
                             >
                                 İlanları Keşfet
@@ -366,308 +257,233 @@ export default function Favorites() {
     }
 
     return (
-        <Box sx={{ minHeight: '100vh', padding: '16px' }}>
-            <Box sx={{ maxWidth: '900px', margin: '0 auto' }}>
-                <Box 
-                    sx={{ 
-                        backgroundColor: 'rgba(30, 41, 59, 0.2)',
-                        borderRadius: '6px',
-                        padding: '16px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1
-                    }}
-                >
-                    {/* Header */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <Box sx={{ minHeight: '100vh', padding: '12px' }}>
+            <Box sx={{ maxWidth: '900px', borderRadius: "8px", backgroundColor: 'rgba(30, 41, 59, 0.1)', margin: '0 auto', padding: "12px" }}>
+                {/* Header */}
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 1,
+                    p: 1,
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0'
+                }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Button 
-                            onClick={() => navigate('/')} 
-                            sx={{ minWidth: 'auto', color: "#1e293b" }}
-                        >
+                        <IconButton onClick={() => navigate('/')} sx={{ color: '#64748b' }}>
                             <ArrowBackIcon />
-                        </Button>
-                        
-                        <Typography 
-                            variant="h6" 
-                            sx={{ fontWeight: 600, color: '#1e293b' }}
-                        >
-                            Favoriler
+                        </IconButton>
+                        <Typography variant="h6" sx={{ fontWeight: 500, color: '#1e293b' }}>
+                            Favoriler ({favorites.length})
                         </Typography>
-                        
-                        <Typography 
-                            sx={{
-                                color: '#374151',
-                                fontWeight: 600,
-                                fontSize: '17px',
-                            }}
-                        >
-                            ({favorites.length})
-                        </Typography>
-                    </Box>
-                        
-                        {/* Sıralama Butonu */}
-                        <Button
-                            onClick={handleSortClick}
-                            endIcon={React.createElement(getSortButtonContent().ArrowIcon)}
-                            sx={{
-                                backgroundColor: 'white',
-                                color: '#64748b',
-                                border: '1px solid #d1d5db',
-                                borderRadius: '6px',
-                                textTransform: 'none',
-                                fontSize: '13px',
-                                fontWeight: 500,
-                                '&:hover': {
-                                    backgroundColor: '#f8fafc'
-                                }
-                            }}
-                        >
-                            {getSortButtonContent().sortText}
-                        </Button>
                     </Box>
 
-                    {/* İlanlar */}
+                    <Button
+                        onClick={handleSortClick}
+                        startIcon={<SortIcon />}
+                        sx={{
+                            color: '#64748b',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '6px',
+                            textTransform: 'none',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            '&:hover': {
+                                backgroundColor: '#f8fafc',
+                                borderColor: '#cbd5e1'
+                            }
+                        }}
+                    >
+                        {getSortText()}
+                    </Button>
+                </Box>
+
+                {/* Listings */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {sortedFavorites.map((listing) => (
-                        <Card
-                            key={listing.id}
-                            sx={{
-                                display: "flex",
-                                flexDirection: "row",
-                                alignItems: "center",
-                                cursor: "pointer",
-                                background: '#fff',
-                                borderRadius: '6px',
-                                border: '1px solid #e5e7eb',
-                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                                overflow: 'hidden',
-                                height: '160px',
-                                position: 'relative',
-                                "&:hover": {
-                                    border: '1px solid #1e293b',
-                                },
+                <Card
+                    key={listing.id}
+                    onClick={() => handleCardClick(listing)}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        background: '#fff',
+                        borderRadius: '6px',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                        overflow: 'hidden',
+                        height: '120px',
+                        position: 'relative',
+                        "&:hover": {
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                        },  
+                    }}
+                >
+                    {/* Image */}
+                    {listing.thumbnailUrl || listing.imageUrl ? (
+                        <CardMedia
+                            component="img"
+                            sx={{ 
+                                width: 140, 
+                                height: '100%', 
+                                objectFit: 'cover',
+                                flexShrink: 0
                             }}
-                            onClick={() => handleCardClick(listing)}
-                        >
-                            {listing.thumbnailUrl || listing.imageUrl ? (
-                                <CardMedia
-                                    component="img"
-                                    sx={{ 
-                                        width: 200, 
-                                        height: '100%', 
-                                        objectFit: 'cover',
-                                        flexShrink: 0
+                            image={listing.thumbnailUrl || listing.imageUrl}
+                            alt={listing.title}
+                        />
+                    ) : (
+                        <Box sx={{
+                            width: 120,
+                            height: '100%',
+                            backgroundColor: '#f1f5f9',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            color: '#94a3b8',
+                            fontSize: '12px'
+                        }}>
+                            Fotoğraf Yok
+                        </Box>
+                    )}
+
+                    {/* Content */}
+                    <CardContent sx={{ 
+                        padding: '8px 12px',
+                        flex: 1, 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        height: '100%',
+                        '&:last-child': { paddingBottom: '8px' }
+                    }}>
+                        {/* First Row: Date and Actions */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                        }}>
+                            <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '11px' }}>
+                                {listing.createdAt ? 
+                                    new Date(listing.createdAt).toLocaleDateString('tr-TR', {
+                                        day: 'numeric',
+                                        month: 'short',
+                                        year: 'numeric'
+                                    }) : 
+                                    'Tarih yok'
+                                }
+                            </Typography>
+
+                            <Box sx={{ display: 'flex' }}>
+                                <Button
+                                    onClick={(e) => handleRemoveFromFavorites(e, listing.id)}
+                                    size="small"
+                                    startIcon={<FavoriteIcon sx={{ fontSize: 14 }} />}
+                                    sx={{
+                                        minWidth: 'auto',
+                                        backgroundColor: 'rgba(255,255,255,0.9)',
+                                        border: '1px solid rgba(0,0,0,0.1)',
+                                        borderRadius: '6px',
+                                        color: '#dc2626',
+                                        fontSize: '10px',
+                                        textTransform: 'none',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                                            color: '#ef4444',
+                                            borderColor: '#ef4444'
+                                        }
                                     }}
-                                    image={listing.thumbnailUrl || listing.imageUrl}
-                                    alt={listing.title}
-                                />
-                            ) : (
-                                <Box sx={{
-                                    width: 200,
-                                    height: '100%',
-                                    backgroundColor: '#f3f4f6',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexShrink: 0
-                                }}>
-                                    <img 
-                                        src="https://via.placeholder.com/200x160/f3f4f6/9ca3af?text=No+Image" 
-                                        alt="Fotoğraf yok" 
-                                        style={{ 
-                                            width: '100%', 
-                                            height: '100%', 
-                                            objectFit: 'cover' 
-                                        }} 
-                                    />
-                                </Box>
-                            )}
-                              
-                            <CardContent sx={{ 
-                                padding: '12px 16px', 
-                                flex: 1, 
-                                display: 'flex', 
-                                flexDirection: 'column',
-                                height: '100%',
-                                '&:last-child': { paddingBottom: '12px' }
-                            }}>
-                                {/* 1. SATIR: Tarih (sol) ve Butonlar (sağ) */}
-                                <Box sx={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    alignItems: 'center',
-                                    height: '28px',
-                                    marginBottom: '8px'
-                                }}>
-                                    {/* Tarih */}
-                                    <Typography 
-                                        variant="caption" 
-                                        sx={{
-                                            color: '#9ca3af',
-                                            fontSize: '12px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            maxWidth: '60%'
-                                        }}
-                                    >
-                                        {listing.createdAt ? 
-                                            new Date(listing.createdAt).toLocaleDateString('tr-TR', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric'
-                                            }) : 
-                                            'Tarih yok'
-                                        }
-                                    </Typography>
-                                      
-                                    {/* Butonlar */}
-                                    <Box sx={{ display: 'flex', gap: 1.5 }}>
-                                        {/* Share butonu */}
-                                        <Typography
-                                            onClick={(e) => handleShareListing(e, listing.id)}
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 0.5,
-                                                color: '#64748b',
-                                                fontSize: '12px',
-                                                fontWeight: 500,
-                                                cursor: 'pointer',
-                                                '&:hover': { 
-                                                    textDecoration: 'underline',
-                                                    color: '#3b82f6'
-                                                }
-                                            }}
-                                        >
-                                            <ShareIcon sx={{ fontSize: 12 }} />
-                                            Paylaş
-                                        </Typography>
-                                        
-                                        {/* Favoriden çıkar butonu */}
-                                        <Typography
-                                            onClick={(e) => handleRemoveFromFavorites(e, listing.id)}
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 0.5,
-                                                color: '#dc2626',
-                                                fontSize: '12px',
-                                                fontWeight: 500,
-                                                cursor: 'pointer',
-                                                '&:hover': { 
-                                                    textDecoration: 'underline',
-                                                    color: '#ef4444'
-                                                }
-                                            }}
-                                        >
-                                            <FavoriteIcon sx={{ fontSize: 12 }} />
-                                            Favoriden Çıkar
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                                
-                                {/* 2. SATIR: Başlık */}
-                                <Box sx={{ 
-                                    flex: 1,
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    marginBottom: '8px'
-                                }}>
-                                    <Typography 
-                                        variant="h6" 
-                                        sx={{
-                                            fontWeight: 600,
-                                            color: '#1e293b',
-                                            fontSize: '16px',
-                                            letterSpacing: '-0.1px',
-                                            lineHeight: 1.3,
-                                            overflow: 'hidden',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: 'vertical',
-                                            wordBreak: 'break-word',
-                                            width: '100%'
-                                        }}
-                                    >
-                                        {listing.title}
-                                    </Typography>
-                                </Box>
-                                
-                                {/* 3. SATIR: Adres (sol) ve Fiyat (sağ) */}
-                                <Box sx={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    alignItems: 'center',
-                                    height: '24px'
-                                }}>
-                                    {/* Adres */}
-                                    <Typography 
-                                        variant="body2" 
-                                        sx={{
-                                            color: '#64748b',
-                                            fontSize: '14px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            maxWidth: '55%'
-                                        }}
-                                    >
-                                        {listing.district && listing.neighborhood 
-                                            ? `${listing.district}, ${listing.neighborhood}`
-                                            : listing.district || listing.neighborhood || 'Konum bilgisi yok'
-                                        }
-                                    </Typography>
-                                    
-                                    {/* Fiyat */}
-                                    <Typography 
-                                        variant="h6" 
-                                        sx={{
-                                            color: '#ed9517',
-                                            fontWeight: 700,
-                                            fontSize: '18px',
-                                            letterSpacing: '-0.1px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            maxWidth: '40%',
-                                            textAlign: 'right'
-                                        }}
-                                    >
-                                        {listing.price ? 
-                                            `${parseInt(listing.price).toLocaleString('tr-TR')} ₺` : 
-                                            'Fiyat yok'
-                                        }
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
+                                >
+                                    Favorilerden Çıkar
+                                </Button>
+                            </Box>
+                        </Box>
+
+                        {/* Second Row: Title */}
+                        <Typography 
+                            variant="subtitle1" 
+                            sx={{
+                                fontWeight: 600,
+                                color: '#1e293b',
+                                fontSize: '14px',
+                                overflow: 'hidden',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical'
+                            }}
+                        >
+                            {listing.title}
+                        </Typography>
+                        {/* Third Row: Location and Price */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            mt: 'auto'
+                        }}>
+                            <Typography 
+                                variant="body2" 
+                                sx={{
+                                    color: '#64748b',
+                                    fontSize: '12px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    maxWidth: '50%'
+                                }}
+                            >
+                                {listing.district && listing.neighborhood 
+                                    ? `${listing.district}, ${listing.neighborhood}`
+                                    : listing.district || listing.neighborhood || 'Konum bilgisi yok'
+                                }
+                            </Typography>
+                            
+                            <Typography 
+                                variant="subtitle1" 
+                                sx={{
+                                    color: '#ed9517',
+                                    fontWeight: 700,
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {listing.price ? 
+                                    `${parseInt(listing.price).toLocaleString('tr-TR')} ₺` : 
+                                    'Fiyat yok'
+                                }
+                            </Typography>
+                        </Box>
+                                        </CardContent>
+                </Card>
                     ))}
                 </Box>
 
-                {/* Sıralama Menu */}
+                {/* Sort Menu */}
                 <Menu
                     anchorEl={sortAnchorEl}
                     open={Boolean(sortAnchorEl)}
                     onClose={handleSortClose}
                     PaperProps={{
                         sx: {
-                            borderRadius: '6px',
-                            border: '1px solid #e5e7eb',
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                            mt: 1
                         }
                     }}
                 >
-                    <MenuItem onClick={() => handleSortSelect('date', 'desc')} sx={{ fontSize: '14px' }}>
+                    <MenuItem onClick={() => handleSortSelect('date', 'desc')} sx={{ fontSize: '14px', py: 1 }}>
                         Tarihe Göre (Yeniden Eskiye)
                     </MenuItem>
-                    <MenuItem onClick={() => handleSortSelect('date', 'asc')} sx={{ fontSize: '14px' }}>
+                    <MenuItem onClick={() => handleSortSelect('date', 'asc')} sx={{ fontSize: '14px', py: 1 }}>
                         Tarihe Göre (Eskiden Yeniye)
                     </MenuItem>
-                    <MenuItem onClick={() => handleSortSelect('price', 'desc')} sx={{ fontSize: '14px' }}>
+                    <MenuItem onClick={() => handleSortSelect('price', 'desc')} sx={{ fontSize: '14px', py: 1 }}>
                         Fiyata Göre (Yüksekten Düşüğe)
                     </MenuItem>
-                    <MenuItem onClick={() => handleSortSelect('price', 'asc')} sx={{ fontSize: '14px' }}>
+                    <MenuItem onClick={() => handleSortSelect('price', 'asc')} sx={{ fontSize: '14px', py: 1 }}>
                         Fiyata Göre (Düşükten Yükseğe)
                     </MenuItem>
                 </Menu>
