@@ -72,7 +72,6 @@ export default function UserAccount() {
 
     const handleSave = async () => {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
         setUserData(prev => ({
             ...prev,
             firstName: formData.firstName,

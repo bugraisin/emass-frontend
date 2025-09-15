@@ -202,7 +202,7 @@ export class ListingService {
       const errorMessage = error.response?.data?.message || error.message || 'İlan silinemedi';
       throw new Error(errorMessage);
     }
-  }
+  } 
 
   /**
  * İlan durumunu güncelleme (yayınla/yayından kaldır)

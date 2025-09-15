@@ -26,7 +26,6 @@ export default function Main() {
     useEffect(() => {
         const loadAllListings = async () => {
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000));
                 const listings = await ListingService.getAllListings();
                 setSearchResults(listings);
             } catch (error) {

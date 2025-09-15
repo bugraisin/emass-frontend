@@ -210,7 +210,6 @@ export default function UserListings() {
         const loadUserListings = async () => {
             setLoading(true);
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000));
                 const listingData = await ListingService.getUserListings(currentUserId);
                 const mappedListings: UserListing[] = listingData.map((item: any) => ({
                     id: item.id,

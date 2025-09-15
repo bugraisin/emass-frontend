@@ -32,7 +32,6 @@ export default function Favorites() {
         const loadFavorites = async () => {
             setLoading(true);
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000));
                 const favoriteData = await FavoritesService.getFavoriteListings(currentUserId);
                 const mappedFavorites: FavoriteListing[] = favoriteData.map((item: any) => ({
                     id: item.id,

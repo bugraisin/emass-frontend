@@ -8,13 +8,13 @@ import StepFive from "./step-five.tsx";
 import { ArrowBack, ArrowForward, CheckCircle } from "@mui/icons-material";
 import StepSixOffice from "./step-six/step-six-office.tsx";
 import StepSixHouse from "./step-six/step-six-house.tsx";
-import { 
-  HousingDetails, 
-  OfficeDetails, 
-  CommercialDetails,
-  IndustrialDetails,
-  LandDetails,
-  ServiceDetails 
+import {
+    HousingDetails,
+    OfficeDetails,
+    CommercialDetails,
+    IndustrialDetails,
+    LandDetails,
+    ServiceDetails
 } from './details/propert-details.ts';
 import StepSixCommercial from "./step-six/step-six-commercial.tsx";
 import StepSixIndustrial from "./step-six/step-six-industrial.tsx";
@@ -59,22 +59,22 @@ export default function Advert() {
     const [city, setCity] = useState<string>("");
     const [district, setDistrict] = useState<string>("");
     const [neighborhood, setNeighborhood] = useState<string>("");
-    
+
     // StepFive state'leri
     const [latitude, setLatitude] = useState<number | null>(null);
     const [longitude, setLongitude] = useState<number | null>(null);
 
     // Property detay state'leri
     const [housingDetails, setHousingDetails] = useState<HousingDetails | {}>({});
-    const [commercialDetails, setCommercialDetails] = useState<CommercialDetails| {}>({});
+    const [commercialDetails, setCommercialDetails] = useState<CommercialDetails | {}>({});
     const [officeDetails, setOfficeDetails] = useState<OfficeDetails | {}>({});
-    const [industrialDetails, setIndustrialDetails] = useState<IndustrialDetails| {}>({});
-    const [landDetails, setLandDetails] = useState<LandDetails| {}>({});
-    const [serviceDetails, setServiceDetails] = useState<ServiceDetails| {}>({});
+    const [industrialDetails, setIndustrialDetails] = useState<IndustrialDetails | {}>({});
+    const [landDetails, setLandDetails] = useState<LandDetails | {}>({});
+    const [serviceDetails, setServiceDetails] = useState<ServiceDetails | {}>({});
 
     const { id } = useParams<{ id?: string }>();
     const isEditMode = !!id;
-    
+
     // Fotoğraflar state'i
     const [photos, setPhotos] = useState<Photo[]>([]);
 
@@ -98,7 +98,7 @@ export default function Advert() {
             case 'ENDUSTRIYEL': return setIndustrialDetails;
             case 'ARSA': return setLandDetails;
             case 'HIZMET': return setServiceDetails;
-            default: return () => {};
+            default: return () => { };
         }
     };
 
@@ -120,45 +120,45 @@ export default function Advert() {
 
     const submitListing = async () => {
         const userId = JSON.parse(localStorage.getItem('user') || '{}')?.userId;
-        
+
         if (!userId) {
             setErrorMessage('Kullanıcı bilgisi bulunamadı. Lütfen giriş yapın.');
             setShowError(true);
             return;
         }
-        
-        const listingData = {
-            ownerId: userId,
-            title,
-            description,
-            listingType,
-            propertyType,
-            price: parseFloat(price),
-            city,
-            district,
-            neighborhood,
-            latitude: latitude!,
-            longitude: longitude!,
-            
-            ...(propertyType === 'KONUT' && { 
-                housingDetails: { subtype, ...housingDetails } 
-            }),
-            ...(propertyType === 'TICARI' && { 
-                commercialDetails: { subtype, ...commercialDetails } 
-            }),
-            ...(propertyType === 'OFIS' && { 
-                officeDetails: { subtype, ...officeDetails } 
-            }),
-            ...(propertyType === 'ENDUSTRIYEL' && { 
-                industrialDetails: { subtype, ...industrialDetails } 
-            }),
-            ...(propertyType === 'ARSA' && { 
-                landDetails: { subtype, ...landDetails } 
-            }),
-            ...(propertyType === 'HIZMET' && { 
-                serviceDetails: { subtype, ...serviceDetails } 
-            })
-        };
+
+            const listingData = {
+                ownerId: userId,
+                title,
+                description,
+                listingType,
+                propertyType,
+                price: parseFloat(price),
+                city,
+                district,
+                neighborhood,
+                latitude: latitude!,
+                longitude: longitude!,
+
+                ...(propertyType === 'KONUT' && {
+                    housingDetails: { subtype, ...housingDetails }
+                }),
+                ...(propertyType === 'TICARI' && {
+                    commercialDetails: { subtype, ...commercialDetails }
+                }),
+                ...(propertyType === 'OFIS' && {
+                    officeDetails: { subtype, ...officeDetails }
+                }),
+                ...(propertyType === 'ENDUSTRIYEL' && {
+                    industrialDetails: { subtype, ...industrialDetails }
+                }),
+                ...(propertyType === 'ARSA' && {
+                    landDetails: { subtype, ...landDetails }
+                }),
+                ...(propertyType === 'HIZMET' && {
+                    serviceDetails: { subtype, ...serviceDetails }
+                })
+            };
         
         try {
             setIsLoading(true);
@@ -183,9 +183,9 @@ export default function Advert() {
                     return;
                 }
             }
-            
+
             setShowSuccess(true);
-            
+
         } catch (error) {
             const errorMsg = error instanceof Error ? error.message : 'Bilinmeyen bir hata oluştu';
             const operation = isEditMode ? 'güncellenirken' : 'oluşturulurken';
@@ -290,7 +290,7 @@ export default function Advert() {
         if (propertyType && subtype) {
             const currentDetails = getCurrentDetails();
             const currentSetter = getCurrentDetailsSetter();
-            
+
             if (Object.keys(currentDetails).length === 0) {
                 const initialDetails = {
                     subtype,
@@ -311,7 +311,7 @@ export default function Advert() {
         setIsLoading(true);
         try {
             const existingListing = await ListingService.getListingById(listingId);
-            
+
             // Tüm form alanlarını doldur
             setListingType(existingListing.listingType);
             setPropertyType(existingListing.propertyType);
@@ -324,7 +324,7 @@ export default function Advert() {
             setNeighborhood(existingListing.neighborhood);
             setLatitude(existingListing.latitude);
             setLongitude(existingListing.longitude);
-            
+
             if (existingListing.details) {
                 switch (existingListing.propertyType) {
                     case 'KONUT':
@@ -347,7 +347,7 @@ export default function Advert() {
                         break;
                 }
             }
-            
+
         } catch (error) {
             setErrorMessage('İlan bilgileri yüklenemedi');
             setShowError(true);
@@ -361,7 +361,7 @@ export default function Advert() {
             setActiveStep(stepIndex);
         }
     };
-    
+
     return (
         <Box sx={{
             display: 'flex',
@@ -385,59 +385,59 @@ export default function Advert() {
                 position: 'relative',
             }}>
                 <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: 1 }}>
-                <Stepper activeStep={activeStep} sx={{ 
-                    width: '90%',
-                    '& .MuiStepConnector-line': {
-                        borderTopWidth: 3,
-                        borderColor: '#e2e8f0'
-                    },
-                    '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': {
-                        borderColor: '#475569'
-                    },
-                    '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
-                        borderColor: '#1e293b'
-                    }
-                }}>
-                    {steps.map((label, index) => (
-                        <Step key={label}>
-                            <StepLabel 
-                                onClick={() => handleStepClick(index)} // Tıklama handler'ı ekle
-                                sx={{
-                                    cursor: 'pointer', // Cursor değiştir
-                                    '& .MuiStepLabel-label': {
-                                        color: activeStep === index ? '#1e293b' : '#64748b',
-                                        fontWeight: activeStep === index ? 700 : 500,
-                                        fontSize: '0.9rem',
-                                        transition: 'all 0.3s ease',
+                    <Stepper activeStep={activeStep} sx={{
+                        width: '90%',
+                        '& .MuiStepConnector-line': {
+                            borderTopWidth: 3,
+                            borderColor: '#e2e8f0'
+                        },
+                        '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': {
+                            borderColor: '#475569'
+                        },
+                        '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': {
+                            borderColor: '#1e293b'
+                        }
+                    }}>
+                        {steps.map((label, index) => (
+                            <Step key={label}>
+                                <StepLabel
+                                    onClick={() => handleStepClick(index)}
+                                    sx={{
                                         cursor: 'pointer',
-                                        '&:hover': {
-                                            color: '#1e293b'
-                                        }
-                                    },
-                                    '& .MuiStepIcon-root': {
-                                        color: activeStep >= index ? '#475569' : '#cbd5e1',
-                                        fontSize: '1.8rem',
-                                        transition: 'all 0.3s ease',
-                                        cursor: 'pointer',
-                                        '&:hover': {
-                                            transform: 'scale(1.05)', // Hover efekti
-                                            color: '#1e293b'
+                                        '& .MuiStepLabel-label': {
+                                            color: activeStep === index ? '#1e293b' : '#64748b',
+                                            fontWeight: activeStep === index ? 700 : 500,
+                                            fontSize: '0.9rem',
+                                            transition: 'all 0.3s ease',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                color: '#1e293b'
+                                            }
                                         },
-                                        '&.Mui-active': {
-                                            color: '#1e293b',
-                                            transform: 'scale(1.1)'
-                                        },
-                                        '&.Mui-completed': {
-                                            color: '#1e293b',
+                                        '& .MuiStepIcon-root': {
+                                            color: activeStep >= index ? '#475569' : '#cbd5e1',
+                                            fontSize: '1.8rem',
+                                            transition: 'all 0.3s ease',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                transform: 'scale(1.05)',
+                                                color: '#1e293b'
+                                            },
+                                            '&.Mui-active': {
+                                                color: '#1e293b',
+                                                transform: 'scale(1.1)'
+                                            },
+                                            '&.Mui-completed': {
+                                                color: '#1e293b',
+                                            }
                                         }
-                                    }
-                                }}
-                            >
-                                {label}
-                            </StepLabel>
-                        </Step>
-                    ))}
-                </Stepper>
+                                    }}
+                                >
+                                    {label}
+                                </StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', flex: 1, minHeight: '500px' }}>
@@ -451,7 +451,7 @@ export default function Advert() {
                             setSubtype={setSubtype}
                         />
                     )}
-                    
+
                     {activeStep === 1 && (
                         <StepTwo
                             listingType={listingType}
@@ -471,7 +471,7 @@ export default function Advert() {
                             setNeighborhood={setNeighborhood}
                         />
                     )}
-                    
+
                     {activeStep === 2 && (
                         <StepThree
                             listingType={listingType}
@@ -481,14 +481,14 @@ export default function Advert() {
                             setDetails={getCurrentDetailsSetter()}
                         />
                     )}
-                    
+
                     {activeStep === 3 && (
                         <StepFour
                             photos={photos}
                             setPhotos={setPhotos}
                         />
                     )}
-                    
+
                     {activeStep === 4 && (
                         <StepFive
                             latitude={latitude}
@@ -497,7 +497,7 @@ export default function Advert() {
                             setLongitude={setLongitude}
                         />
                     )}
-                    
+
                     {activeStep === 5 && (() => {
                         const StepComponent = StepSixComponents[propertyType as keyof typeof StepSixComponents];
                         return StepComponent ? <StepComponent {...stepSixProps} /> : null;
@@ -519,9 +519,9 @@ export default function Advert() {
                             backgroundColor: (activeStep === 0 || isLoading) ? '#f1f5f9' : '#64748b',
                             color: (activeStep === 0 || isLoading) ? '#9ca3af' : 'white',
                             borderRadius: '8px',
-                            border: `1px solid ${(activeStep === 0 || isLoading) ? '#e5e7eb' : '#64748b'}`, 
+                            border: `1px solid ${(activeStep === 0 || isLoading) ? '#e5e7eb' : '#64748b'}`,
                             '&:hover': {
-                                backgroundColor: (activeStep === 0 || isLoading) ? '#f1f5f9' : '#475569', 
+                                backgroundColor: (activeStep === 0 || isLoading) ? '#f1f5f9' : '#475569',
                                 borderColor: (activeStep === 0 || isLoading) ? '#e5e7eb' : '#475569',
                             }
                         }}
@@ -540,9 +540,9 @@ export default function Advert() {
                             width: '10%',
                             display: 'flex',
                             justifyContent: 'center',
-                            backgroundColor: (isNextButtonDisabled() || isLoading) ? '#e5e7eb' : (activeStep === 5 ? '#059669' : '#475569'), 
+                            backgroundColor: (isNextButtonDisabled() || isLoading) ? '#e5e7eb' : (activeStep === 5 ? '#059669' : '#475569'),
                             color: 'white',
-                            borderRadius: '8px', 
+                            borderRadius: '8px',
                             '&:hover': {
                                 backgroundColor: (isNextButtonDisabled() || isLoading) ? '#e5e7eb' : (activeStep === 5 ? '#047857' : '#334155'),
                             },
@@ -554,11 +554,11 @@ export default function Advert() {
                         endIcon={isLoading ? null : <ArrowForward />}
                     >
                         {isLoading ? "Gönderiliyor..." : 
-                         activeStep === 0 ? "İleri" : 
-                         activeStep === 1 ? "İleri" : 
-                         activeStep === 2 ? "İleri" : 
-                         activeStep === 3 ? "İleri" : 
-                         activeStep === 4 ? "İleri" :
+                            activeStep === 0 ? "İleri" :
+                                activeStep === 1 ? "İleri" :
+                                    activeStep === 2 ? "İleri" :
+                                        activeStep === 3 ? "İleri" :
+                                            activeStep === 4 ? "İleri" :
                          "Tamamla"}
                     </Button>
                 </Box>

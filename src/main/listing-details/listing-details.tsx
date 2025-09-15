@@ -64,7 +64,6 @@ export default function ListingDetails() {
       setListing(null);
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
         const listingData = await ListingService.getListingById(id);
         setListing(listingData);
       } catch (error: any) {
